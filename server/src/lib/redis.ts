@@ -1,4 +1,4 @@
-import Redis from 'ioredis';
+import { createClient, type RedisClientType } from 'redis';
 
 import { config } from '../config/index.js';
 
@@ -27,21 +27,15 @@ class NoopRedisClient implements RedisClient {
   }
 }
 
-class IoredisClient implements RedisClient {
-  private readonly client: Redis;
+class OfficialRedisClient implements RedisClient {
+  private readonly client: RedisClientType;
   private available = true;
 
   constructor(url: string) {
-    this.client = new Redis(url, {
-      lazyConnect: true,
-      maxRetriesPerRequest: 1,
-      enableOfflineQueue: false,
-    });
-
+    this.client = createClient({ url });
     this.client.on('error', () => {
       this.available = false;
     });
-
     this.client.on('connect', () => {
       this.available = true;
     });
@@ -73,7 +67,7 @@ class IoredisClient implements RedisClient {
     }
     try {
       if (ttlSeconds !== undefined) {
-        await this.client.set(key, value, 'EX', ttlSeconds);
+        await this.client.set(key, value, { EX: ttlSeconds });
       } else {
         await this.client.set(key, value);
       }
@@ -87,7 +81,7 @@ class IoredisClient implements RedisClient {
       return 0;
     }
     try {
-      return await this.client.del(...keys);
+      return await this.client.del(keys);
     } catch {
       this.available = false;
       return 0;
@@ -104,9 +98,14 @@ export async function initRedis(): Promise<void> {
     return;
   }
 
-  const client = new IoredisClient(config.redisUrl);
+  const client = new OfficialRedisClient(config.redisUrl);
   try {
-    await client.connect();
+    await Promise.race([
+      client.connect(),
+      new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('redis connect timeout')), 3000);
+      }),
+    ]);
     console.log('[redis] connected');
     redisClient = client;
   } catch (error) {

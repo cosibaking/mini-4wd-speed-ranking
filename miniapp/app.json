@@ -11,21 +11,22 @@
     "pages/community/post",
     "pages/community/create",
     "pages/user/index",
+    "pages/user/profile",
     "pages/user/tracks",
     "pages/user/records",
     "pages/user/following"
   ],
   "window": {
-    "navigationBarBackgroundColor": "#2D6A4F",
+    "navigationBarBackgroundColor": "#E85D04",
     "navigationBarTitleText": "公园四驱·圈速打榜",
     "navigationBarTextStyle": "white",
     "backgroundColor": "#F5F5F5"
   },
   "tabBar": {
-    "color": "#666666",
-    "selectedColor": "#2D6A4F",
+    "color": "#999999",
+    "selectedColor": "#E85D04",
     "backgroundColor": "#ffffff",
-    "borderStyle": "black",
+    "borderStyle": "white",
     "list": [
       {
         "pagePath": "pages/index/index",
@@ -55,10 +56,15 @@
   },
   "permission": {
     "scope.userLocation": {
-      "desc": "用于计算赛道距离和地图导航"
+      "desc": "用于在地图上显示当前位置、计算赛道距离和导航"
     }
   },
   "requiredPrivateInfos": ["getLocation", "chooseLocation"],
+  "navigateToMiniProgramAppIdList": [
+    "wx5bc2ae712e694a62",
+    "wx7646beb07707391a",
+    "wx93ce83f128d17374"
+  ],
   "sitemapLocation": "sitemap.json",
   "style": "v2"
 }

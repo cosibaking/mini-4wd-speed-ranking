@@ -1,9 +1,9 @@
-import type { Middleware } from 'koa';
+import type { HttpContext, HttpMiddleware } from '../lib/http/index.js';
 
 import { AppError, ErrorCode } from '../shared/errors.js';
 import { fail } from '../shared/response.js';
 
-export function errorHandler(): Middleware {
+export function errorHandler(): HttpMiddleware {
   return async (ctx, next) => {
     try {
       await next();

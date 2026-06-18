@@ -1,44 +1,90 @@
 <view class="container" wx:if="{{track}}">
-  <view class="card detail-header">
-    <text class="detail-header__name">{{track.name}}</text>
-    <text class="text-secondary">主理人：{{track.organizerName}}</text>
-    <text class="text-secondary" wx:if="{{track.lengthMeters}}">赛道长度：{{track.lengthMeters}}米</text>
-  </view>
-
-  <view class="card">
-    <view class="detail-row">
-      <text class="detail-row__label">📍 位置</text>
-      <text class="detail-row__value">{{track.location.address}}</text>
+  <view class="card detail-card">
+    <view class="detail-card__header" bindtap="onToggleDetail">
+      <view class="detail-card__header-row">
+        <text class="detail-card__name">{{track.name}}</text>
+        <text class="detail-card__arrow">{{detailExpanded ? '▾' : '›'}}</text>
+      </view>
+      <view class="detail-card__meta">
+        <text class="detail-chip">👤 {{track.organizerName}}</text>
+        <text class="detail-chip" wx:if="{{track.lengthMeters}}">📏 {{track.lengthMeters}} 米</text>
+        <text class="detail-chip" wx:if="{{track.recordCount}}">🏆 {{track.recordCount}} 人入榜</text>
+      </view>
+      <text class="detail-card__hint text-secondary" wx:if="{{!detailExpanded}}">点击查看赛道详情</text>
     </view>
-    <button class="btn-secondary detail-nav-btn" bindtap="onNavigate">导航到赛道</button>
-  </view>
 
-  <view class="card" wx:if="{{track.floorPlanUrls.length > 0}}">
-    <text class="section-title">平面图</text>
-    <swiper class="detail-swiper" indicator-dots>
-      <swiper-item wx:for="{{track.floorPlanUrls}}" wx:key="*this">
-        <image class="detail-swiper__img" src="{{item}}" mode="aspectFit" />
-      </swiper-item>
-    </swiper>
-  </view>
+    <view class="detail-card__info" wx:if="{{detailExpanded}}">
+      <view class="detail-info-item" wx:if="{{track.lengthMeters}}">
+        <text class="detail-info-item__label">赛道长度</text>
+        <text class="detail-info-item__value">{{track.lengthMeters}} 米</text>
+      </view>
 
-  <view class="card" wx:if="{{track.exampleVideoUrl || track.ruleNote}}">
-    <text class="section-title">成绩认定说明</text>
-    <video wx:if="{{track.exampleVideoUrl}}" class="detail-video" src="{{track.exampleVideoUrl}}" controls />
-    <text class="detail-rule" wx:if="{{track.ruleNote}}">{{track.ruleNote}}</text>
-  </view>
+      <view class="detail-info-item" wx:if="{{track.floorPlanUrls.length > 0}}">
+        <text class="detail-info-item__label">赛道平面图</text>
+        <swiper
+          class="detail-swiper"
+          indicator-dots
+          indicator-color="rgba(255,255,255,0.4)"
+          indicator-active-color="#E85D04"
+        >
+          <swiper-item wx:for="{{track.floorPlanUrls}}" wx:key="*this">
+            <image
+              class="detail-swiper__img"
+              src="{{item}}"
+              mode="aspectFit"
+              data-url="{{item}}"
+              bindtap="onPreviewFloorPlan"
+            />
+          </swiper-item>
+        </swiper>
+      </view>
 
-  <view class="card" wx:if="{{track.organizerContact}}">
-    <view class="detail-row">
-      <text class="detail-row__label">联系主理人</text>
-      <text class="detail-row__value link" bindtap="onCopyContact">{{track.organizerContact}}（点击复制）</text>
+      <view class="detail-info-item" wx:if="{{track.exampleVideoUrl}}">
+        <text class="detail-info-item__label">示例认证视频</text>
+        <video class="detail-video" src="{{track.exampleVideoUrl}}" controls show-center-play-btn />
+      </view>
+
+      <view class="detail-info-item" wx:if="{{track.ruleNote}}">
+        <text class="detail-info-item__label">认定说明</text>
+        <text class="detail-rule">{{track.ruleNote}}</text>
+      </view>
+
+      <view class="detail-info-empty" wx:if="{{!hasDetailContent}}">
+        <text class="text-secondary">暂无更多赛道详情</text>
+      </view>
+    </view>
+
+    <view class="detail-card__section">
+      <text class="detail-card__label">📍 赛道位置</text>
+      <map
+        id="trackMap"
+        class="detail-map"
+        longitude="{{mapLongitude}}"
+        latitude="{{mapLatitude}}"
+        scale="16"
+        markers="{{mapMarkers}}"
+        show-location
+        subkey="{{mapSubkey}}"
+        enable-zoom
+        enable-scroll
+      />
+      <view class="detail-card__location" catchtap="onOpenMapNav">
+        <text class="detail-card__value detail-card__value--link">{{track.location.address}}</text>
+        <text class="detail-card__nav-hint text-secondary">点击导航至此赛道</text>
+      </view>
+    </view>
+
+    <view class="detail-card__section detail-card__section--contact" wx:if="{{track.organizerContact}}">
+      <text class="detail-card__label">联系主理人</text>
+      <text class="detail-card__value link" catchtap="onCopyContact">{{track.organizerContact}}（点击复制）</text>
     </view>
   </view>
 
   <view class="detail-actions">
     <button class="btn-primary detail-actions__btn" bindtap="onViewLeaderboard">查看圈速榜</button>
     <button class="btn-secondary detail-actions__btn" bindtap="onSubmitRecord">上传我的成绩</button>
+    <text class="detail-actions__hint text-secondary">请按认定说明拍摄完整一圈视频</text>
   </view>
 </view>
 
-<view class="loading-tip text-secondary" wx:if="{{loading}}">加载中…</view>
+<view class="loading-tip" wx:if="{{loading}}">加载中…</view>

@@ -1,1 +1,1 @@
-/// <reference types="miniprogram-api-typings" />
+/// <reference path="./wx.d.ts" />

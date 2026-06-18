@@ -1,4 +1,4 @@
-import type { Middleware } from 'koa';
+import type { HttpMiddleware } from '../lib/http/index.js';
 
 import { authService } from '../modules/auth/auth.service.js';
 import { UnauthorizedError } from '../shared/errors.js';
@@ -20,13 +20,15 @@ function parseBearer(authorization?: string): string | null {
   return token;
 }
 
-export function authMiddleware(required: boolean): Middleware;
-export function authMiddleware(options?: AuthMiddlewareOptions): Middleware;
-export function authMiddleware(options: AuthMiddlewareOptions | boolean = {}): Middleware {
+export function authMiddleware(required: boolean): HttpMiddleware;
+export function authMiddleware(options?: AuthMiddlewareOptions): HttpMiddleware;
+export function authMiddleware(options: AuthMiddlewareOptions | boolean = {}): HttpMiddleware {
   const required = typeof options === 'boolean' ? options : (options.required ?? false);
 
   return async (ctx, next) => {
-    const token = parseBearer(ctx.headers.authorization);
+    const authHeader = ctx.headers.authorization;
+    const headerValue = Array.isArray(authHeader) ? authHeader[0] : authHeader;
+    const token = parseBearer(headerValue);
 
     if (!token) {
       if (required) {

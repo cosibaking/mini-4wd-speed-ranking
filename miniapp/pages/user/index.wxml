@@ -1,31 +1,50 @@
 <view class="container user-page">
-  <view class="user-header card" wx:if="{{loggedIn && user}}">
+  <view class="user-header card user-header--clickable" wx:if="{{loggedIn && user}}" bindtap="onEditProfile">
     <image class="user-header__avatar" src="{{user.avatarUrl || '/assets/default-avatar.png'}}" mode="aspectFill" />
     <view class="user-header__info">
       <text class="user-header__name">{{user.nickName || '微信用户'}}</text>
-      <text class="text-secondary" wx:if="{{user.isOrganizer}}">赛道主理人</text>
+      <text class="user-header__badge tag" wx:if="{{user.isOrganizer}}">赛道主理人</text>
+      <text class="user-header__hint text-secondary" wx:else>四驱车手</text>
     </view>
+    <text class="user-header__arrow">›</text>
   </view>
 
-  <view class="user-header card" wx:else>
-    <button class="btn-primary login-btn" bindtap="onLogin">微信登录</button>
+  <view class="user-header card user-header--guest" wx:else>
+    <image class="user-header__avatar user-header__avatar--guest" src="/assets/default-avatar.png" mode="aspectFill" />
+    <view class="user-header__info">
+      <text class="user-header__name">未登录</text>
+      <text class="user-header__hint text-secondary">登录后可上传成绩、发帖互动</text>
+    </view>
+    <button class="btn-primary user-header__login" bindtap="onLogin">微信登录</button>
   </view>
 
   <view class="menu card">
     <view class="menu-item" data-url="/pages/user/tracks" bindtap="onNav">
-      <text>我管理的赛道</text>
+      <view class="menu-item__left">
+        <text class="icon-badge">🛤</text>
+        <text>我管理的赛道</text>
+      </view>
       <text class="menu-item__arrow">›</text>
     </view>
     <view class="menu-item" data-url="/pages/user/records" bindtap="onNav">
-      <text>我的成绩</text>
+      <view class="menu-item__left">
+        <text class="icon-badge">⏱</text>
+        <text>我的成绩</text>
+      </view>
       <text class="menu-item__arrow">›</text>
     </view>
     <view class="menu-item" data-url="/pages/user/following" bindtap="onNav">
-      <text>我的关注</text>
+      <view class="menu-item__left">
+        <text class="icon-badge">★</text>
+        <text>我的关注</text>
+      </view>
       <text class="menu-item__arrow">›</text>
     </view>
-    <view class="menu-item" data-url="/pages/track/edit" bindtap="onNav">
-      <text>新建赛道</text>
+    <view class="menu-item menu-item--highlight" data-url="/pages/track/edit" bindtap="onNav">
+      <view class="menu-item__left">
+        <text class="icon-badge">＋</text>
+        <text>新建赛道</text>
+      </view>
       <text class="menu-item__arrow">›</text>
     </view>
   </view>

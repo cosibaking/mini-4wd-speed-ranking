@@ -1,24 +1,39 @@
-import { prisma } from '../../lib/prisma.js';
+import type { RowDataPacket } from 'mysql2/promise';
+
+import { execute, query, queryOne } from '../../lib/mysql.js';
+
+interface FollowRow extends RowDataPacket {
+  follower_id: string;
+  followee_id: string;
+  created_at: Date;
+}
+
+interface UserBriefRow extends RowDataPacket {
+  id: string;
+  nick_name: string;
+  avatar_url: string;
+}
 
 export class FollowRepository {
   async findFollow(followerId: string, followeeId: string) {
-    return prisma.follow.findUnique({
-      where: {
-        followerId_followeeId: { followerId, followeeId },
-      },
-    });
+    return queryOne<FollowRow>(
+      'SELECT * FROM follows WHERE follower_id = ? AND followee_id = ? LIMIT 1',
+      [followerId, followeeId],
+    );
   }
 
   async create(followerId: string, followeeId: string): Promise<void> {
-    await prisma.follow.create({
-      data: { followerId, followeeId },
-    });
+    await execute(
+      'INSERT INTO follows (follower_id, followee_id, created_at) VALUES (?, ?, NOW(3))',
+      [followerId, followeeId],
+    );
   }
 
   async delete(followerId: string, followeeId: string): Promise<void> {
-    await prisma.follow.deleteMany({
-      where: { followerId, followeeId },
-    });
+    await execute(
+      'DELETE FROM follows WHERE follower_id = ? AND followee_id = ?',
+      [followerId, followeeId],
+    );
   }
 
   async isFollowing(followerId: string, followeeId: string): Promise<boolean> {
@@ -27,24 +42,39 @@ export class FollowRepository {
   }
 
   async listFollowing(followerId: string, skip: number, take: number) {
-    const where = { followerId };
-
-    const [rows, total] = await prisma.$transaction([
-      prisma.follow.findMany({
-        where,
-        orderBy: { createdAt: 'desc' },
-        skip,
-        take,
-        include: {
-          followee: {
-            select: { id: true, nickName: true, avatarUrl: true },
-          },
-        },
-      }),
-      prisma.follow.count({ where }),
+    const [rows, countRow] = await Promise.all([
+      query<FollowRow>(
+        'SELECT * FROM follows WHERE follower_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?',
+        [followerId, take, skip],
+      ),
+      queryOne<RowDataPacket & { count: number }>(
+        'SELECT COUNT(*) AS count FROM follows WHERE follower_id = ?',
+        [followerId],
+      ),
     ]);
 
-    return { rows, total };
+    const mapped = await Promise.all(
+      rows.map(async (row) => {
+        const followee = await queryOne<UserBriefRow>(
+          'SELECT id, nick_name, avatar_url FROM users WHERE id = ? LIMIT 1',
+          [row.followee_id],
+        );
+        return {
+          followerId: row.follower_id,
+          followeeId: row.followee_id,
+          createdAt: row.created_at,
+          followee: followee
+            ? {
+                id: followee.id,
+                nickName: followee.nick_name,
+                avatarUrl: followee.avatar_url,
+              }
+            : { id: row.followee_id, nickName: '', avatarUrl: '' },
+        };
+      }),
+    );
+
+    return { rows: mapped, total: Number(countRow?.count ?? 0) };
   }
 }
 

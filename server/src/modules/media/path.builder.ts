@@ -27,8 +27,18 @@ export function buildObjectKey(
   return `${env}/${userId}/${segment}/${filename}`;
 }
 
+function getMockMediaHost(): string {
+  return process.env.MOCK_MEDIA_HOST ?? '127.0.0.1';
+}
+
 export function buildPublicUrl(objectKey: string): string {
-  const cdnBase = process.env.CDN_BASE_URL ?? 'http://localhost:3000/mock-media';
+  if (isMockMediaEnabled()) {
+    const port = config.port;
+    const host = getMockMediaHost();
+    return `http://${host}:${port}/mock-media/${objectKey}`;
+  }
+
+  const cdnBase = process.env.CDN_BASE_URL ?? '';
   return `${cdnBase.replace(/\/$/, '')}/${objectKey}`;
 }
 
@@ -52,5 +62,6 @@ export function isMockMediaEnabled(): boolean {
 
 export function getMockUploadUrl(objectKey: string): string {
   const port = config.port;
-  return `http://localhost:${port}/mock-media/upload/${encodeURIComponent(objectKey)}`;
+  const host = getMockMediaHost();
+  return `http://${host}:${port}/mock-media/upload/${encodeURIComponent(objectKey)}`;
 }

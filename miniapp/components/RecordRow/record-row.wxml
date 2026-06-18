@@ -1,6 +1,9 @@
 <view class="record-row {{highlight ? 'record-row--highlight' : ''}}" bindtap="onTap">
-  <view class="record-row__rank {{entry.rank <= 3 ? 'rank-' + entry.rank : ''}}">
-    <text>{{entry.rank}}</text>
+  <view class="record-row__rank {{entry.rank <= 3 ? 'record-row__rank--top record-row__rank--' + entry.rank : ''}}">
+    <text wx:if="{{entry.rank > 3}}">{{entry.rank}}</text>
+    <text wx:elif="{{entry.rank === 1}}">🥇</text>
+    <text wx:elif="{{entry.rank === 2}}">🥈</text>
+    <text wx:elif="{{entry.rank === 3}}">🥉</text>
   </view>
   <image class="record-row__avatar" src="{{entry.user.avatarUrl || '/assets/default-avatar.png'}}" mode="aspectFill" />
   <view class="record-row__info">

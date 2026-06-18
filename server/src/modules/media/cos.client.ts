@@ -1,4 +1,7 @@
+import COS from 'cos-nodejs-sdk-v5';
+
 import { InternalError } from '../../shared/errors.js';
+import { mockObjectExists } from './mock.handler.js';
 import { getContentType } from './policy.validator.js';
 import { buildPublicUrl, getMockUploadUrl, isMockMediaEnabled } from './path.builder.js';
 
@@ -31,8 +34,12 @@ class MockCosClient {
     };
   }
 
-  async headObject(_objectKey: string): Promise<{ size: number }> {
-    return { size: 1 };
+  async headObject(objectKey: string): Promise<{ size: number }> {
+    const info = await mockObjectExists(objectKey);
+    if (!info || info.size <= 0) {
+      throw new Error('object not found');
+    }
+    return info;
   }
 }
 

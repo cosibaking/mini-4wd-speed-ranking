@@ -13,32 +13,32 @@ const POLICIES: Record<MediaPurpose, PurposePolicy> = {
   track_floor_plan: {
     mediaType: 'image',
     extensions: ['jpg', 'jpeg', 'png'],
-    maxSize: 5 * MB,
+    maxSize: 10 * MB,
   },
   track_example_video: {
     mediaType: 'video',
     extensions: ['mp4'],
-    maxSize: 30 * MB,
+    maxSize: 100 * MB,
   },
   record_video: {
     mediaType: 'video',
     extensions: ['mp4'],
-    maxSize: 50 * MB,
+    maxSize: 100 * MB,
   },
   record_config: {
     mediaType: 'image',
     extensions: ['jpg', 'jpeg', 'png'],
-    maxSize: 5 * MB,
+    maxSize: 10 * MB,
   },
   record_car_photo: {
     mediaType: 'image',
     extensions: ['jpg', 'jpeg', 'png'],
-    maxSize: 5 * MB,
+    maxSize: 10 * MB,
   },
   post_image: {
     mediaType: 'image',
     extensions: ['jpg', 'jpeg', 'png'],
-    maxSize: 5 * MB,
+    maxSize: 10 * MB,
   },
 };
 

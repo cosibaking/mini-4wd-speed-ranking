@@ -17,3 +17,4 @@ coverage/
 prisma/*.db
 prisma/*.db-journal
 .cursor/
+server/.mock-media/

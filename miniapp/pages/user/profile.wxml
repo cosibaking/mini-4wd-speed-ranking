@@ -1,0 +1,38 @@
+<view class="container profile-page">
+  <view class="profile-avatar card" bindtap="onEditAvatar">
+    <image
+      class="profile-avatar__img"
+      src="{{avatarUrl || '/assets/default-avatar.png'}}"
+      mode="aspectFill"
+    />
+    <text class="profile-avatar__hint text-secondary">点击修改头像</text>
+  </view>
+
+  <view class="profile-form card">
+    <view class="profile-field" bindtap="onEditNickname" wx:if="{{!editingNickname}}">
+      <text class="profile-field__label">昵称</text>
+      <view class="profile-field__value">
+        <text>{{nickName || '微信用户'}}</text>
+        <text class="profile-field__arrow">›</text>
+      </view>
+    </view>
+
+    <view class="profile-field profile-field--edit" wx:else>
+      <text class="profile-field__label">昵称</text>
+      <input
+        class="profile-field__input"
+        type="nickname"
+        value="{{nickName}}"
+        placeholder="请输入昵称"
+        maxlength="32"
+        focus="{{editingNickname}}"
+        bindinput="onNicknameInput"
+        bindconfirm="onSaveNickname"
+      />
+      <view class="profile-field__actions">
+        <button class="btn-secondary profile-field__btn" size="mini" bindtap="onCancelNickname">取消</button>
+        <button class="btn-primary profile-field__btn" size="mini" bindtap="onSaveNickname" loading="{{saving}}">保存</button>
+      </view>
+    </view>
+  </view>
+</view>

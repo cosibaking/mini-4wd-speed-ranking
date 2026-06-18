@@ -1,10 +1,17 @@
 <view class="container leaderboard-page">
   <view class="lb-header card">
     <view class="lb-header__select" bindtap="onTogglePicker">
-      <text class="lb-header__name">{{trackName || '选择赛道'}}</text>
+      <view class="lb-header__icon">🏁</view>
+      <view class="lb-header__text">
+        <text class="lb-header__label text-secondary">当前赛道</text>
+        <text class="lb-header__name">{{trackName || '选择赛道'}}</text>
+      </view>
       <text class="lb-header__arrow">▼</text>
     </view>
-    <text class="text-secondary">共 {{total}} 人入榜</text>
+    <view class="lb-header__stat">
+      <text class="lb-header__count">{{total}}</text>
+      <text class="text-secondary">人入榜</text>
+    </view>
   </view>
 
   <view class="lb-picker card" wx:if="{{showPicker}}">
@@ -14,25 +21,39 @@
       wx:key="id"
       data-id="{{item.id}}"
       bindtap="onSelectTrack"
-    >{{item.name}}</view>
+    >
+      <text>{{item.name}}</text>
+      <text wx:if="{{item.id === trackId}}" class="lb-picker__check">✓</text>
+    </view>
   </view>
 
   <view class="lb-list card" wx:if="{{list.length > 0}}">
-    <record-row wx:for="{{list}}" wx:key="recordId" entry="{{item}}" />
+    <record-row wx:for="{{list}}" wx:key="recordId" entry="{{item}}" highlight="{{myRank && item.recordId === myRank.recordId}}" />
   </view>
 
   <empty-state
-    wx:if="{{!loading && list.length === 0}}"
+    wx:if="{{!loading && list.length === 0 && trackId}}"
     title="还没有人挑战"
     desc="来做第一个上榜的车手吧"
     actionText="上传成绩"
     bind:action="onEmptyAction"
   />
 
-  <view class="lb-my-rank card" wx:if="{{myRank}}">
-    <text>我的排名：第 {{myRank.rank}} 名 · </text>
-    <text class="lap-time">{{myRank.lapTimeDisplay}}</text>
+  <empty-state
+    wx:if="{{!loading && !trackId}}"
+    title="请先选择赛道"
+    desc="选择一条赛道查看圈速排名"
+    actionText="选择赛道"
+    bind:action="onTogglePicker"
+  />
+
+  <view class="lb-my-rank" wx:if="{{myRank}}">
+    <view class="lb-my-rank__inner">
+      <text class="lb-my-rank__label">我的排名</text>
+      <text class="lb-my-rank__value">第 <text class="lap-time">{{myRank.rank}}</text> 名</text>
+      <text class="lb-my-rank__time lap-time">{{myRank.lapTimeDisplay}}</text>
+    </view>
   </view>
 
-  <view class="loading-tip text-secondary" wx:if="{{loading}}">加载中…</view>
+  <view class="loading-tip" wx:if="{{loading}}">加载中…</view>
 </view>

@@ -1,5 +1,11 @@
-<view class="container">
+<view class="container track-list-page">
+  <view class="page-head">
+    <text class="page-head__title">选择赛道</text>
+    <text class="page-head__desc text-secondary">找到附近的公园赛道，开始挑战圈速</text>
+  </view>
+
   <view class="search-bar">
+    <text class="search-bar__icon">🔍</text>
     <input
       class="search-bar__input"
       placeholder="搜索赛道名称"
@@ -23,5 +29,5 @@
     bind:action="onCreateTrack"
   />
 
-  <view class="loading-tip text-secondary" wx:if="{{loading}}">加载中…</view>
+  <view class="loading-tip" wx:if="{{loading}}">加载中…</view>
 </view>

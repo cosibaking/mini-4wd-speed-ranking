@@ -1,4 +1,4 @@
-import { prisma } from '../../lib/prisma';
+import { withTransaction } from '../../lib/mysql';
 import { parseLapTime } from '../../shared/lapTime';
 import { buildPaginationResult, getSkip } from '../../shared/pagination';
 import type { PaginationQuery, PaginationResult } from '../../shared/types';
@@ -83,7 +83,7 @@ export class RecordService {
       throw invalidLapTimeError();
     }
 
-    const result = await prisma.$transaction(async () => {
+    const result = await withTransaction(async () => {
       const record = await recordRepository.create(
         userId,
         dto,

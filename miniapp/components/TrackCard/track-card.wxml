@@ -1,19 +1,25 @@
-<view class="track-card card" bindtap="onTap">
-  <view class="track-card__header">
-    <text class="track-card__name">{{track.name}}</text>
-    <text class="track-card__arrow">›</text>
-  </view>
-  <view class="track-card__meta text-secondary">
-    <text wx:if="{{showDistance && distanceText}}">{{distanceText}} · </text>
-    <text>{{track.organizerName}}</text>
-  </view>
-  <view class="track-card__footer" wx:if="{{track.topRecord}}">
-    <text class="text-secondary">Top1 </text>
-    <text class="lap-time">{{track.topRecord.lapTimeDisplay}}</text>
-    <text class="text-secondary"> · {{track.topRecord.nickName}}</text>
-    <text class="text-secondary track-card__count"> · {{track.participantCount}}人入榜</text>
-  </view>
-  <view class="track-card__footer" wx:else>
-    <text class="text-secondary">还没有人挑战</text>
+<view class="track-card card track-card--{{theme}}" bindtap="onTap">
+  <view class="track-card__accent"></view>
+  <view class="track-card__body">
+    <view class="track-card__header">
+      <text class="track-card__name">{{track.name}}</text>
+      <text class="track-card__arrow">›</text>
+    </view>
+    <view class="track-card__meta">
+      <text class="track-card__pin">📍</text>
+      <text class="track-card__meta-text" wx:if="{{showDistance && distanceText}}">{{distanceText}} · </text>
+      <text class="track-card__meta-text">{{track.organizerName || track.address || '赛道主理人'}}</text>
+    </view>
+    <view class="track-card__footer" wx:if="{{track.topRecord}}">
+      <view class="track-card__record">
+        <view class="track-card__badge">TOP1</view>
+        <text class="track-card__time">{{track.topRecord.lapTimeDisplay}}</text>
+        <text class="track-card__nick">{{track.topRecord.nickName}}</text>
+      </view>
+      <text class="track-card__count">{{track.participantCount || 0}} 人入榜</text>
+    </view>
+    <view class="track-card__footer track-card__footer--empty" wx:else>
+      <text class="track-card__empty">还没有人挑战，来做第一个</text>
+    </view>
   </view>
 </view>

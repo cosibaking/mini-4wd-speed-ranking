@@ -1,6 +1,6 @@
-import dotenv from 'dotenv';
+import { loadEnvFile } from '../lib/env.js';
 
-dotenv.config();
+loadEnvFile();
 
 function requireEnv(key: string, fallback?: string): string {
   const value = process.env[key] ?? fallback;

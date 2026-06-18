@@ -6,7 +6,7 @@ const TOKEN_KEY = 'token';
 let loginPromise: Promise<string> | null = null;
 
 function getToken(): string {
-  return wx.getStorageSync(TOKEN_KEY) || '';
+  return (wx.getStorageSync(TOKEN_KEY) as string) || '';
 }
 
 function setToken(token: string): void {

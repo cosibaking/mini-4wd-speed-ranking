@@ -1,5 +1,4 @@
-import Router from '@koa/router';
-
+import { Router } from '../lib/http/index.js';
 import { authMiddleware } from '../middleware/auth.js';
 import * as authController from '../modules/auth/auth.controller.js';
 

@@ -1,4 +1,4 @@
-import { request } from './http';
+import { getToken, request, getApiBase } from './http';
 
 export interface UploadCredential {
   uploadUrl: string;
@@ -7,6 +7,8 @@ export interface UploadCredential {
   expireAt: string;
   headers: Record<string, string>;
 }
+
+type ImageFileExt = 'jpg' | 'jpeg' | 'png';
 
 export function getUploadCredential(data: {
   mediaType: 'image' | 'video';
@@ -21,6 +23,117 @@ export function confirmUpload(objectKey: string): Promise<{ url: string }> {
   return request('/media/confirm', { method: 'POST', data: { objectKey } });
 }
 
+export class UploadCancelledError extends Error {
+  constructor() {
+    super('CANCELLED');
+    this.name = 'UploadCancelledError';
+  }
+}
+
+function isMockUploadUrl(uploadUrl: string): boolean {
+  return uploadUrl.includes('/mock-media/upload/');
+}
+
+function uploadViaMockApi(objectKey: string, filePath: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    wx.uploadFile({
+      url: `${getApiBase()}/media/mock-upload`,
+      filePath,
+      name: 'file',
+      formData: { objectKey },
+      header: {
+        Authorization: `Bearer ${getToken()}`,
+      },
+      success: (res) => {
+        if (res.statusCode < 200 || res.statusCode >= 300) {
+          reject(new Error(`upload failed: ${res.statusCode}`));
+          return;
+        }
+
+        try {
+          const body = JSON.parse(res.data) as { code?: number; message?: string };
+          if (body.code !== undefined && body.code !== 0) {
+            reject(new Error(body.message || 'upload failed'));
+            return;
+          }
+        } catch {
+          // non-JSON 200 response is acceptable
+        }
+
+        resolve();
+      },
+      fail: reject,
+    });
+  });
+}
+
+function inferImageExt(tempFilePath: string): ImageFileExt {
+  const ext = tempFilePath.split('.').pop()?.toLowerCase();
+  if (ext === 'png') return 'png';
+  if (ext === 'jpeg') return 'jpeg';
+  if (ext === 'jpg') return 'jpg';
+  return 'jpg';
+}
+
+function getLocalFileSize(filePath: string): Promise<number> {
+  return new Promise((resolve, reject) => {
+    wx.getFileSystemManager().stat({
+      path: filePath,
+      success: (res) => resolve(res.stats.size),
+      fail: reject,
+    });
+  });
+}
+
+function uploadFilePut(
+  uploadUrl: string,
+  filePath: string,
+  headers: Record<string, string>
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    wx.getFileSystemManager().readFile({
+      filePath,
+      success: (readRes) => {
+        wx.request({
+          url: uploadUrl,
+          method: 'PUT',
+          data: readRes.data as ArrayBuffer,
+          header: headers,
+          success: (res) => {
+            if (res.statusCode >= 200 && res.statusCode < 300) {
+              resolve();
+              return;
+            }
+            reject(new Error(`upload failed: ${res.statusCode}`));
+          },
+          fail: reject,
+        });
+      },
+      fail: reject,
+    });
+  });
+}
+
+async function uploadBinary(
+  uploadUrl: string,
+  filePath: string,
+  headers: Record<string, string>,
+  objectKey: string
+): Promise<void> {
+  if (isMockUploadUrl(uploadUrl)) {
+    await uploadViaMockApi(objectKey, filePath);
+    return;
+  }
+  await uploadFilePut(uploadUrl, filePath, headers);
+}
+
+async function resolveFileSize(tempFilePath: string, reportedSize: number): Promise<number> {
+  if (reportedSize > 0) {
+    return reportedSize;
+  }
+  return getLocalFileSize(tempFilePath);
+}
+
 /** 选择并上传图片 */
 export async function chooseAndUploadImage(
   purpose: string,
@@ -33,32 +146,29 @@ export async function chooseAndUploadImage(
         mediaType: ['image'],
         sourceType: ['album', 'camera'],
         success: resolve,
-        fail: reject,
+        fail: (err) => {
+          if (err.errMsg?.includes('cancel')) {
+            reject(new UploadCancelledError());
+            return;
+          }
+          reject(err);
+        },
       });
     }
   );
 
   const urls: string[] = [];
   for (const file of res.tempFiles) {
-    const ext = (file.tempFilePath.split('.').pop() || 'jpg').toLowerCase();
+    const fileExt = inferImageExt(file.tempFilePath);
+    const fileSize = await resolveFileSize(file.tempFilePath, file.size);
     const cred = await getUploadCredential({
       mediaType: 'image',
       purpose,
-      fileExt: ext === 'png' ? 'png' : ext === 'jpeg' ? 'jpeg' : 'jpg',
-      fileSize: file.size,
+      fileExt,
+      fileSize,
     });
 
-    await new Promise<void>((resolve, reject) => {
-      wx.uploadFile({
-        url: cred.uploadUrl,
-        filePath: file.tempFilePath,
-        name: 'file',
-        header: cred.headers,
-        success: () => resolve(),
-        fail: reject,
-      });
-    });
-
+    await uploadBinary(cred.uploadUrl, file.tempFilePath, cred.headers, cred.objectKey);
     await confirmUpload(cred.objectKey);
     urls.push(cred.publicUrl);
   }
@@ -75,30 +185,27 @@ export async function chooseAndUploadVideo(purpose: string): Promise<string> {
         sourceType: ['album', 'camera'],
         maxDuration: 120,
         success: resolve,
-        fail: reject,
+        fail: (err) => {
+          if (err.errMsg?.includes('cancel')) {
+            reject(new UploadCancelledError());
+            return;
+          }
+          reject(err);
+        },
       });
     }
   );
 
   const file = res.tempFiles[0];
+  const fileSize = await resolveFileSize(file.tempFilePath, file.size);
   const cred = await getUploadCredential({
     mediaType: 'video',
     purpose,
     fileExt: 'mp4',
-    fileSize: file.size,
+    fileSize,
   });
 
-  await new Promise<void>((resolve, reject) => {
-    wx.uploadFile({
-      url: cred.uploadUrl,
-      filePath: file.tempFilePath,
-      name: 'file',
-      header: cred.headers,
-      success: () => resolve(),
-      fail: reject,
-    });
-  });
-
+  await uploadBinary(cred.uploadUrl, file.tempFilePath, cred.headers, cred.objectKey);
   await confirmUpload(cred.objectKey);
   return cred.publicUrl;
 }

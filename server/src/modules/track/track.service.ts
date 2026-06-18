@@ -170,6 +170,10 @@ export class TrackService {
   }
 
   async touchRecentVisit(userId: string, trackId: string): Promise<void> {
+    const exists = await trackRepository.exists(trackId);
+    if (!exists) {
+      throw trackNotFoundError();
+    }
     await recentVisitService.touchRecentVisit(userId, trackId);
   }
 

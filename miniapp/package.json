@@ -3,10 +3,11 @@
   "version": "1.0.0",
   "description": "公园四驱车圈速打榜 - 微信小程序",
   "scripts": {
-    "tsc": "tsc --noEmit"
+    "tsc": "tsc --noEmit",
+    "compile": "tsc --outDir . --rootDir .",
+    "assets": "python scripts/generate_assets.py"
   },
   "devDependencies": {
-    "miniprogram-api-typings": "^3.12.2",
     "typescript": "^5.4.5"
   }
 }

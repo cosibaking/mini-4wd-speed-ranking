@@ -1,7 +1,6 @@
-import Router from '@koa/router';
-
-import { authMiddleware } from '../middleware/auth';
-import * as recordController from '../modules/record/record.controller';
+import { Router } from '../lib/http/index.js';
+import { authMiddleware } from '../middleware/auth.js';
+import * as recordController from '../modules/record/record.controller.js';
 
 const router = new Router();
 

@@ -1,8 +1,38 @@
 import { randomUUID } from 'node:crypto';
-import type { Prisma } from '@prisma/client';
+import type { RowDataPacket } from 'mysql2/promise';
 
-import { prisma } from '../../lib/prisma';
+import { execute, query, queryOne } from '../../lib/mysql';
 import type { SubmitRecordDto } from './dto/record.types';
+
+interface RecordDbRow extends RowDataPacket {
+  id: string;
+  track_id: string;
+  user_id: string;
+  lap_time_ms: number;
+  lap_time_display: string;
+  video_url: string;
+  config_sheet_type: 'text' | 'image' | null;
+  config_sheet_text: string | null;
+  config_sheet_url: string | null;
+  note: string | null;
+  created_at: Date;
+}
+
+interface CarPhotoRow extends RowDataPacket {
+  image_url: string;
+  sort_order: number;
+}
+
+interface UserBriefRow extends RowDataPacket {
+  id: string;
+  nick_name: string;
+  avatar_url: string;
+}
+
+interface TrackBriefRow extends RowDataPacket {
+  id: string;
+  name: string;
+}
 
 export interface RecordRow {
   id: string;
@@ -21,41 +51,41 @@ export interface RecordRow {
   track?: { id: string; name: string };
 }
 
-type RecordWithRelations = Prisma.RecordGetPayload<{
-  include: {
-    carPhotos: true;
-    user: { select: { id: true; nickName: true; avatarUrl: true } };
-    track: { select: { id: true; name: true } };
-  };
-}>;
-
-function mapRecord(row: RecordWithRelations): RecordRow {
-  return {
-    id: row.id,
-    trackId: row.trackId,
-    userId: row.userId,
-    lapTimeMs: row.lapTimeMs,
-    lapTimeDisplay: row.lapTimeDisplay,
-    videoUrl: row.videoUrl,
-    configSheetType: row.configSheetType,
-    configSheetText: row.configSheetText,
-    configSheetUrl: row.configSheetUrl,
-    note: row.note,
-    createdAt: row.createdAt,
-    carPhotos: row.carPhotos.map((p) => ({
-      imageUrl: p.imageUrl,
-      sortOrder: p.sortOrder,
-    })),
-    user: row.user,
-    track: row.track,
-  };
+async function loadCarPhotos(recordId: string): Promise<CarPhotoRow[]> {
+  return query<CarPhotoRow>(
+    'SELECT image_url, sort_order FROM record_car_photos WHERE record_id = ? ORDER BY sort_order ASC',
+    [recordId],
+  );
 }
 
-const recordInclude = {
-  carPhotos: { orderBy: { sortOrder: 'asc' as const } },
-  user: { select: { id: true, nickName: true, avatarUrl: true } },
-  track: { select: { id: true, name: true } },
-};
+function mapRecord(
+  row: RecordDbRow,
+  carPhotos: CarPhotoRow[],
+  user?: UserBriefRow,
+  track?: TrackBriefRow,
+): RecordRow {
+  return {
+    id: row.id,
+    trackId: row.track_id,
+    userId: row.user_id,
+    lapTimeMs: row.lap_time_ms,
+    lapTimeDisplay: row.lap_time_display,
+    videoUrl: row.video_url,
+    configSheetType: row.config_sheet_type,
+    configSheetText: row.config_sheet_text,
+    configSheetUrl: row.config_sheet_url,
+    note: row.note,
+    createdAt: row.created_at,
+    carPhotos: carPhotos.map((photo) => ({
+      imageUrl: photo.image_url,
+      sortOrder: photo.sort_order,
+    })),
+    user: user
+      ? { id: user.id, nickName: user.nick_name, avatarUrl: user.avatar_url }
+      : undefined,
+    track: track ? { id: track.id, name: track.name } : undefined,
+  };
+}
 
 export class RecordRepository {
   async create(
@@ -71,38 +101,63 @@ export class RecordRepository {
     const configSheetUrl =
       dto.configSheet?.type === 'image' ? dto.configSheet.url : null;
 
-    const row = await prisma.record.create({
-      data: {
+    await execute(
+      `INSERT INTO records (
+        id, track_id, user_id, lap_time_ms, lap_time_display, video_url,
+        config_sheet_type, config_sheet_text, config_sheet_url, note, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(3))`,
+      [
         id,
-        trackId: dto.trackId,
+        dto.trackId,
         userId,
         lapTimeMs,
         lapTimeDisplay,
-        videoUrl: dto.videoUrl,
+        dto.videoUrl,
         configSheetType,
         configSheetText,
         configSheetUrl,
-        note: dto.note ?? null,
-        carPhotos: dto.carPhotoUrls?.length
-          ? {
-              create: dto.carPhotoUrls.map((url, i) => ({
-                imageUrl: url,
-                sortOrder: i,
-              })),
-            }
-          : undefined,
-      },
-      include: recordInclude,
-    });
-    return mapRecord(row);
+        dto.note ?? null,
+      ],
+    );
+
+    if (dto.carPhotoUrls?.length) {
+      for (let i = 0; i < dto.carPhotoUrls.length; i += 1) {
+        await execute(
+          'INSERT INTO record_car_photos (record_id, image_url, sort_order) VALUES (?, ?, ?)',
+          [id, dto.carPhotoUrls[i], i],
+        );
+      }
+    }
+
+    const record = await this.findById(id);
+    if (!record) {
+      throw new Error('failed to create record');
+    }
+    return record;
   }
 
   async findById(recordId: string): Promise<RecordRow | null> {
-    const row = await prisma.record.findUnique({
-      where: { id: recordId },
-      include: recordInclude,
-    });
-    return row ? mapRecord(row) : null;
+    const row = await queryOne<RecordDbRow>(
+      'SELECT * FROM records WHERE id = ? LIMIT 1',
+      [recordId],
+    );
+    if (!row) {
+      return null;
+    }
+
+    const [carPhotos, user, track] = await Promise.all([
+      loadCarPhotos(recordId),
+      queryOne<UserBriefRow>(
+        'SELECT id, nick_name, avatar_url FROM users WHERE id = ? LIMIT 1',
+        [row.user_id],
+      ),
+      queryOne<TrackBriefRow>(
+        'SELECT id, name FROM tracks WHERE id = ? LIMIT 1',
+        [row.track_id],
+      ),
+    ]);
+
+    return mapRecord(row, carPhotos, user ?? undefined, track ?? undefined);
   }
 
   async listByUser(
@@ -110,20 +165,31 @@ export class RecordRepository {
     skip: number,
     take: number,
   ): Promise<{ rows: RecordRow[]; total: number }> {
-    const [rows, total] = await Promise.all([
-      prisma.record.findMany({
-        where: { userId },
-        include: {
-          carPhotos: { orderBy: { sortOrder: 'asc' } },
-          track: { select: { id: true, name: true } },
-        },
-        orderBy: { createdAt: 'desc' },
-        skip,
-        take,
-      }),
-      prisma.record.count({ where: { userId } }),
+    const [rows, countRow] = await Promise.all([
+      query<RecordDbRow>(
+        'SELECT * FROM records WHERE user_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?',
+        [userId, take, skip],
+      ),
+      queryOne<RowDataPacket & { count: number }>(
+        'SELECT COUNT(*) AS count FROM records WHERE user_id = ?',
+        [userId],
+      ),
     ]);
-    return { rows: rows.map((row) => mapRecord(row as RecordWithRelations)), total };
+
+    const mapped = await Promise.all(
+      rows.map(async (row) => {
+        const [carPhotos, track] = await Promise.all([
+          loadCarPhotos(row.id),
+          queryOne<TrackBriefRow>(
+            'SELECT id, name FROM tracks WHERE id = ? LIMIT 1',
+            [row.track_id],
+          ),
+        ]);
+        return mapRecord(row, carPhotos, undefined, track ?? undefined);
+      }),
+    );
+
+    return { rows: mapped, total: Number(countRow?.count ?? 0) };
   }
 
   async listByTrack(
@@ -131,20 +197,31 @@ export class RecordRepository {
     skip: number,
     take: number,
   ): Promise<{ rows: RecordRow[]; total: number }> {
-    const [rows, total] = await Promise.all([
-      prisma.record.findMany({
-        where: { trackId },
-        include: {
-          carPhotos: { orderBy: { sortOrder: 'asc' } },
-          user: { select: { id: true, nickName: true, avatarUrl: true } },
-        },
-        orderBy: { createdAt: 'desc' },
-        skip,
-        take,
-      }),
-      prisma.record.count({ where: { trackId } }),
+    const [rows, countRow] = await Promise.all([
+      query<RecordDbRow>(
+        'SELECT * FROM records WHERE track_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?',
+        [trackId, take, skip],
+      ),
+      queryOne<RowDataPacket & { count: number }>(
+        'SELECT COUNT(*) AS count FROM records WHERE track_id = ?',
+        [trackId],
+      ),
     ]);
-    return { rows: rows.map((row) => mapRecord(row as RecordWithRelations)), total };
+
+    const mapped = await Promise.all(
+      rows.map(async (row) => {
+        const [carPhotos, user] = await Promise.all([
+          loadCarPhotos(row.id),
+          queryOne<UserBriefRow>(
+            'SELECT id, nick_name, avatar_url FROM users WHERE id = ? LIMIT 1',
+            [row.user_id],
+          ),
+        ]);
+        return mapRecord(row, carPhotos, user ?? undefined, undefined);
+      }),
+    );
+
+    return { rows: mapped, total: Number(countRow?.count ?? 0) };
   }
 }
 

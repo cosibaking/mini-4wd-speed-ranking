@@ -31,16 +31,50 @@
 .form-input {
   background: var(--color-bg);
   border-radius: var(--radius-btn);
-  padding: 20rpx 24rpx;
+  padding: 0 24rpx;
+  border: 2rpx solid var(--color-border);
+  height: 88rpx;
+  box-sizing: border-box;
+  font-size: 28rpx;
+  line-height: 88rpx;
+}
+
+.form-input--readonly {
+  color: var(--color-text-secondary);
+  background: #f0f0f0;
+}
+
+.form-map {
+  width: 100%;
+  height: 400rpx;
+  border-radius: var(--radius-btn);
+  overflow: hidden;
   border: 2rpx solid var(--color-border);
 }
 
-.form-location {
-  background: var(--color-bg);
-  border-radius: var(--radius-btn);
-  padding: 20rpx 24rpx;
-  border: 2rpx dashed var(--color-primary);
-  color: var(--color-primary);
+.form-map-footer {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16rpx;
+  margin-top: 12rpx;
+}
+
+.form-map-hint {
+  flex: 1;
+  min-width: 0;
+  font-size: 24rpx;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+.form-map-hint--empty {
+  color: var(--color-text-placeholder);
+}
+
+.form-map-search {
+  flex-shrink: 0;
+  margin: 0;
 }
 
 .form-images {

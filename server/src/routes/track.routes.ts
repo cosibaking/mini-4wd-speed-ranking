@@ -1,7 +1,6 @@
-import Router from '@koa/router';
-
-import { authMiddleware } from '../middleware/auth';
-import * as trackController from '../modules/track/track.controller';
+import { Router } from '../lib/http/index.js';
+import { authMiddleware } from '../middleware/auth.js';
+import * as trackController from '../modules/track/track.controller.js';
 
 const router = new Router();
 
@@ -12,6 +11,11 @@ router.get(
   '/tracks/:trackId/records',
   authMiddleware({ required: true }),
   trackController.listTrackRecords,
+);
+router.post(
+  '/tracks/:trackId/visit',
+  authMiddleware({ required: true }),
+  trackController.touchRecentVisit,
 );
 router.get('/tracks/:id', authMiddleware(), trackController.getTrackById);
 router.post('/tracks', authMiddleware({ required: true }), trackController.createTrack);

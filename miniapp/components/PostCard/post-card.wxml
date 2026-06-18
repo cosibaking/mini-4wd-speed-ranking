@@ -1,11 +1,23 @@
 <view class="post-card card" bindtap="onTap">
-  <text class="post-card__title">{{post.title}}</text>
+  <view class="post-card__head">
+    <text class="post-card__title">{{post.title}}</text>
+    <text class="tag" wx:if="{{post.boardName}}">{{post.boardName}}</text>
+  </view>
   <text class="post-card__summary text-secondary">{{post.summary}}</text>
+  <image
+    wx:if="{{post.coverImage}}"
+    class="post-card__cover"
+    src="{{post.coverImage}}"
+    mode="aspectFill"
+  />
   <view class="post-card__footer">
-    <text class="text-secondary">{{post.author.nickName}}</text>
+    <view class="post-card__author">
+      <image class="post-card__avatar" src="{{post.author.avatarUrl || '/assets/default-avatar.png'}}" mode="aspectFill" />
+      <text class="text-secondary">{{post.author.nickName}}</text>
+    </view>
     <view class="post-card__stats">
-      <text class="text-secondary">👍 {{post.likeCount}}</text>
-      <text class="text-secondary">💬 {{post.commentCount}}</text>
+      <text class="post-card__stat">👍 {{post.likeCount}}</text>
+      <text class="post-card__stat">💬 {{post.commentCount}}</text>
     </view>
   </view>
 </view>

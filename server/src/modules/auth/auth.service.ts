@@ -1,34 +1,23 @@
-import type { User } from '@prisma/client';
-import jwt from 'jsonwebtoken';
-import { v4 as uuidv4 } from 'uuid';
-
+import { signJwt, verifyJwt } from '../../lib/jwt.js';
 import { config } from '../../config/index.js';
-import { prisma } from '../../lib/prisma.js';
 import { UnauthorizedError } from '../../shared/errors.js';
-import type { AuthContext, JwtPayload, UserProfile } from '../../shared/types.js';
+import type { AuthContext, UserProfile } from '../../shared/types.js';
 import { wechatClient } from './wechat.client.js';
+import { userRepository } from './user.repository.js';
 
 export class AuthService {
   async loginByWechat(code: string): Promise<{ token: string; expiresIn: number; user: UserProfile }> {
     const session = await wechatClient.code2Session(code);
 
-    let user = await prisma.user.findUnique({
-      where: { openId: session.openId },
-    });
+    let user = await userRepository.findByOpenId(session.openId);
 
     if (!user) {
-      user = await prisma.user.create({
-        data: {
-          id: uuidv4(),
-          openId: session.openId,
-          unionId: session.unionId,
-        },
+      user = await userRepository.create({
+        openId: session.openId,
+        unionId: session.unionId,
       });
     } else if (session.unionId && !user.unionId) {
-      user = await prisma.user.update({
-        where: { id: user.id },
-        data: { unionId: session.unionId },
-      });
+      user = await userRepository.update(user.id, { unionId: session.unionId });
     }
 
     const token = this.signToken(user.id);
@@ -42,17 +31,15 @@ export class AuthService {
   }
 
   async resolveToken(token: string): Promise<AuthContext> {
-    let payload: JwtPayload;
+    let payload: { sub: string };
 
     try {
-      payload = jwt.verify(token, config.jwt.secret) as JwtPayload;
+      payload = verifyJwt(token, config.jwt.secret);
     } catch {
       throw new UnauthorizedError();
     }
 
-    const user = await prisma.user.findUnique({
-      where: { id: payload.sub },
-    });
+    const user = await userRepository.findById(payload.sub);
 
     if (!user) {
       throw new UnauthorizedError();
@@ -74,16 +61,16 @@ export class AuthService {
   }
 
   signToken(userId: string): string {
-    return jwt.sign({}, config.jwt.secret, {
-      subject: userId,
-      expiresIn: config.jwt.expiresIn,
-    });
+    return signJwt(userId, config.jwt.secret, config.jwt.expiresIn);
   }
 
-  async buildUserProfile(user: User): Promise<UserProfile> {
-    const trackCount = await prisma.track.count({
-      where: { creatorId: user.id },
-    });
+  async buildUserProfile(user: {
+    id: string;
+    nickName: string;
+    avatarUrl: string;
+    createdAt: Date;
+  }): Promise<UserProfile> {
+    const trackCount = await userRepository.countTracksByCreator(user.id);
 
     return {
       id: user.id,

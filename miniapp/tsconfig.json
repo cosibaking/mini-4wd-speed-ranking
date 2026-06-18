@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
     "target": "ES2018",
-    "lib": ["ES2018"],
+    "lib": ["ES2018", "DOM"],
     "module": "commonjs",
-    "strict": true,
-    "noImplicitAny": true,
+    "strict": false,
+    "noImplicitAny": false,
     "moduleResolution": "node",
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -12,7 +12,7 @@
     "paths": {
       "@/*": ["./*"]
     },
-    "typeRoots": ["./typings", "./node_modules/miniprogram-api-typings"]
+    "typeRoots": ["./typings"]
   },
   "include": ["./**/*.ts"],
   "exclude": ["node_modules"]

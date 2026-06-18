@@ -1,13 +1,11 @@
-import { prisma } from '../../lib/prisma.js';
 import { UnauthorizedError, ValidationError } from '../../shared/errors.js';
 import type { PublicUser, UserProfile } from '../../shared/types.js';
 import { authService } from './auth.service.js';
+import { userRepository } from './user.repository.js';
 
 export class UserService {
   async getProfile(userId: string): Promise<UserProfile> {
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-    });
+    const user = await userRepository.findById(userId);
 
     if (!user) {
       throw new UnauthorizedError();
@@ -39,10 +37,7 @@ export class UserService {
       throw new ValidationError('请提供需要更新的字段');
     }
 
-    const user = await prisma.user.update({
-      where: { id: userId },
-      data,
-    });
+    const user = await userRepository.update(userId, data);
 
     return authService.buildUserProfile(user);
   }
@@ -55,14 +50,7 @@ export class UserService {
     }
 
     const uniqueIds = [...new Set(userIds)];
-    const users = await prisma.user.findMany({
-      where: { id: { in: uniqueIds } },
-      select: {
-        id: true,
-        nickName: true,
-        avatarUrl: true,
-      },
-    });
+    const users = await userRepository.findManyByIds(uniqueIds);
 
     for (const user of users) {
       result.set(user.id, {

@@ -12,7 +12,7 @@ async function restoreSession() {
   }
 }
 
-App<IAppOption>({
+App({
   globalData: {
     user: null,
     apiBase: API_BASE,

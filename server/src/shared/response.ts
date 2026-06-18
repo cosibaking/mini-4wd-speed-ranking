@@ -1,4 +1,4 @@
-import type { Context } from 'koa';
+import type { HttpContext } from '../lib/http/index.js';
 
 import { ErrorCode } from './errors.js';
 
@@ -8,10 +8,10 @@ export interface ApiResponse<T = unknown> {
   data: T;
 }
 
-export function success<T>(ctx: Context, data: T, message?: string): void;
+export function success<T>(ctx: HttpContext, data: T, message?: string): void;
 export function success<T>(data: T, message?: string): ApiResponse<T>;
 export function success<T>(
-  ctxOrData: Context | T,
+  ctxOrData: HttpContext | T,
   dataOrMessage?: T | string,
   message = 'ok',
 ): ApiResponse<T> | void {
@@ -34,13 +34,13 @@ export function success<T>(
   };
 }
 
-function isContext(value: unknown): value is Context {
+function isContext(value: unknown): value is HttpContext {
   return (
     typeof value === 'object' &&
     value !== null &&
     'state' in value &&
     'request' in value &&
-    'response' in value
+    'res' in value
   );
 }
 

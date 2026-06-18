@@ -2,5 +2,6 @@
   "usingComponents": {
     "track-card": "/components/TrackCard/track-card"
   },
+  "navigationStyle": "custom",
   "navigationBarTitleText": "首页"
 }

@@ -47,6 +47,11 @@ Page({
     }
   },
 
+  onEditProfile() {
+    if (!this.data.loggedIn) return;
+    wx.navigateTo({ url: '/pages/user/profile' });
+  },
+
   onNav(e: WechatMiniprogram.TouchEvent) {
     const url = e.currentTarget.dataset.url as string;
     if (!this.data.loggedIn) {

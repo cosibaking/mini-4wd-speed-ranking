@@ -1,4 +1,5 @@
-import { request } from './http';
+import { getToken, request, setToken } from './http';
+import { setSessionUser } from '../stores/session';
 import type { UserProfile } from '../types';
 
 export async function login(): Promise<{ token: string; user: UserProfile }> {
@@ -16,12 +17,20 @@ export function updateMe(data: { nickName?: string; avatarUrl?: string }): Promi
   return request<UserProfile>('/users/me', { method: 'PATCH', data });
 }
 
+export function isLoggedIn(): boolean {
+  return !!getToken();
+}
+
 /** 确保已登录，未登录则触发微信登录 */
 export async function ensureLogin(): Promise<UserProfile> {
   try {
-    return await getMe();
+    const user = await getMe();
+    setSessionUser(user);
+    return user;
   } catch {
     const result = await login();
+    setToken(result.token);
+    setSessionUser(result.user);
     return result.user;
   }
 }

@@ -13,14 +13,30 @@
     </view>
     <view class="form-item">
       <text class="form-label">赛道位置 *</text>
-      <view class="form-location" bindtap="onChooseLocation">
-        <text wx:if="{{form.location}}">{{form.location.address}}</text>
-        <text class="text-secondary" wx:else>点击选择地图位置</text>
+      <map
+        id="editMap"
+        class="form-map"
+        longitude="{{mapLongitude}}"
+        latitude="{{mapLatitude}}"
+        scale="{{mapScale}}"
+        markers="{{mapMarkers}}"
+        show-location
+        subkey="{{mapSubkey}}"
+        enable-zoom
+        enable-scroll
+        bindtap="onMapTap"
+        bindpoitap="onMapPoiTap"
+      />
+      <view class="form-map-footer">
+        <text class="form-map-hint {{locationAddress ? '' : 'form-map-hint--empty'}}">
+          {{locationAddress || '点击地图或 POI 标记选择位置'}}
+        </text>
+        <button class="btn-secondary form-map-search" size="mini" bindtap="onChooseLocation">搜索选点</button>
       </view>
     </view>
     <view class="form-item">
       <text class="form-label">所属主理人 *</text>
-      <input class="form-input" value="{{form.organizerName}}" bindinput="onOrganizerNameInput" />
+      <input class="form-input form-input--readonly" value="{{form.organizerName}}" disabled />
     </view>
     <view class="form-item">
       <text class="form-label">主理人联系方式（选填）</text>

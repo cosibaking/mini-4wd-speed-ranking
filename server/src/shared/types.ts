@@ -52,10 +52,3 @@ export interface JwtPayload {
   iat: number;
   exp: number;
 }
-
-declare module 'koa' {
-  interface DefaultState {
-    auth: AuthContext | null;
-    requestId: string;
-  }
-}

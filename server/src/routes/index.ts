@@ -1,14 +1,14 @@
-import Router from '@koa/router';
-
+import { Router } from '../lib/http/index.js';
 import { getRedis } from '../lib/redis.js';
+import { success } from '../shared/response.js';
 import authRoutes from './auth.routes.js';
 import communityRoutes from './community.routes.js';
+import geoRoutes from './geo.routes.js';
 import mediaRoutes from './media.routes.js';
 import recordRoutes from './record.routes.js';
 import trackRoutes from './track.routes.js';
-import { success } from '../shared/response.js';
 
-const router = new Router({ prefix: '/api/v1' });
+const router = new Router().prefixPath('/api/v1');
 
 router.get('/health', (ctx) => {
   ctx.body = success({
@@ -18,10 +18,11 @@ router.get('/health', (ctx) => {
   });
 });
 
-router.use(authRoutes.routes(), authRoutes.allowedMethods());
-router.use(trackRoutes.routes(), trackRoutes.allowedMethods());
-router.use(recordRoutes.routes(), recordRoutes.allowedMethods());
-router.use(communityRoutes.routes(), communityRoutes.allowedMethods());
-router.use(mediaRoutes.routes(), mediaRoutes.allowedMethods());
+router.use(authRoutes);
+router.use(geoRoutes);
+router.use(trackRoutes);
+router.use(recordRoutes);
+router.use(communityRoutes);
+router.use(mediaRoutes);
 
 export default router;

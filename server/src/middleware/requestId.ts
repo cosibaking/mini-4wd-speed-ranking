@@ -1,12 +1,10 @@
-import type { Middleware } from 'koa';
-import { randomUUID } from 'crypto';
+import { randomUUID } from 'node:crypto';
 
-export function requestIdMiddleware(): Middleware {
+import type { HttpMiddleware } from '../lib/http/index.js';
+
+export function requestIdMiddleware(): HttpMiddleware {
   return async (ctx, next) => {
-    const incoming = ctx.get('X-Request-Id');
-    const requestId = incoming || randomUUID();
-    ctx.state.requestId = requestId;
-    ctx.set('X-Request-Id', requestId);
+    ctx.state.requestId = randomUUID();
     await next();
   };
 }
