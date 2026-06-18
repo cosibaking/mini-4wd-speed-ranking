@@ -1,11 +1,10 @@
+import { isValidMediaUrl } from '../../media/path.builder.js';
 import type { SubmitRecordDto } from './record.types';
 import {
   invalidLapTimeError,
   maxCarPhotosError,
   validationError,
 } from '../errors';
-
-const HTTPS_URL_RE = /^https:\/\/.+/;
 
 export function validateSubmitRecordDto(body: unknown): SubmitRecordDto {
   const dto = body as SubmitRecordDto;
@@ -16,7 +15,7 @@ export function validateSubmitRecordDto(body: unknown): SubmitRecordDto {
   if (!dto.lapTimeDisplay) {
     throw validationError('圈速为必填项');
   }
-  if (!dto.videoUrl || !HTTPS_URL_RE.test(dto.videoUrl)) {
+  if (!dto.videoUrl || !isValidMediaUrl(dto.videoUrl)) {
     throw validationError('视频 URL 须为 HTTPS');
   }
   if (dto.carPhotoUrls) {
@@ -24,7 +23,7 @@ export function validateSubmitRecordDto(body: unknown): SubmitRecordDto {
       throw maxCarPhotosError();
     }
     for (const url of dto.carPhotoUrls) {
-      if (!HTTPS_URL_RE.test(url)) {
+      if (!isValidMediaUrl(url)) {
         throw validationError('车辆照片须为 HTTPS URL');
       }
     }
@@ -38,7 +37,7 @@ export function validateSubmitRecordDto(body: unknown): SubmitRecordDto {
         throw validationError('配置单文字不超过 1000 字');
       }
     } else if (dto.configSheet.type === 'image') {
-      if (!dto.configSheet.url || !HTTPS_URL_RE.test(dto.configSheet.url)) {
+      if (!dto.configSheet.url || !isValidMediaUrl(dto.configSheet.url)) {
         throw validationError('配置单图片须为 HTTPS URL');
       }
     } else {

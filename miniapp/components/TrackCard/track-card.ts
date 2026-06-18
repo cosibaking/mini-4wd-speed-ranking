@@ -28,8 +28,14 @@ Component({
 
   observers: {
     track(t: TrackListItem) {
-      if (t && t.distance !== undefined) {
-        this.setData({ distanceText: formatDistance(t.distance) });
+      if (!t) return;
+      const meters =
+        t.distance ??
+        (t as TrackListItem & { distanceMeters?: number | null }).distanceMeters;
+      if (meters != null) {
+        this.setData({ distanceText: formatDistance(meters) });
+      } else {
+        this.setData({ distanceText: '' });
       }
     },
   },

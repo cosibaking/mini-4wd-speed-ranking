@@ -5,11 +5,14 @@ exports.MAP_MARKER_ICON = exports.DEFAULT_MAP_CENTER = void 0;
 exports.calcDistanceMeters = calcDistanceMeters;
 exports.formatDistance = formatDistance;
 exports.getUserLocation = getUserLocation;
+exports.tryGetUserLocation = tryGetUserLocation;
 exports.buildTrackMarker = buildTrackMarker;
 exports.openMapNavigation = openMapNavigation;
 exports.showMapNavigationPicker = showMapNavigationPicker;
 exports.openNavigation = openNavigation;
 exports.reverseGeocodeAddress = reverseGeocodeAddress;
+exports.searchPlacesByKeyword = searchPlacesByKeyword;
+exports.suggestPlacesByKeyword = suggestPlacesByKeyword;
 const http_1 = require("../services/http");
 const EARTH_RADIUS_M = 6371000;
 /** 地图默认中心（北京），未填经纬度时 map 组件的默认值 */
@@ -43,6 +46,20 @@ function getUserLocation() {
             fail: reject,
         });
     });
+}
+/** 带超时的定位，避免阻塞列表加载 */
+async function tryGetUserLocation(timeoutMs = 2500) {
+    try {
+        return await Promise.race([
+            getUserLocation(),
+            new Promise((_, reject) => {
+                setTimeout(() => reject(new Error('location timeout')), timeoutMs);
+            }),
+        ]);
+    }
+    catch (_a) {
+        return undefined;
+    }
 }
 /** 构建赛道标记点 */
 function buildTrackMarker(lat, lng, title) {
@@ -139,4 +156,20 @@ function openNavigation(name, lat, lng, address) {
 /** 坐标逆地理编码（map 选点未返回地址时使用） */
 function reverseGeocodeAddress(lat, lng) {
     return (0, http_1.request)(`/geo/reverse?lat=${lat}&lng=${lng}`, { auth: false }).then((res) => res.address);
+}
+function buildGeoBiasQuery(lat, lng) {
+    if (lat === undefined || lng === undefined) {
+        return '';
+    }
+    return `&lat=${lat}&lng=${lng}`;
+}
+/** 关键词搜索地点（坐标来自腾讯 POI 数据，与列表一致） */
+function searchPlacesByKeyword(keyword, lat, lng) {
+    const q = encodeURIComponent(keyword);
+    return (0, http_1.request)(`/geo/search?keyword=${q}${buildGeoBiasQuery(lat, lng)}`, { auth: false }).then((res) => res.places);
+}
+/** 关键词联想（输入时实时提示） */
+function suggestPlacesByKeyword(keyword, lat, lng) {
+    const q = encodeURIComponent(keyword);
+    return (0, http_1.request)(`/geo/suggest?keyword=${q}${buildGeoBiasQuery(lat, lng)}`, { auth: false }).then((res) => res.places);
 }

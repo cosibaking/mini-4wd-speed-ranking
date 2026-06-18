@@ -42,6 +42,17 @@ export function buildPublicUrl(objectKey: string): string {
   return `${cdnBase.replace(/\/$/, '')}/${objectKey}`;
 }
 
+const HTTPS_URL_RE = /^https:\/\/.+/;
+const MOCK_MEDIA_URL_RE = /^https?:\/\/[^/]+\/mock-media\/.+/;
+
+/** 生产/CDN 须 HTTPS；本地 mock 媒体允许 http://…/mock-media/… */
+export function isValidMediaUrl(url: string): boolean {
+  if (HTTPS_URL_RE.test(url)) {
+    return true;
+  }
+  return isMockMediaEnabled() && MOCK_MEDIA_URL_RE.test(url);
+}
+
 export function isMockMediaEnabled(): boolean {
   if (process.env.MEDIA_MOCK === 'true') {
     return true;

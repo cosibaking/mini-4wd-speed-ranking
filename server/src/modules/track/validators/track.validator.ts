@@ -1,7 +1,6 @@
+import { isValidMediaUrl } from '../../media/path.builder.js';
 import type { CreateTrackDto, UpdateTrackDto } from '../dto/track.types';
 import { validationError } from '../errors';
-
-const HTTPS_URL_RE = /^https:\/\/.+/;
 
 function validateLocation(
   location: CreateTrackDto['location'],
@@ -11,6 +10,14 @@ function validateLocation(
     throw validationError(`${fieldPrefix} 为必填项`);
   }
   const { lat, lng, address } = location;
+  if (
+    typeof lat !== 'number' ||
+    typeof lng !== 'number' ||
+    !Number.isFinite(lat) ||
+    !Number.isFinite(lng)
+  ) {
+    throw validationError('坐标格式无效');
+  }
   if (lat < 3 || lat > 54 || lng < 73 || lng > 136) {
     throw validationError('坐标超出中国境内合理范围');
   }
@@ -41,7 +48,7 @@ function validateUrls(urls: string[] | undefined, max: number, label: string): v
     throw validationError(`${label}最多 ${max} 个`);
   }
   for (const url of urls) {
-    if (!HTTPS_URL_RE.test(url)) {
+    if (!isValidMediaUrl(url)) {
       throw validationError(`${label}须为 HTTPS URL`);
     }
   }
@@ -61,11 +68,18 @@ export function validateCreateTrackDto(body: unknown): CreateTrackDto {
   if (dto.organizerContact && dto.organizerContact.length > 128) {
     throw validationError('联系方式不超过 128 字');
   }
-  if (dto.lengthMeters !== undefined && (dto.lengthMeters < 1 || dto.lengthMeters > 10_000)) {
-    throw validationError('赛道长度须在 1–10000 米之间');
+  if (dto.lengthMeters !== undefined && dto.lengthMeters !== null) {
+    if (
+      typeof dto.lengthMeters !== 'number' ||
+      !Number.isFinite(dto.lengthMeters) ||
+      dto.lengthMeters < 1 ||
+      dto.lengthMeters > 10_000
+    ) {
+      throw validationError('赛道长度须在 1–10000 米之间的整数');
+    }
   }
   validateUrls(dto.floorPlanUrls, 3, '平面图');
-  if (dto.exampleVideoUrl && !HTTPS_URL_RE.test(dto.exampleVideoUrl)) {
+  if (dto.exampleVideoUrl && !isValidMediaUrl(dto.exampleVideoUrl)) {
     throw validationError('示例视频须为 HTTPS URL');
   }
   if (dto.ruleNote && dto.ruleNote.length > 500) {
@@ -115,9 +129,14 @@ export function validateUpdateTrackDto(body: unknown): UpdateTrackDto {
     }
     result.organizerContact = dto.organizerContact.trim() || undefined;
   }
-  if (dto.lengthMeters !== undefined) {
-    if (dto.lengthMeters < 1 || dto.lengthMeters > 10_000) {
-      throw validationError('赛道长度须在 1–10000 米之间');
+  if (dto.lengthMeters !== undefined && dto.lengthMeters !== null) {
+    if (
+      typeof dto.lengthMeters !== 'number' ||
+      !Number.isFinite(dto.lengthMeters) ||
+      dto.lengthMeters < 1 ||
+      dto.lengthMeters > 10_000
+    ) {
+      throw validationError('赛道长度须在 1–10000 米之间的整数');
     }
     result.lengthMeters = dto.lengthMeters;
   }
@@ -126,7 +145,7 @@ export function validateUpdateTrackDto(body: unknown): UpdateTrackDto {
     result.floorPlanUrls = dto.floorPlanUrls;
   }
   if (dto.exampleVideoUrl !== undefined) {
-    if (dto.exampleVideoUrl && !HTTPS_URL_RE.test(dto.exampleVideoUrl)) {
+    if (dto.exampleVideoUrl && !isValidMediaUrl(dto.exampleVideoUrl)) {
       throw validationError('示例视频须为 HTTPS URL');
     }
     result.exampleVideoUrl = dto.exampleVideoUrl || undefined;
@@ -153,12 +172,14 @@ export function parseTrackListQuery(query: Record<string, unknown>): {
   const pageSize = Math.min(50, Math.max(1, Number(query.pageSize) || 20));
   const keyword =
     typeof query.keyword === 'string' ? query.keyword.trim() || undefined : undefined;
-  const lat = query.lat !== undefined ? Number(query.lat) : undefined;
-  const lng = query.lng !== undefined ? Number(query.lng) : undefined;
-  const sort =
-    query.sort === 'distance' && lat !== undefined && lng !== undefined
-      ? 'distance'
-      : 'latest';
+  const latRaw = query.lat !== undefined ? Number(query.lat) : undefined;
+  const lngRaw = query.lng !== undefined ? Number(query.lng) : undefined;
+  const lat = latRaw !== undefined && Number.isFinite(latRaw) ? latRaw : undefined;
+  const lng = lngRaw !== undefined && Number.isFinite(lngRaw) ? lngRaw : undefined;
+  const sortExplicit =
+    query.sort === 'distance' || query.sort === 'latest' ? query.sort : undefined;
+  const sort: 'distance' | 'latest' =
+    sortExplicit ?? (lat !== undefined && lng !== undefined ? 'distance' : 'latest');
 
   return { page, pageSize, keyword, lat, lng, sort };
 }

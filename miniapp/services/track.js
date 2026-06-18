@@ -42,9 +42,45 @@ function mockPaginate(list, query = {}) {
         hasMore: start + pageSize < list.length,
     };
 }
+/** 统一服务端列表字段，兼容 address / distanceMeters */
+function normalizeTrackListItem(raw) {
+    var _a, _b, _c, _d, _e, _f, _g;
+    const address = (_c = (_a = raw.address) !== null && _a !== void 0 ? _a : (_b = raw.location) === null || _b === void 0 ? void 0 : _b.address) !== null && _c !== void 0 ? _c : '';
+    const distance = (_d = raw.distance) !== null && _d !== void 0 ? _d : (raw.distanceMeters != null ? raw.distanceMeters : undefined);
+    return {
+        id: raw.id,
+        name: raw.name,
+        address,
+        location: (_e = raw.location) !== null && _e !== void 0 ? _e : { lat: 0, lng: 0, address },
+        organizerName: (_f = raw.organizerName) !== null && _f !== void 0 ? _f : '',
+        distance,
+        topRecord: raw.topRecord,
+        participantCount: (_g = raw.participantCount) !== null && _g !== void 0 ? _g : 0,
+    };
+}
+function normalizeTrackList(items) {
+    return items.map(normalizeTrackListItem);
+}
 async function listTracks(query = {}) {
+    const params = {};
+    if (query.page)
+        params.page = query.page;
+    if (query.pageSize)
+        params.pageSize = query.pageSize;
+    if (query.keyword)
+        params.keyword = query.keyword;
+    if (query.lat !== undefined)
+        params.lat = query.lat;
+    if (query.lng !== undefined)
+        params.lng = query.lng;
+    if (query.sort)
+        params.sort = query.sort;
     try {
-        return await (0, http_1.request)('/tracks', { data: query, auth: false });
+        const res = await (0, http_1.request)('/tracks', {
+            data: params,
+            auth: false,
+        });
+        return { ...res, list: normalizeTrackList(res.list) };
     }
     catch (e) {
         if (!config_1.USE_MOCK_FALLBACK)
@@ -88,7 +124,7 @@ async function getTrack(id) {
     }
 }
 function getRecentTracks() {
-    return (0, http_1.request)('/tracks/recent');
+    return (0, http_1.request)('/tracks/recent').then(normalizeTrackList);
 }
 function getMyTracks(query = {}) {
     return (0, http_1.request)('/tracks/mine', { data: query });

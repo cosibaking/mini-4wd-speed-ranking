@@ -42,11 +42,54 @@ function mockPaginate<T>(list: T[], query: PaginationQuery = {}): PaginationResu
   };
 }
 
+type ApiTrackListItem = TrackListItem & {
+  distanceMeters?: number | null;
+};
+
+/** 统一服务端列表字段，兼容 address / distanceMeters */
+function normalizeTrackListItem(raw: ApiTrackListItem): TrackListItem {
+  const address = raw.address ?? raw.location?.address ?? '';
+  const distance =
+    raw.distance ?? (raw.distanceMeters != null ? raw.distanceMeters : undefined);
+
+  return {
+    id: raw.id,
+    name: raw.name,
+    address,
+    location: raw.location ?? { lat: 0, lng: 0, address },
+    organizerName: raw.organizerName ?? '',
+    distance,
+    topRecord: raw.topRecord,
+    participantCount: raw.participantCount ?? 0,
+  };
+}
+
+function normalizeTrackList(items: ApiTrackListItem[]): TrackListItem[] {
+  return items.map(normalizeTrackListItem);
+}
+
 export async function listTracks(
-  query: PaginationQuery & { lat?: number; lng?: number; keyword?: string } = {}
+  query: PaginationQuery & {
+    lat?: number;
+    lng?: number;
+    keyword?: string;
+    sort?: 'distance' | 'latest';
+  } = {}
 ): Promise<PaginationResult<TrackListItem>> {
+  const params: Record<string, unknown> = {};
+  if (query.page) params.page = query.page;
+  if (query.pageSize) params.pageSize = query.pageSize;
+  if (query.keyword) params.keyword = query.keyword;
+  if (query.lat !== undefined) params.lat = query.lat;
+  if (query.lng !== undefined) params.lng = query.lng;
+  if (query.sort) params.sort = query.sort;
+
   try {
-    return await request('/tracks', { data: query as Record<string, unknown>, auth: false });
+    const res = await request<PaginationResult<ApiTrackListItem>>('/tracks', {
+      data: params,
+      auth: false,
+    });
+    return { ...res, list: normalizeTrackList(res.list) };
   } catch (e) {
     if (!USE_MOCK_FALLBACK) throw e;
     let list = [...MOCK_TRACKS];
@@ -88,7 +131,7 @@ export async function getTrack(id: string): Promise<TrackDetail> {
 }
 
 export function getRecentTracks(): Promise<TrackListItem[]> {
-  return request<TrackListItem[]>('/tracks/recent');
+  return request<ApiTrackListItem[]>('/tracks/recent').then(normalizeTrackList);
 }
 
 export function getMyTracks(query: PaginationQuery = {}): Promise<PaginationResult<TrackListItem>> {

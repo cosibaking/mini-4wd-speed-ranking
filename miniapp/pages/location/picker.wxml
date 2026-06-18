@@ -1,0 +1,51 @@
+<view class="picker-page">
+  <view class="picker-search">
+    <input
+      class="picker-search__input"
+      placeholder="搜索地点"
+      value="{{keyword}}"
+      bindinput="onKeywordInput"
+      confirm-type="search"
+      bindconfirm="onSearch"
+    />
+    <button class="btn-secondary picker-search__btn" size="mini" bindtap="onSearch" loading="{{searching}}">搜索</button>
+  </view>
+
+  <map
+    id="pickerMap"
+    class="picker-map"
+    longitude="{{mapLongitude}}"
+    latitude="{{mapLatitude}}"
+    scale="{{mapScale}}"
+    markers="{{mapMarkers}}"
+    show-location
+    subkey="{{mapSubkey}}"
+    enable-zoom
+    enable-scroll
+    bindtap="onMapTap"
+    bindpoitap="onMapPoiTap"
+  />
+
+  <scroll-view class="picker-results" scroll-y>
+    <view
+      wx:for="{{results}}"
+      wx:key="index"
+      class="picker-result {{selectedIndex === index ? 'picker-result--active' : ''}}"
+      data-index="{{index}}"
+      bindtap="onSelectResult"
+    >
+      <view class="picker-result__main">
+        <text class="picker-result__name">{{item.name}}</text>
+        <text class="picker-result__address">{{item.address}}</text>
+      </view>
+      <text wx:if="{{selectedIndex === index}}" class="picker-result__check">✓</text>
+    </view>
+    <view wx:if="{{searched && results.length === 0}}" class="picker-empty">{{searchError || '未找到相关地点'}}</view>
+    <view wx:if="{{!searched}}" class="picker-empty">输入关键词搜索，或点击地图选点</view>
+  </scroll-view>
+
+  <view class="picker-actions">
+    <button class="btn-secondary picker-actions__btn" bindtap="onCancel">取消</button>
+    <button class="btn-primary picker-actions__btn" bindtap="onConfirm">确定</button>
+  </view>
+</view>

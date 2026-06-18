@@ -1,5 +1,5 @@
 import { listTracks } from '../../services/track';
-import { getUserLocation } from '../../utils/geo';
+import { tryGetUserLocation } from '../../utils/geo';
 import type { TrackListItem } from '../../types';
 
 Page({
@@ -19,15 +19,9 @@ Page({
     const page = reset ? 1 : this.data.page;
     this.setData({ loading: true });
 
-    let lat: number | undefined;
-    let lng: number | undefined;
-    try {
-      const loc = await getUserLocation();
-      lat = loc.lat;
-      lng = loc.lng;
-    } catch {
-      // 定位失败仍可浏览列表
-    }
+    const loc = await tryGetUserLocation();
+    const lat = loc?.lat;
+    const lng = loc?.lng;
 
     try {
       const res = await listTracks({
@@ -35,6 +29,7 @@ Page({
         pageSize: 20,
         lat,
         lng,
+        sort: lat !== undefined && lng !== undefined ? 'distance' : undefined,
         keyword: this.data.keyword || undefined,
       });
       const tracks = reset ? res.list : [...this.data.tracks, ...res.list];

@@ -28,7 +28,7 @@ Page({
         mapScale: 16,
         mapMarkers: [],
         mapSubkey: config_1.TENCENT_MAP_SUBKEY,
-        resolvingAddress: false,
+        locationRequestId: 0,
     },
     async onLoad(options) {
         var _a, _b;
@@ -102,36 +102,66 @@ Page({
     isCoordinateLikeAddress(text) {
         return /^地图选点/.test(text) || /^-?\d+\.\d+\s*,\s*-?\d+\.\d+$/.test(text);
     },
-    async applyLocation(lat, lng, addressHint) {
-        if (this.data.resolvingAddress)
-            return;
-        let address = (addressHint || '').trim();
-        if (!address || this.isCoordinateLikeAddress(address)) {
-            this.setData({ resolvingAddress: true });
-            try {
-                wx.showLoading({ title: '解析地址中' });
-                address = await (0, geo_1.reverseGeocodeAddress)(lat, lng);
-            }
-            catch (err) {
-                const msg = err instanceof Error ? err.message : '地址解析失败';
-                wx.showToast({ title: msg, icon: 'none' });
-                return;
-            }
-            finally {
-                wx.hideLoading();
-                this.setData({ resolvingAddress: false });
-            }
-        }
-        if (!address || this.isCoordinateLikeAddress(address)) {
-            wx.showToast({ title: '未能解析有效地址，请重试', icon: 'none' });
-            return;
-        }
+    /** 直接写入已确定地址的选点（不再二次逆地理编码） */
+    setSelectedLocation(lat, lng, address) {
+        const requestId = this.data.locationRequestId + 1;
         const title = this.data.form.name.trim() || '赛道位置';
         this.setData({
+            locationRequestId: requestId,
             locationAddress: address,
+            mapLatitude: lat,
+            mapLongitude: lng,
+            mapMarkers: [(0, geo_1.buildTrackMarker)(lat, lng, title)],
             'form.location': { lat, lng, address },
         });
-        this.updateMapView(lat, lng, title);
+    },
+    /** 地图点选 / POI 点选：无现成地址，需逆地理编码解析 */
+    async applyLocation(lat, lng, addressHint) {
+        const requestId = this.data.locationRequestId + 1;
+        const hint = (addressHint || '').trim();
+        const title = this.data.form.name.trim() || '赛道位置';
+        this.setData({
+            locationRequestId: requestId,
+            locationAddress: hint || '正在解析地址...',
+            mapLatitude: lat,
+            mapLongitude: lng,
+            mapMarkers: [(0, geo_1.buildTrackMarker)(lat, lng, title)],
+        });
+        let loadingShown = false;
+        try {
+            if (!hint) {
+                wx.showLoading({ title: '解析地址中' });
+                loadingShown = true;
+            }
+            const resolved = await (0, geo_1.reverseGeocodeAddress)(lat, lng);
+            if (this.data.locationRequestId !== requestId)
+                return;
+            let address = resolved;
+            if (hint && !this.isCoordinateLikeAddress(hint)) {
+                address = resolved.includes(hint) ? resolved : `${hint}（${resolved}）`;
+            }
+            if (!address || this.isCoordinateLikeAddress(address)) {
+                wx.showToast({ title: '未能解析有效地址，请重试', icon: 'none' });
+                this.setData({ locationAddress: '' });
+                return;
+            }
+            this.setData({
+                locationAddress: address,
+                'form.location': { lat, lng, address },
+            });
+        }
+        catch (err) {
+            if (this.data.locationRequestId !== requestId)
+                return;
+            const msg = err instanceof Error ? err.message : '地址解析失败';
+            wx.showToast({ title: msg, icon: 'none' });
+            this.setData({ locationAddress: hint || '' });
+        }
+        finally {
+            if (loadingShown) {
+                wx.hideLoading();
+            }
+        }
     },
     onMapTap(e) {
         const { latitude, longitude } = e.detail;
@@ -142,10 +172,21 @@ Page({
         this.applyLocation(latitude, longitude, name);
     },
     onChooseLocation() {
-        wx.chooseLocation({
-            success: async (res) => {
-                const address = this.formatSelectedAddress(res);
-                await this.applyLocation(res.latitude, res.longitude, address);
+        const { mapLatitude, mapLongitude } = this.data;
+        wx.navigateTo({
+            url: `/pages/location/picker?lat=${mapLatitude}&lng=${mapLongitude}`,
+            events: {
+                selected: (place) => {
+                    const address = this.formatSelectedAddress({
+                        name: place.name,
+                        address: place.address,
+                    });
+                    if (address) {
+                        this.setSelectedLocation(place.lat, place.lng, address);
+                        return;
+                    }
+                    this.applyLocation(place.lat, place.lng, place.name);
+                },
             },
         });
     },
@@ -179,21 +220,30 @@ Page({
             this.setData({ 'form.exampleVideoUrl': url });
         }
         catch (err) {
+            if (err instanceof media_1.UploadCancelledError) {
+                return;
+            }
             console.error('[track/edit] video upload failed', err);
-            wx.showToast({ title: '上传失败', icon: 'none' });
+            const message = err instanceof Error ? err.message : '上传失败';
+            wx.showToast({ title: message.slice(0, 20), icon: 'none' });
         }
         finally {
             wx.hideLoading();
         }
     },
     validateStep1() {
+        var _a;
         const { name, location, organizerName } = this.data.form;
         if (!name.trim()) {
             wx.showToast({ title: '请填写赛道名称', icon: 'none' });
             return false;
         }
-        if (!location) {
+        if (!location || !((_a = location.address) === null || _a === void 0 ? void 0 : _a.trim())) {
             wx.showToast({ title: '请在地图上选择赛道位置', icon: 'none' });
+            return false;
+        }
+        if (!Number.isFinite(location.lat) || !Number.isFinite(location.lng)) {
+            wx.showToast({ title: '位置坐标无效，请重新选点', icon: 'none' });
             return false;
         }
         if (!organizerName.trim()) {
@@ -202,8 +252,22 @@ Page({
         }
         return true;
     },
+    validateStep2() {
+        const raw = this.data.form.lengthMeters.trim();
+        if (!raw) {
+            return true;
+        }
+        const lengthMeters = parseInt(raw, 10);
+        if (!Number.isFinite(lengthMeters) || lengthMeters < 1 || lengthMeters > 10000) {
+            wx.showToast({ title: '赛道长度须为1-10000米', icon: 'none' });
+            return false;
+        }
+        return true;
+    },
     onNext() {
         if (this.data.step === 1 && !this.validateStep1())
+            return;
+        if (this.data.step === 2 && !this.validateStep2())
             return;
         if (this.data.step < 3) {
             this.setData({ step: this.data.step + 1 });
@@ -219,18 +283,28 @@ Page({
             this.setData({ step: 1 });
             return;
         }
+        if (!this.validateStep2()) {
+            this.setData({ step: 2 });
+            return;
+        }
         const form = this.data.form;
+        const loc = form.location;
         const payload = {
             name: form.name.trim(),
-            location: form.location,
+            location: {
+                lat: Number(loc.lat),
+                lng: Number(loc.lng),
+                address: loc.address.trim(),
+            },
             organizerName: form.organizerName.trim(),
             organizerContact: form.organizerContact.trim() || undefined,
-            floorPlanUrls: form.floorPlanUrls,
+            floorPlanUrls: form.floorPlanUrls.filter(Boolean),
             exampleVideoUrl: form.exampleVideoUrl || undefined,
             ruleNote: form.ruleNote.trim() || undefined,
         };
-        if (form.lengthMeters) {
-            payload.lengthMeters = parseInt(form.lengthMeters, 10);
+        const lengthRaw = form.lengthMeters.trim();
+        if (lengthRaw) {
+            payload.lengthMeters = parseInt(lengthRaw, 10);
         }
         this.setData({ submitting: true });
         try {

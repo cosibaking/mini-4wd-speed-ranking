@@ -2,6 +2,7 @@ declare function App(options: Record<string, unknown>): void;
 declare function Page(options: Record<string, unknown>): void;
 declare function Component(options: Record<string, unknown>): void;
 declare function getApp<T = Record<string, unknown>>(): T;
+declare function requirePlugin(name: string): unknown;
 
 declare namespace WechatMiniprogram {
   type IAnyObject = Record<string, unknown>;
@@ -122,6 +123,7 @@ declare const wx: {
   removeStorageSync(key: string): void;
   navigateTo(option: {
     url: string;
+    events?: Record<string, (data: unknown) => void>;
     success?: () => void;
     fail?: (err: { errMsg: string }) => void;
   }): void;

@@ -45,8 +45,10 @@ export interface LeaderboardSummary {
 export interface TrackListItem {
   id: string;
   name: string;
-  location: GeoPoint;
-  organizerName: string;
+  /** 列表摘要地址（与 location.address 二选一，服务端列表接口直接返回） */
+  address?: string;
+  location?: GeoPoint;
+  organizerName?: string;
   distance?: number;
   topRecord?: { nickName: string; lapTimeDisplay: string };
   participantCount: number;

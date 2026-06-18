@@ -26,8 +26,15 @@ Component({
     },
     observers: {
         track(t) {
-            if (t && t.distance !== undefined) {
-                this.setData({ distanceText: (0, geo_1.formatDistance)(t.distance) });
+            var _a;
+            if (!t)
+                return;
+            const meters = (_a = t.distance) !== null && _a !== void 0 ? _a : t.distanceMeters;
+            if (meters != null) {
+                this.setData({ distanceText: (0, geo_1.formatDistance)(meters) });
+            }
+            else {
+                this.setData({ distanceText: '' });
             }
         },
     },

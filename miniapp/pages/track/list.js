@@ -16,22 +16,16 @@ Page({
     async loadTracks(reset = false) {
         const page = reset ? 1 : this.data.page;
         this.setData({ loading: true });
-        let lat;
-        let lng;
-        try {
-            const loc = await (0, geo_1.getUserLocation)();
-            lat = loc.lat;
-            lng = loc.lng;
-        }
-        catch (_a) {
-            // 定位失败仍可浏览列表
-        }
+        const loc = await (0, geo_1.tryGetUserLocation)();
+        const lat = loc === null || loc === void 0 ? void 0 : loc.lat;
+        const lng = loc === null || loc === void 0 ? void 0 : loc.lng;
         try {
             const res = await (0, track_1.listTracks)({
                 page,
                 pageSize: 20,
                 lat,
                 lng,
+                sort: lat !== undefined && lng !== undefined ? 'distance' : undefined,
                 keyword: this.data.keyword || undefined,
             });
             const tracks = reset ? res.list : [...this.data.tracks, ...res.list];
@@ -42,7 +36,7 @@ Page({
                 loading: false,
             });
         }
-        catch (_b) {
+        catch (_a) {
             this.setData({ loading: false });
             wx.showToast({ title: '加载失败', icon: 'none' });
         }

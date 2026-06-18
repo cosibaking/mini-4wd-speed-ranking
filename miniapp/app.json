@@ -4,6 +4,7 @@
     "pages/track/list",
     "pages/track/detail",
     "pages/track/edit",
+    "pages/location/picker",
     "pages/leaderboard/index",
     "pages/record/submit",
     "pages/record/detail",
@@ -59,7 +60,7 @@
       "desc": "用于在地图上显示当前位置、计算赛道距离和导航"
     }
   },
-  "requiredPrivateInfos": ["getLocation", "chooseLocation"],
+  "requiredPrivateInfos": ["getLocation"],
   "navigateToMiniProgramAppIdList": [
     "wx5bc2ae712e694a62",
     "wx7646beb07707391a",

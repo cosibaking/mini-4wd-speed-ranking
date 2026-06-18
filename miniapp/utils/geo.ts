@@ -66,6 +66,22 @@ export function getUserLocation(): Promise<{ lat: number; lng: number }> {
   });
 }
 
+/** 带超时的定位，避免阻塞列表加载 */
+export async function tryGetUserLocation(
+  timeoutMs = 2500
+): Promise<{ lat: number; lng: number } | undefined> {
+  try {
+    return await Promise.race([
+      getUserLocation(),
+      new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('location timeout')), timeoutMs);
+      }),
+    ]);
+  } catch {
+    return undefined;
+  }
+}
+
 /** 构建赛道标记点 */
 export function buildTrackMarker(lat: number, lng: number, title: string): MapMarker {
   return {
@@ -197,4 +213,44 @@ export function reverseGeocodeAddress(lat: number, lng: number): Promise<string>
   return request<{ address: string }>(`/geo/reverse?lat=${lat}&lng=${lng}`, { auth: false }).then(
     (res) => res.address
   );
+}
+
+export interface PlaceSearchResult {
+  name: string;
+  address: string;
+  lat: number;
+  lng: number;
+}
+
+function buildGeoBiasQuery(lat?: number, lng?: number): string {
+  if (lat === undefined || lng === undefined) {
+    return '';
+  }
+  return `&lat=${lat}&lng=${lng}`;
+}
+
+/** 关键词搜索地点（坐标来自腾讯 POI 数据，与列表一致） */
+export function searchPlacesByKeyword(
+  keyword: string,
+  lat?: number,
+  lng?: number
+): Promise<PlaceSearchResult[]> {
+  const q = encodeURIComponent(keyword);
+  return request<{ places: PlaceSearchResult[] }>(
+    `/geo/search?keyword=${q}${buildGeoBiasQuery(lat, lng)}`,
+    { auth: false }
+  ).then((res) => res.places);
+}
+
+/** 关键词联想（输入时实时提示） */
+export function suggestPlacesByKeyword(
+  keyword: string,
+  lat?: number,
+  lng?: number
+): Promise<PlaceSearchResult[]> {
+  const q = encodeURIComponent(keyword);
+  return request<{ places: PlaceSearchResult[] }>(
+    `/geo/suggest?keyword=${q}${buildGeoBiasQuery(lat, lng)}`,
+    { auth: false }
+  ).then((res) => res.places);
 }
