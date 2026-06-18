@@ -1,0 +1,18 @@
+<view class="container">
+  <button class="btn-primary create-btn" bindtap="onCreate">+ 新建赛道</button>
+
+  <block wx:if="{{tracks.length > 0}}">
+    <view wx:for="{{tracks}}" wx:key="id" class="track-manage card">
+      <track-card track="{{item}}" showDistance="{{false}}" />
+      <button class="btn-secondary edit-btn" size="mini" data-id="{{item.id}}" bindtap="onEdit">编辑</button>
+    </view>
+  </block>
+
+  <empty-state
+    wx:if="{{!loading && tracks.length === 0}}"
+    title="还没有赛道"
+    desc="创建你的第一个赛道吧"
+    actionText="新建赛道"
+    bind:action="onCreate"
+  />
+</view>

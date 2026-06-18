@@ -1,0 +1,30 @@
+<view class="container community-page">
+  <scroll-view scroll-x class="board-tabs">
+    <view
+      class="board-tab {{activeBoardId === item.id ? 'board-tab--active' : ''}}"
+      wx:for="{{boards}}"
+      wx:key="id"
+      data-id="{{item.id}}"
+      bindtap="onBoardTap"
+    >{{item.name}}</view>
+  </scroll-view>
+
+  <view class="sort-bar">
+    <text class="sort-item {{sort === 'latest' ? 'sort-item--active' : ''}}" data-sort="latest" bindtap="onSortTap">最新</text>
+    <text class="sort-item {{sort === 'hot' ? 'sort-item--active' : ''}}" data-sort="hot" bindtap="onSortTap">热门</text>
+  </view>
+
+  <block wx:if="{{posts.length > 0}}">
+    <post-card wx:for="{{posts}}" wx:key="id" post="{{item}}" />
+  </block>
+
+  <empty-state
+    wx:if="{{!loading && posts.length === 0}}"
+    title="暂无帖子"
+    desc="来发第一篇帖子吧"
+    actionText="发帖"
+    bind:action="onCreatePost"
+  />
+
+  <view class="fab" bindtap="onCreatePost">+</view>
+</view>

@@ -1,0 +1,46 @@
+.user-header {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  padding: 40rpx 24rpx;
+}
+
+.user-header__avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  background: var(--color-border);
+}
+
+.user-header__name {
+  font-size: 36rpx;
+  font-weight: 700;
+  display: block;
+}
+
+.login-btn {
+  width: 100%;
+}
+
+.menu {
+  padding: 0;
+  overflow: hidden;
+}
+
+.menu-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32rpx 24rpx;
+  border-bottom: 1rpx solid var(--color-border);
+  font-size: 30rpx;
+}
+
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+.menu-item__arrow {
+  color: var(--color-text-placeholder);
+  font-size: 32rpx;
+}

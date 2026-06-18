@@ -1,0 +1,11 @@
+<view class="post-card card" bindtap="onTap">
+  <text class="post-card__title">{{post.title}}</text>
+  <text class="post-card__summary text-secondary">{{post.summary}}</text>
+  <view class="post-card__footer">
+    <text class="text-secondary">{{post.author.nickName}}</text>
+    <view class="post-card__stats">
+      <text class="text-secondary">👍 {{post.likeCount}}</text>
+      <text class="text-secondary">💬 {{post.commentCount}}</text>
+    </view>
+  </view>
+</view>

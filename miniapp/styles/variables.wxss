@@ -1,0 +1,14 @@
+/* 全局设计变量 */
+page {
+  --color-primary: #2D6A4F;
+  --color-primary-light: #40916C;
+  --color-text: #1A1A1A;
+  --color-text-secondary: #666666;
+  --color-text-placeholder: #999999;
+  --color-border: #E8E8E8;
+  --color-bg: #F5F5F5;
+  --color-card: #FFFFFF;
+  --radius-card: 12rpx;
+  --radius-btn: 8rpx;
+  --spacing-page: 32rpx;
+}

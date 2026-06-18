@@ -1,0 +1,25 @@
+.post-card__title {
+  font-size: 30rpx;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.post-card__summary {
+  display: block;
+  margin-bottom: 16rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.post-card__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.post-card__stats {
+  display: flex;
+  gap: 24rpx;
+}

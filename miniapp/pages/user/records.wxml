@@ -1,0 +1,18 @@
+<view class="container">
+  <view class="record-item card" wx:for="{{records}}" wx:key="id" data-id="{{item.id}}" bindtap="onTap">
+    <view class="record-item__header">
+      <text class="record-item__track">{{item.trackName || '赛道'}}</text>
+      <text class="record-item__time lap-time">{{item.lapTimeDisplay}}</text>
+    </view>
+    <text class="text-secondary">{{item.createdAt}}</text>
+    <text class="text-secondary" wx:if="{{item.rank}}">排名：第 {{item.rank}} 名</text>
+  </view>
+
+  <empty-state
+    wx:if="{{!loading && records.length === 0}}"
+    title="暂无成绩"
+    desc="去赛道挑战你的第一个圈速吧"
+    actionText="选择赛道"
+    bind:action="onGoTracks"
+  />
+</view>

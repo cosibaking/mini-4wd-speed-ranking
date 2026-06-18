@@ -1,0 +1,14 @@
+<view class="container">
+  <view class="follow-item card" wx:for="{{users}}" wx:key="id">
+    <image class="follow-item__avatar" src="{{item.avatarUrl || '/assets/default-avatar.png'}}" mode="aspectFill" />
+    <text class="follow-item__name">{{item.nickName}}</text>
+  </view>
+
+  <empty-state
+    wx:if="{{!loading && users.length === 0}}"
+    title="暂无关注"
+    desc="在社区帖子中关注感兴趣的车友吧"
+    actionText="去社区"
+    bind:action="onGoCommunity"
+  />
+</view>

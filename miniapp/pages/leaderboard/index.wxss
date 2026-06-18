@@ -1,0 +1,53 @@
+.lb-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.lb-header__select {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.lb-header__name {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.lb-header__arrow {
+  font-size: 20rpx;
+  color: var(--color-text-secondary);
+}
+
+.lb-picker__item {
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid var(--color-border);
+  font-size: 28rpx;
+}
+
+.lb-picker__item--active {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.lb-list {
+  padding: 0;
+  overflow: hidden;
+}
+
+.lb-list record-row:last-child .record-row {
+  border-bottom: none;
+}
+
+.lb-my-rank {
+  text-align: center;
+  font-size: 28rpx;
+  margin-top: 24rpx;
+}
+
+.loading-tip {
+  text-align: center;
+  padding: 48rpx;
+}

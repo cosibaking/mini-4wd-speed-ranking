@@ -1,0 +1,6 @@
+{
+  "usingComponents": {
+    "lap-time-input": "/components/LapTimeInput/lap-time-input"
+  },
+  "navigationBarTitleText": "上传成绩"
+}

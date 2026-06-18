@@ -1,0 +1,27 @@
+.lap-time-input__field {
+  background: #fff;
+  border: 2rpx solid var(--color-border);
+  border-radius: var(--radius-btn);
+  padding: 20rpx 24rpx;
+  font-size: 36rpx;
+  font-family: 'Courier New', monospace;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.lap-time-input__field--error {
+  border-color: #E53935;
+}
+
+.lap-time-input__hint {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 22rpx;
+}
+
+.lap-time-input__error {
+  display: block;
+  color: #E53935;
+  font-size: 22rpx;
+  margin-top: 4rpx;
+}

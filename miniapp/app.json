@@ -1,0 +1,64 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/track/list",
+    "pages/track/detail",
+    "pages/track/edit",
+    "pages/leaderboard/index",
+    "pages/record/submit",
+    "pages/record/detail",
+    "pages/community/index",
+    "pages/community/post",
+    "pages/community/create",
+    "pages/user/index",
+    "pages/user/tracks",
+    "pages/user/records",
+    "pages/user/following"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#2D6A4F",
+    "navigationBarTitleText": "公园四驱·圈速打榜",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#F5F5F5"
+  },
+  "tabBar": {
+    "color": "#666666",
+    "selectedColor": "#2D6A4F",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "assets/tab/home.png",
+        "selectedIconPath": "assets/tab/home-active.png"
+      },
+      {
+        "pagePath": "pages/leaderboard/index",
+        "text": "圈速榜",
+        "iconPath": "assets/tab/leaderboard.png",
+        "selectedIconPath": "assets/tab/leaderboard-active.png"
+      },
+      {
+        "pagePath": "pages/community/index",
+        "text": "社区",
+        "iconPath": "assets/tab/community.png",
+        "selectedIconPath": "assets/tab/community-active.png"
+      },
+      {
+        "pagePath": "pages/user/index",
+        "text": "我的",
+        "iconPath": "assets/tab/user.png",
+        "selectedIconPath": "assets/tab/user-active.png"
+      }
+    ]
+  },
+  "permission": {
+    "scope.userLocation": {
+      "desc": "用于计算赛道距离和地图导航"
+    }
+  },
+  "requiredPrivateInfos": ["getLocation", "chooseLocation"],
+  "sitemapLocation": "sitemap.json",
+  "style": "v2"
+}

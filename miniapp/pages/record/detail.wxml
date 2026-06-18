@@ -1,0 +1,42 @@
+<view class="container" wx:if="{{record}}">
+  <view class="card record-header">
+    <view class="record-header__user">
+      <image class="record-header__avatar" src="{{record.user.avatarUrl || '/assets/default-avatar.png'}}" mode="aspectFill" />
+      <view>
+        <text class="record-header__name">{{record.user.nickName}}</text>
+        <text class="text-secondary record-header__track">{{record.trackName}}</text>
+      </view>
+    </view>
+    <view class="record-header__stats">
+      <text class="record-header__rank">第 {{record.rank}} 名</text>
+      <text class="record-header__time lap-time">{{record.lapTimeDisplay}}</text>
+    </view>
+    <text class="text-secondary">提交于 {{record.createdAt}}</text>
+  </view>
+
+  <view class="card">
+    <text class="section-title">成绩认定视频</text>
+    <video wx:if="{{record.videoUrl}}" class="detail-video" src="{{record.videoUrl}}" controls />
+    <text class="text-secondary" wx:else>暂无视频</text>
+  </view>
+
+  <view class="card" wx:if="{{record.configSheet}}">
+    <text class="section-title">车型配置单</text>
+    <text wx:if="{{record.configSheet.type === 'text'}}">{{record.configSheet.content}}</text>
+    <image wx:if="{{record.configSheet.type === 'image'}}" class="config-img" src="{{record.configSheet.url}}" mode="widthFix" />
+  </view>
+
+  <view class="card" wx:if="{{record.carPhotoUrls.length > 0}}">
+    <text class="section-title">车辆照片</text>
+    <view class="photo-grid">
+      <image wx:for="{{record.carPhotoUrls}}" wx:key="*this" class="photo-grid__item" src="{{item}}" mode="aspectFill" />
+    </view>
+  </view>
+
+  <view class="card" wx:if="{{record.note}}">
+    <text class="section-title">备注</text>
+    <text>{{record.note}}</text>
+  </view>
+</view>
+
+<view class="loading-tip text-secondary" wx:if="{{loading}}">加载中…</view>

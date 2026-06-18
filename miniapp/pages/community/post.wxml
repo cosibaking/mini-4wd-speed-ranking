@@ -1,0 +1,35 @@
+<view class="container post-page" wx:if="{{post}}">
+  <view class="card">
+    <text class="post-title">{{post.title}}</text>
+    <view class="post-author">
+      <image class="post-author__avatar" src="{{post.author.avatarUrl || '/assets/default-avatar.png'}}" mode="aspectFill" />
+      <text>{{post.author.nickName}}</text>
+      <button class="follow-btn" size="mini" bindtap="onFollow">{{post.followingAuthor ? '已关注' : '+ 关注'}}</button>
+    </view>
+    <text class="post-content">{{post.content}}</text>
+    <view class="post-images" wx:if="{{post.images.length > 0}}">
+      <image wx:for="{{post.images}}" wx:key="*this" class="post-images__item" src="{{item}}" mode="widthFix" />
+    </view>
+    <view class="post-actions">
+      <text class="post-actions__item" bindtap="onLike">{{post.liked ? '❤️' : '🤍'}} {{post.likeCount}}</text>
+      <text class="post-actions__item">💬 {{post.commentCount}}</text>
+      <button class="post-actions__share" open-type="share" size="mini">分享</button>
+    </view>
+  </view>
+
+  <view class="card">
+    <text class="section-title">评论 ({{comments.length}})</text>
+    <view class="comment-item" wx:for="{{comments}}" wx:key="id">
+      <text class="comment-item__author">{{item.author.nickName}}</text>
+      <text class="comment-item__content">{{item.content}}</text>
+    </view>
+    <text class="text-secondary" wx:if="{{comments.length === 0}}">暂无评论，来抢沙发吧</text>
+  </view>
+
+  <view class="comment-bar">
+    <input class="comment-bar__input" placeholder="写评论…" value="{{commentText}}" bindinput="onCommentInput" />
+    <button class="comment-bar__send" size="mini" bindtap="onSendComment">发送</button>
+  </view>
+</view>
+
+<view class="loading-tip text-secondary" wx:if="{{loading}}">加载中…</view>

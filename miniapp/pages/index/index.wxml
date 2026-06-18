@@ -1,0 +1,29 @@
+<view class="container index-page">
+  <view class="index-header">
+    <text class="index-header__logo">🏎️</text>
+    <text class="index-header__title">公园四驱 · 圈速打榜</text>
+    <text class="index-header__subtitle text-secondary">选赛道，刷圈速，和车友一起玩。</text>
+  </view>
+
+  <view class="index-entries">
+    <button class="entry-btn entry-btn--primary" bindtap="onOrganizerTap">
+      <text class="entry-btn__title">我是赛道主理人</text>
+      <text class="entry-btn__desc">创建和管理赛道</text>
+    </button>
+    <button class="entry-btn entry-btn--secondary" bindtap="onDriverTap">
+      <text class="entry-btn__title">我是车手</text>
+      <text class="entry-btn__desc">选择赛道，挑战圈速</text>
+    </button>
+  </view>
+
+  <view class="index-recent" wx:if="{{recentTracks.length > 0}}">
+    <text class="section-title">最近赛道</text>
+    <scroll-view scroll-x class="index-recent__scroll">
+      <view class="index-recent__list">
+        <view class="index-recent__item" wx:for="{{recentTracks}}" wx:key="id">
+          <track-card track="{{item}}" showDistance="{{false}}" />
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+</view>

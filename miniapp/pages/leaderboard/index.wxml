@@ -1,0 +1,38 @@
+<view class="container leaderboard-page">
+  <view class="lb-header card">
+    <view class="lb-header__select" bindtap="onTogglePicker">
+      <text class="lb-header__name">{{trackName || '选择赛道'}}</text>
+      <text class="lb-header__arrow">▼</text>
+    </view>
+    <text class="text-secondary">共 {{total}} 人入榜</text>
+  </view>
+
+  <view class="lb-picker card" wx:if="{{showPicker}}">
+    <view
+      class="lb-picker__item {{item.id === trackId ? 'lb-picker__item--active' : ''}}"
+      wx:for="{{tracks}}"
+      wx:key="id"
+      data-id="{{item.id}}"
+      bindtap="onSelectTrack"
+    >{{item.name}}</view>
+  </view>
+
+  <view class="lb-list card" wx:if="{{list.length > 0}}">
+    <record-row wx:for="{{list}}" wx:key="recordId" entry="{{item}}" />
+  </view>
+
+  <empty-state
+    wx:if="{{!loading && list.length === 0}}"
+    title="还没有人挑战"
+    desc="来做第一个上榜的车手吧"
+    actionText="上传成绩"
+    bind:action="onEmptyAction"
+  />
+
+  <view class="lb-my-rank card" wx:if="{{myRank}}">
+    <text>我的排名：第 {{myRank.rank}} 名 · </text>
+    <text class="lap-time">{{myRank.lapTimeDisplay}}</text>
+  </view>
+
+  <view class="loading-tip text-secondary" wx:if="{{loading}}">加载中…</view>
+</view>

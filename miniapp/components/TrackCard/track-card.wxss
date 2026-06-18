@@ -1,0 +1,31 @@
+.track-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8rpx;
+}
+
+.track-card__name {
+  font-size: 30rpx;
+  font-weight: 600;
+  flex: 1;
+}
+
+.track-card__arrow {
+  color: var(--color-text-placeholder);
+  font-size: 36rpx;
+}
+
+.track-card__meta {
+  margin-bottom: 12rpx;
+}
+
+.track-card__footer {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.track-card__count {
+  margin-left: 4rpx;
+}

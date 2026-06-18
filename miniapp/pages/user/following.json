@@ -1,0 +1,6 @@
+{
+  "usingComponents": {
+    "empty-state": "/components/EmptyState/empty-state"
+  },
+  "navigationBarTitleText": "我的关注"
+}

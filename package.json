@@ -1,0 +1,18 @@
+{
+  "name": "mini-4wd-speed-ranking",
+  "private": true,
+  "workspaces": [
+    "server",
+    "miniapp"
+  ],
+  "scripts": {
+    "dev:server": "npm run dev -w server",
+    "build:server": "npm run build -w server",
+    "db:generate": "npm run db:generate -w server",
+    "db:migrate": "npm run db:migrate -w server",
+    "db:seed": "npm run db:seed -w server"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

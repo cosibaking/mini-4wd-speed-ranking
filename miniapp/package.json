@@ -1,0 +1,12 @@
+{
+  "name": "mini-4wd-speed-ranking-miniapp",
+  "version": "1.0.0",
+  "description": "公园四驱车圈速打榜 - 微信小程序",
+  "scripts": {
+    "tsc": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "miniprogram-api-typings": "^3.12.2",
+    "typescript": "^5.4.5"
+  }
+}

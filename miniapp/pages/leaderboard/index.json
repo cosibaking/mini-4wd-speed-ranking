@@ -1,0 +1,7 @@
+{
+  "usingComponents": {
+    "record-row": "/components/RecordRow/record-row",
+    "empty-state": "/components/EmptyState/empty-state"
+  },
+  "navigationBarTitleText": "圈速榜"
+}

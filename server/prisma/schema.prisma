@@ -1,0 +1,268 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @db.Char(36)
+  openId    String   @unique @map("open_id") @db.VarChar(64)
+  unionId   String?  @map("union_id") @db.VarChar(64)
+  nickName  String   @default("") @map("nick_name") @db.VarChar(64)
+  avatarUrl String   @default("") @map("avatar_url") @db.VarChar(512)
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.DateTime(3)
+
+  tracks            Track[]            @relation("TrackCreator")
+  records           Record[]
+  posts             Post[]
+  comments          Comment[]
+  likes             Like[]
+  followers         Follow[]           @relation("Follower")
+  followees         Follow[]           @relation("Followee")
+  recentTrackVisits RecentTrackVisit[]
+  trackBestRecords  TrackBestRecord[]
+  mediaObjects      MediaObject[]
+
+  @@index([createdAt], map: "idx_users_created")
+  @@map("users")
+}
+
+model Track {
+  id                String   @id @db.Char(36)
+  creatorId         String   @map("creator_id") @db.Char(36)
+  name              String   @db.VarChar(40)
+  lat               Decimal  @db.Decimal(10, 7)
+  lng               Decimal  @db.Decimal(10, 7)
+  address           String   @db.VarChar(255)
+  organizerName     String   @map("organizer_name") @db.VarChar(64)
+  organizerContact  String?  @map("organizer_contact") @db.VarChar(128)
+  lengthMeters      Int?     @map("length_meters") @db.UnsignedInt
+  exampleVideoUrl   String?  @map("example_video_url") @db.VarChar(512)
+  ruleNote          String?  @map("rule_note") @db.VarChar(500)
+  recordCount       Int      @default(0) @map("record_count") @db.UnsignedInt
+  createdAt         DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt         DateTime @updatedAt @map("updated_at") @db.DateTime(3)
+
+  creator           User               @relation("TrackCreator", fields: [creatorId], references: [id])
+  floorPlans        TrackFloorPlan[]
+  records           Record[]
+  trackBestRecords  TrackBestRecord[]
+  posts             Post[]
+  recentTrackVisits RecentTrackVisit[]
+
+  @@unique([creatorId, name], map: "uk_creator_name")
+  @@index([lat, lng], map: "idx_tracks_geo")
+  @@index([createdAt], map: "idx_tracks_created")
+  @@map("tracks")
+}
+
+model TrackFloorPlan {
+  id        BigInt @id @default(autoincrement()) @db.UnsignedBigInt
+  trackId   String @map("track_id") @db.Char(36)
+  imageUrl  String @map("image_url") @db.VarChar(512)
+  sortOrder Int    @default(0) @map("sort_order") @db.TinyInt
+
+  track Track @relation(fields: [trackId], references: [id], onDelete: Cascade)
+
+  @@index([trackId], map: "idx_tfp_track")
+  @@map("track_floor_plans")
+}
+
+model RecentTrackVisit {
+  userId    String   @map("user_id") @db.Char(36)
+  trackId   String   @map("track_id") @db.Char(36)
+  visitedAt DateTime @default(now()) @map("visited_at") @db.DateTime(3)
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  track Track @relation(fields: [trackId], references: [id], onDelete: Cascade)
+
+  @@id([userId, trackId])
+  @@index([userId, visitedAt(sort: Desc)], map: "idx_rtv_user_time")
+  @@map("recent_track_visits")
+}
+
+model Record {
+  id              String           @id @db.Char(36)
+  trackId         String           @map("track_id") @db.Char(36)
+  userId          String           @map("user_id") @db.Char(36)
+  lapTimeMs       Int              @map("lap_time_ms") @db.UnsignedInt
+  lapTimeDisplay  String           @map("lap_time_display") @db.VarChar(16)
+  videoUrl        String           @map("video_url") @db.VarChar(512)
+  configSheetType ConfigSheetType? @map("config_sheet_type")
+  configSheetText String?          @map("config_sheet_text") @db.VarChar(1000)
+  configSheetUrl  String?          @map("config_sheet_url") @db.VarChar(512)
+  note            String?          @db.VarChar(100)
+  createdAt       DateTime         @default(now()) @map("created_at") @db.DateTime(3)
+
+  track           Track            @relation(fields: [trackId], references: [id])
+  user            User             @relation(fields: [userId], references: [id])
+  carPhotos       RecordCarPhoto[]
+  trackBestRecord TrackBestRecord?
+
+  @@index([trackId, lapTimeMs, createdAt], map: "idx_records_track_time")
+  @@index([userId, createdAt(sort: Desc)], map: "idx_records_user")
+  @@map("records")
+}
+
+model RecordCarPhoto {
+  id        BigInt @id @default(autoincrement()) @db.UnsignedBigInt
+  recordId  String @map("record_id") @db.Char(36)
+  imageUrl  String @map("image_url") @db.VarChar(512)
+  sortOrder Int    @default(0) @map("sort_order") @db.TinyInt
+
+  record Record @relation(fields: [recordId], references: [id], onDelete: Cascade)
+
+  @@index([recordId], map: "idx_rcp_record")
+  @@map("record_car_photos")
+}
+
+model TrackBestRecord {
+  trackId         String   @map("track_id") @db.Char(36)
+  userId          String   @map("user_id") @db.Char(36)
+  recordId        String   @unique @map("record_id") @db.Char(36)
+  lapTimeMs       Int      @map("lap_time_ms") @db.UnsignedInt
+  firstAchievedAt DateTime @map("first_achieved_at") @db.DateTime(3)
+  updatedAt       DateTime @updatedAt @map("updated_at") @db.DateTime(3)
+
+  track  Track  @relation(fields: [trackId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
+  record Record @relation(fields: [recordId], references: [id])
+
+  @@id([trackId, userId])
+  @@index([trackId, lapTimeMs, firstAchievedAt], map: "idx_tbr_rank")
+  @@map("track_best_records")
+}
+
+model Board {
+  id          String   @id @db.VarChar(32)
+  name        String   @db.VarChar(64)
+  description String?  @db.VarChar(255)
+  sortOrder   Int      @default(0) @map("sort_order") @db.TinyInt
+  createdAt   DateTime @default(now()) @map("created_at") @db.DateTime(3)
+
+  posts Post[]
+
+  @@map("boards")
+}
+
+model Post {
+  id           String   @id @db.Char(36)
+  boardId      String   @map("board_id") @db.VarChar(32)
+  authorId     String   @map("author_id") @db.Char(36)
+  trackId      String?  @map("track_id") @db.Char(36)
+  title        String   @db.VarChar(100)
+  content      String   @db.Text
+  likeCount    Int      @default(0) @map("like_count") @db.UnsignedInt
+  commentCount Int      @default(0) @map("comment_count") @db.UnsignedInt
+  hotScore     Int      @default(0) @map("hot_score")
+  createdAt    DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.DateTime(3)
+
+  board    Board       @relation(fields: [boardId], references: [id])
+  author   User        @relation(fields: [authorId], references: [id])
+  track    Track?      @relation(fields: [trackId], references: [id])
+  images   PostImage[]
+  comments Comment[]
+
+  @@index([boardId, createdAt(sort: Desc)], map: "idx_posts_board_latest")
+  @@index([boardId, hotScore(sort: Desc), createdAt(sort: Desc)], map: "idx_posts_board_hot")
+  @@index([authorId, createdAt(sort: Desc)], map: "idx_posts_author")
+  @@index([trackId, createdAt(sort: Desc)], map: "idx_posts_track")
+  @@map("posts")
+}
+
+model PostImage {
+  id        BigInt @id @default(autoincrement()) @db.UnsignedBigInt
+  postId    String @map("post_id") @db.Char(36)
+  imageUrl  String @map("image_url") @db.VarChar(512)
+  sortOrder Int    @default(0) @map("sort_order") @db.TinyInt
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId], map: "idx_pi_post")
+  @@map("post_images")
+}
+
+model Comment {
+  id        String   @id @db.Char(36)
+  postId    String   @map("post_id") @db.Char(36)
+  authorId  String   @map("author_id") @db.Char(36)
+  content   String   @db.VarChar(500)
+  likeCount Int      @default(0) @map("like_count") @db.UnsignedInt
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author User @relation(fields: [authorId], references: [id])
+
+  @@index([postId, createdAt], map: "idx_comments_post")
+  @@map("comments")
+}
+
+model Like {
+  id         BigInt         @id @default(autoincrement()) @db.UnsignedBigInt
+  userId     String         @map("user_id") @db.Char(36)
+  targetType LikeTargetType @map("target_type")
+  targetId   String         @map("target_id") @db.Char(36)
+  createdAt  DateTime       @default(now()) @map("created_at") @db.DateTime(3)
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, targetType, targetId], map: "uk_like")
+  @@index([targetType, targetId], map: "idx_likes_target")
+  @@map("likes")
+}
+
+model Follow {
+  followerId String   @map("follower_id") @db.Char(36)
+  followeeId String   @map("followee_id") @db.Char(36)
+  createdAt  DateTime @default(now()) @map("created_at") @db.DateTime(3)
+
+  follower User @relation("Follower", fields: [followerId], references: [id], onDelete: Cascade)
+  followee User @relation("Followee", fields: [followeeId], references: [id], onDelete: Cascade)
+
+  @@id([followerId, followeeId])
+  @@index([followeeId, createdAt(sort: Desc)], map: "idx_follows_followee")
+  @@map("follows")
+}
+
+model MediaObject {
+  objectKey   String      @id @map("object_key") @db.VarChar(255)
+  userId      String      @map("user_id") @db.Char(36)
+  mediaType   MediaType   @map("media_type")
+  purpose     String      @db.VarChar(32)
+  publicUrl   String      @map("public_url") @db.VarChar(512)
+  fileSize    Int         @map("file_size") @db.UnsignedInt
+  status      MediaStatus @default(pending)
+  createdAt   DateTime    @default(now()) @map("created_at") @db.DateTime(3)
+  confirmedAt DateTime?   @map("confirmed_at") @db.DateTime(3)
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId, createdAt(sort: Desc)], map: "idx_media_user")
+  @@index([status, createdAt], map: "idx_media_pending")
+  @@map("media_objects")
+}
+
+enum ConfigSheetType {
+  text
+  image
+}
+
+enum LikeTargetType {
+  post
+  comment
+}
+
+enum MediaType {
+  image
+  video
+}
+
+enum MediaStatus {
+  pending
+  confirmed
+}

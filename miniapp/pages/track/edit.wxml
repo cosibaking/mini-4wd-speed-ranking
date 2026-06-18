@@ -1,0 +1,64 @@
+<view class="container edit-page">
+  <view class="edit-steps">
+    <view class="edit-step {{step >= 1 ? 'edit-step--active' : ''}}">1 基本信息</view>
+    <view class="edit-step {{step >= 2 ? 'edit-step--active' : ''}}">2 赛道详情</view>
+    <view class="edit-step {{step >= 3 ? 'edit-step--active' : ''}}">3 认定说明</view>
+  </view>
+
+  <!-- Step 1 -->
+  <view class="card" wx:if="{{step === 1}}">
+    <view class="form-item">
+      <text class="form-label">赛道名称 *</text>
+      <input class="form-input" placeholder="如 XX公园北广场赛道" value="{{form.name}}" bindinput="onNameInput" maxlength="20" />
+    </view>
+    <view class="form-item">
+      <text class="form-label">赛道位置 *</text>
+      <view class="form-location" bindtap="onChooseLocation">
+        <text wx:if="{{form.location}}">{{form.location.address}}</text>
+        <text class="text-secondary" wx:else>点击选择地图位置</text>
+      </view>
+    </view>
+    <view class="form-item">
+      <text class="form-label">所属主理人 *</text>
+      <input class="form-input" value="{{form.organizerName}}" bindinput="onOrganizerNameInput" />
+    </view>
+    <view class="form-item">
+      <text class="form-label">主理人联系方式（选填）</text>
+      <input class="form-input" placeholder="微信号/手机" value="{{form.organizerContact}}" bindinput="onOrganizerContactInput" />
+    </view>
+  </view>
+
+  <!-- Step 2 -->
+  <view class="card" wx:if="{{step === 2}}">
+    <view class="form-item">
+      <text class="form-label">赛道长度（选填，米）</text>
+      <input class="form-input" type="number" value="{{form.lengthMeters}}" bindinput="onLengthInput" />
+    </view>
+    <view class="form-item">
+      <text class="form-label">赛道平面图（选填，最多3张）</text>
+      <view class="form-images">
+        <image wx:for="{{form.floorPlanUrls}}" wx:key="*this" class="form-images__item" src="{{item}}" mode="aspectFill" />
+        <view class="form-images__add" bindtap="onAddFloorPlan" wx:if="{{form.floorPlanUrls.length < 3}}">+</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- Step 3 -->
+  <view class="card" wx:if="{{step === 3}}">
+    <view class="form-item">
+      <text class="form-label">成绩认定示例视频（选填）</text>
+      <button class="btn-secondary" size="mini" bindtap="onAddVideo">{{form.exampleVideoUrl ? '重新上传' : '上传视频'}}</button>
+      <video wx:if="{{form.exampleVideoUrl}}" class="form-video" src="{{form.exampleVideoUrl}}" controls />
+    </view>
+    <view class="form-item">
+      <text class="form-label">文字规则补充（选填）</text>
+      <textarea class="form-textarea" placeholder="说明如何拍摄有效成绩" value="{{form.ruleNote}}" bindinput="onRuleNoteInput" maxlength="500" />
+    </view>
+  </view>
+
+  <view class="edit-actions">
+    <button wx:if="{{step > 1}}" class="btn-secondary edit-actions__btn" bindtap="onPrev">上一步</button>
+    <button wx:if="{{step < 3}}" class="btn-primary edit-actions__btn" bindtap="onNext">下一步</button>
+    <button wx:if="{{step === 3}}" class="btn-primary edit-actions__btn" bindtap="onSubmit" loading="{{submitting}}" disabled="{{submitting}}">提交</button>
+  </view>
+</view>

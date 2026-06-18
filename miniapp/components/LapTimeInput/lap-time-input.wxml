@@ -1,0 +1,11 @@
+<view class="lap-time-input">
+  <input
+    class="lap-time-input__field {{valid ? '' : 'lap-time-input__field--error'}}"
+    type="text"
+    value="{{value}}"
+    placeholder="{{placeholder}}"
+    bindinput="onInput"
+  />
+  <text class="lap-time-input__hint text-secondary">格式：分:秒.毫秒，如 0:32.580</text>
+  <text class="lap-time-input__error" wx:if="{{!valid}}">圈速格式不正确</text>
+</view>

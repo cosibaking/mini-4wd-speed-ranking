@@ -1,0 +1,45 @@
+<view class="container">
+  <view class="card" wx:if="{{track}}">
+    <text class="section-title">{{track.name}}</text>
+    <text class="text-secondary">请按主理人示例拍摄完整一圈，确保起终点清晰。</text>
+  </view>
+
+  <view class="card">
+    <text class="form-label">圈速 *</text>
+    <lap-time-input value="{{lapTime}}" bind:change="onLapTimeChange" />
+  </view>
+
+  <view class="card">
+    <text class="form-label">成绩认定视频 *</text>
+    <button class="btn-secondary" size="mini" bindtap="onUploadVideo">{{videoUrl ? '重新上传' : '上传视频'}}</button>
+    <video wx:if="{{videoUrl}}" class="form-video" src="{{videoUrl}}" controls />
+  </view>
+
+  <view class="card">
+    <text class="form-label">车型配置单（选填）</text>
+    <radio-group class="config-type" bindchange="onConfigTypeChange">
+      <label><radio value="text" checked="{{configType === 'text'}}" />文字</label>
+      <label><radio value="image" checked="{{configType === 'image'}}" />图片</label>
+    </radio-group>
+    <textarea wx:if="{{configType === 'text'}}" class="form-textarea" placeholder="马达、电池、改装要点" value="{{configText}}" bindinput="onConfigTextInput" />
+    <block wx:if="{{configType === 'image'}}">
+      <button class="btn-secondary" size="mini" bindtap="onUploadConfigImage">上传配置单图片</button>
+      <image wx:if="{{configImageUrl}}" class="config-preview" src="{{configImageUrl}}" mode="aspectFit" />
+    </block>
+  </view>
+
+  <view class="card">
+    <text class="form-label">车辆照片（选填，最多3张）</text>
+    <view class="form-images">
+      <image wx:for="{{carPhotoUrls}}" wx:key="*this" class="form-images__item" src="{{item}}" mode="aspectFill" />
+      <view class="form-images__add" bindtap="onAddCarPhoto" wx:if="{{carPhotoUrls.length < 3}}">+</view>
+    </view>
+  </view>
+
+  <view class="card">
+    <text class="form-label">备注（选填）</text>
+    <input class="form-input" placeholder="不超过100字" value="{{note}}" bindinput="onNoteInput" maxlength="100" />
+  </view>
+
+  <button class="btn-primary submit-btn" bindtap="onSubmit" loading="{{submitting}}" disabled="{{submitting}}">确认提交</button>
+</view>

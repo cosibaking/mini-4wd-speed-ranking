@@ -1,0 +1,7 @@
+{
+  "usingComponents": {
+    "post-card": "/components/PostCard/post-card",
+    "empty-state": "/components/EmptyState/empty-state"
+  },
+  "navigationBarTitleText": "社区"
+}

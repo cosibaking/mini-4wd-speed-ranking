@@ -1,0 +1,14 @@
+.create-btn {
+  margin-bottom: 24rpx;
+  width: 100%;
+}
+
+.track-manage {
+  position: relative;
+}
+
+.edit-btn {
+  position: absolute;
+  right: 24rpx;
+  top: 24rpx;
+}

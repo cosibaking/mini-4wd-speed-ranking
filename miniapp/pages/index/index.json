@@ -1,0 +1,6 @@
+{
+  "usingComponents": {
+    "track-card": "/components/TrackCard/track-card"
+  },
+  "navigationBarTitleText": "首页"
+}

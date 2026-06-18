@@ -1,0 +1,15 @@
+.record-item__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8rpx;
+}
+
+.record-item__track {
+  font-size: 30rpx;
+  font-weight: 600;
+}
+
+.record-item__time {
+  font-size: 32rpx;
+}

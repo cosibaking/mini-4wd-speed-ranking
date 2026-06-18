@@ -1,0 +1,32 @@
+<view class="container user-page">
+  <view class="user-header card" wx:if="{{loggedIn && user}}">
+    <image class="user-header__avatar" src="{{user.avatarUrl || '/assets/default-avatar.png'}}" mode="aspectFill" />
+    <view class="user-header__info">
+      <text class="user-header__name">{{user.nickName || '微信用户'}}</text>
+      <text class="text-secondary" wx:if="{{user.isOrganizer}}">赛道主理人</text>
+    </view>
+  </view>
+
+  <view class="user-header card" wx:else>
+    <button class="btn-primary login-btn" bindtap="onLogin">微信登录</button>
+  </view>
+
+  <view class="menu card">
+    <view class="menu-item" data-url="/pages/user/tracks" bindtap="onNav">
+      <text>我管理的赛道</text>
+      <text class="menu-item__arrow">›</text>
+    </view>
+    <view class="menu-item" data-url="/pages/user/records" bindtap="onNav">
+      <text>我的成绩</text>
+      <text class="menu-item__arrow">›</text>
+    </view>
+    <view class="menu-item" data-url="/pages/user/following" bindtap="onNav">
+      <text>我的关注</text>
+      <text class="menu-item__arrow">›</text>
+    </view>
+    <view class="menu-item" data-url="/pages/track/edit" bindtap="onNav">
+      <text>新建赛道</text>
+      <text class="menu-item__arrow">›</text>
+    </view>
+  </view>
+</view>

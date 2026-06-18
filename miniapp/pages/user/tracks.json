@@ -1,0 +1,7 @@
+{
+  "usingComponents": {
+    "track-card": "/components/TrackCard/track-card",
+    "empty-state": "/components/EmptyState/empty-state"
+  },
+  "navigationBarTitleText": "我管理的赛道"
+}

@@ -1,0 +1,35 @@
+<view class="container">
+  <view class="card">
+    <text class="form-label">所属板块 *</text>
+    <picker mode="selector" range="{{boards}}" range-key="name" bindchange="onBoardChange">
+      <view class="picker-value">
+        <text wx:for="{{boards}}" wx:key="id" wx:if="{{item.id === boardId}}">{{item.name}}</text>
+      </view>
+    </picker>
+  </view>
+
+  <view class="card">
+    <text class="form-label">标题 *</text>
+    <input class="form-input" placeholder="不超过50字" value="{{title}}" bindinput="onTitleInput" maxlength="50" />
+  </view>
+
+  <view class="card">
+    <text class="form-label">正文 *</text>
+    <textarea
+      class="form-textarea"
+      placeholder="分享你的赛道见闻、改装心得或新手问题…"
+      value="{{content}}"
+      bindinput="onContentInput"
+    />
+  </view>
+
+  <view class="card">
+    <text class="form-label">图片（选填，最多9张）</text>
+    <view class="form-images">
+      <image wx:for="{{images}}" wx:key="*this" class="form-images__item" src="{{item}}" mode="aspectFill" />
+      <view class="form-images__add" bindtap="onAddImage" wx:if="{{images.length < 9}}">+</view>
+    </view>
+  </view>
+
+  <button class="btn-primary submit-btn" bindtap="onSubmit" loading="{{submitting}}" disabled="{{submitting}}">发布</button>
+</view>
