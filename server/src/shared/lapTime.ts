@@ -2,13 +2,18 @@ import type { LapTimeDisplay } from './types.js';
 
 const LAP_TIME_PATTERN = /^(?:(\d+):)?(\d+(?:\.\d{1,3})?)$/;
 
+/** 全角冒号 → 半角，便于输入不区分 */
+function normalizeLapTimeInput(display: string): string {
+  return display.trim().replace(/\uFF1A/g, ':');
+}
+
 export interface ParsedLapTime {
   lapTimeMs: number;
   lapTimeDisplay: LapTimeDisplay;
 }
 
 export function parseLapTime(display: string): ParsedLapTime {
-  const trimmed = display.trim();
+  const trimmed = normalizeLapTimeInput(display);
   const match = LAP_TIME_PATTERN.exec(trimmed);
 
   if (!match) {

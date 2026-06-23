@@ -4,7 +4,16 @@
   <block wx:if="{{tracks.length > 0}}">
     <view wx:for="{{tracks}}" wx:key="id" class="track-manage card">
       <track-card track="{{item}}" showDistance="{{false}}" />
-      <button class="btn-secondary edit-btn" size="mini" data-id="{{item.id}}" bindtap="onEdit">编辑</button>
+      <view class="track-manage__actions">
+        <button
+          class="btn-primary review-btn {{item.pendingCount > 0 ? 'review-btn--highlight' : ''}}"
+          size="mini"
+          data-id="{{item.id}}"
+          data-name="{{item.name}}"
+          bindtap="onReview"
+        >待审核 ({{item.pendingCount}})</button>
+        <button class="btn-secondary edit-btn" size="mini" data-id="{{item.id}}" bindtap="onEdit">编辑赛道</button>
+      </view>
     </view>
   </block>
 

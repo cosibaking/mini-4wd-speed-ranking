@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "审核成绩",
+  "usingComponents": {
+    "lap-time-input": "/components/LapTimeInput/lap-time-input"
+  }
+}

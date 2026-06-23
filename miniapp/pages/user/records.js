@@ -2,13 +2,22 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const auth_1 = require("../../services/auth");
 const record_1 = require("../../services/record");
+const STATUS_LABEL = {
+    pending: '审核中',
+    approved: '已认证',
+    rejected: '未通过',
+};
 Page({
     data: {
         records: [],
         loading: true,
+        statusLabel: STATUS_LABEL,
     },
     async onLoad() {
         await (0, auth_1.ensureLogin)();
+        this.loadRecords();
+    },
+    onShow() {
         this.loadRecords();
     },
     async loadRecords() {

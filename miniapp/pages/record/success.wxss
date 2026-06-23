@@ -29,7 +29,13 @@
 
 .success-page__desc {
   text-align: center;
+  margin-bottom: 12rpx;
+}
+
+.success-page__hint {
+  text-align: center;
   margin-bottom: 80rpx;
+  font-size: 26rpx;
 }
 
 .success-page__actions {

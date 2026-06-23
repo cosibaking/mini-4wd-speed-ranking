@@ -18,7 +18,9 @@
     "pages/user/records",
     "pages/user/following",
     "pages/organizer/apply",
-    "pages/organizer/status"
+    "pages/organizer/status",
+    "pages/organizer/records",
+    "pages/organizer/review"
   ],
   "subPackages": [
     {

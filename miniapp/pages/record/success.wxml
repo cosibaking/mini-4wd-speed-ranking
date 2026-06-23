@@ -1,10 +1,11 @@
 <view class="container success-page">
   <view class="success-page__icon">✓</view>
   <text class="success-page__title">上传成功</text>
-  <text class="success-page__desc text-secondary">成绩已提交，可在圈速榜查看排名</text>
+  <text class="success-page__desc text-secondary">成绩已提交，等待主理人认证</text>
+  <text class="success-page__hint text-secondary">认证通过后将出现在圈速榜</text>
 
   <view class="success-page__actions">
-    <button class="btn-primary success-page__btn" bindtap="onGoLeaderboard">返回圈速榜</button>
+    <button class="btn-primary success-page__btn" bindtap="onGoRecords">查看我的成绩</button>
     <button class="btn-secondary success-page__btn" bindtap="onGoHome">返回主页</button>
   </view>
 </view>

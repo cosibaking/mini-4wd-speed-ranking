@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const auth_1 = require("../../services/auth");
+const record_1 = require("../../services/record");
 const track_1 = require("../../services/track");
 Page({
     data: {
@@ -19,10 +20,24 @@ Page({
         this.setData({ isOrganizer: true });
         this.loadTracks();
     },
+    onShow() {
+        if (this.data.isOrganizer) {
+            this.loadTracks();
+        }
+    },
     async loadTracks() {
         try {
             const res = await (0, track_1.getMyTracks)();
-            this.setData({ tracks: res.list, loading: false });
+            const tracks = await Promise.all(res.list.map(async (track) => {
+                try {
+                    const { count } = await (0, record_1.getTrackPendingCount)(track.id);
+                    return { ...track, pendingCount: count };
+                }
+                catch (_a) {
+                    return { ...track, pendingCount: 0 };
+                }
+            }));
+            this.setData({ tracks, loading: false });
         }
         catch (_a) {
             this.setData({ loading: false });
@@ -35,5 +50,12 @@ Page({
     onEdit(e) {
         const id = e.currentTarget.dataset.id;
         wx.navigateTo({ url: `/pages/track/edit?id=${id}` });
+    },
+    onReview(e) {
+        const id = e.currentTarget.dataset.id;
+        const name = e.currentTarget.dataset.name;
+        wx.navigateTo({
+            url: `/pages/organizer/records?trackId=${id}&trackName=${encodeURIComponent(name)}`,
+        });
     },
 });

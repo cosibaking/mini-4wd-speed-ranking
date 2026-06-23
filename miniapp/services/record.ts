@@ -6,6 +6,7 @@ import type {
   PaginationResult,
   RecordBrief,
   RecordDetail,
+  RecordStatus,
 } from '../types';
 
 const MOCK_LEADERBOARD: LeaderboardResult = {
@@ -29,7 +30,7 @@ export async function getLeaderboard(
   try {
     return await request<LeaderboardResult>(`/leaderboards/${trackId}`, {
       data: query as Record<string, unknown>,
-      auth: false,
+      auth: true,
     });
   } catch (e) {
     if (!USE_MOCK_FALLBACK) throw e;
@@ -48,7 +49,9 @@ export async function getRecord(id: string): Promise<RecordDetail> {
       trackId: MOCK_LEADERBOARD.trackId,
       trackName: MOCK_LEADERBOARD.trackName,
       user: entry.user,
+      status: 'approved',
       lapTimeDisplay: entry.lapTimeDisplay,
+      submittedLapTimeDisplay: entry.lapTimeDisplay,
       rank: entry.rank,
       videoUrl: '',
       carPhotoUrls: [],
@@ -64,4 +67,31 @@ export function submitRecord(data: Record<string, unknown>): Promise<RecordDetai
 
 export function getMyRecords(query: PaginationQuery = {}): Promise<PaginationResult<RecordBrief>> {
   return request('/records/mine', { data: query as Record<string, unknown> });
+}
+
+export function getTrackRecords(
+  trackId: string,
+  query: PaginationQuery & { status?: RecordStatus } = {}
+): Promise<PaginationResult<RecordBrief>> {
+  return request(`/tracks/${trackId}/records`, {
+    data: query as Record<string, unknown>,
+  });
+}
+
+export function getTrackPendingCount(trackId: string): Promise<{ count: number }> {
+  return request(`/tracks/${trackId}/records/pending-count`);
+}
+
+export function approveRecord(
+  recordId: string,
+  data: { lapTimeDisplay?: string; reviewNote?: string }
+): Promise<RecordDetail> {
+  return request(`/records/${recordId}/approve`, { method: 'POST', data });
+}
+
+export function rejectRecord(
+  recordId: string,
+  data: { reviewNote: string }
+): Promise<RecordDetail> {
+  return request(`/records/${recordId}/reject`, { method: 'POST', data });
 }

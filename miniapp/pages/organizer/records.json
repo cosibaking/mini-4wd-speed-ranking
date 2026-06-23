@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "成绩审核",
+  "usingComponents": {
+    "empty-state": "/components/EmptyState/empty-state"
+  }
+}

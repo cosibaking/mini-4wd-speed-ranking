@@ -87,12 +87,20 @@ export interface TrackDetail {
   updatedAt: string;
 }
 
+export type RecordStatus = 'pending' | 'approved' | 'rejected';
+
 export interface RecordBrief {
   id: string;
   trackId: string;
   trackName?: string;
+  status: RecordStatus;
   lapTimeDisplay: string;
+  submittedLapTimeDisplay: string;
+  reviewNote?: string;
+  timeCorrected?: boolean;
   rank?: number;
+  isPersonalBest?: boolean;
+  user?: PublicUser;
   createdAt: string;
 }
 
@@ -101,8 +109,14 @@ export interface RecordDetail {
   trackId: string;
   trackName: string;
   user: PublicUser;
+  status: RecordStatus;
   lapTimeDisplay: string;
-  rank: number;
+  submittedLapTimeDisplay: string;
+  reviewNote?: string;
+  timeCorrected?: boolean;
+  rank?: number;
+  isBestRecord?: boolean;
+  reviewedAt?: string;
   videoUrl: string;
   configSheet?: { type: 'text'; content: string } | { type: 'image'; url: string };
   carPhotoUrls: string[];
@@ -123,6 +137,7 @@ export interface LeaderboardResult {
   total: number;
   list: LeaderboardEntry[];
   myRank?: { rank: number; lapTimeDisplay: string; recordId: string };
+  pendingReviewCount?: number;
 }
 
 export interface Board {

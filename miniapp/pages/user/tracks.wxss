@@ -5,10 +5,16 @@
 
 .track-manage {
   position: relative;
+  margin-bottom: 20rpx;
 }
 
-.edit-btn {
-  position: absolute;
-  right: 24rpx;
-  top: 24rpx;
+.track-manage__actions {
+  display: flex;
+  gap: 16rpx;
+  padding: 0 24rpx 24rpx;
+  justify-content: flex-end;
+}
+
+.review-btn--highlight {
+  font-weight: 600;
 }

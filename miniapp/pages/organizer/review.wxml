@@ -1,0 +1,85 @@
+<view class="container" wx:if="{{record}}">
+  <view class="card review-status review-status--{{record.status}}">
+    <text wx:if="{{record.status === 'pending'}}">待审核</text>
+    <text wx:elif="{{record.status === 'approved'}}">已通过</text>
+    <text wx:else>已拒绝</text>
+  </view>
+
+  <view class="card">
+    <view class="review-user">
+      <image class="review-user__avatar" src="{{record.user.avatarUrl || '/assets/default-avatar.png'}}" mode="aspectFill" />
+      <view>
+        <text class="review-user__name">{{record.user.nickName}}</text>
+        <text class="text-secondary">提交圈速：{{record.submittedLapTimeDisplay}}</text>
+      </view>
+    </view>
+    <text class="text-secondary">提交于 {{record.createdAt}}</text>
+  </view>
+
+  <view class="card">
+    <text class="section-title">成绩认定视频</text>
+    <video wx:if="{{record.videoUrl}}" class="review-video" src="{{record.videoUrl}}" controls />
+  </view>
+
+  <view class="card" wx:if="{{record.configSheet}}">
+    <text class="section-title">车型配置单</text>
+    <text wx:if="{{record.configSheet.type === 'text'}}">{{record.configSheet.content}}</text>
+    <image wx:if="{{record.configSheet.type === 'image'}}" class="config-img" src="{{record.configSheet.url}}" mode="widthFix" />
+  </view>
+
+  <view class="card" wx:if="{{record.carPhotoUrls.length > 0}}">
+    <text class="section-title">车辆照片</text>
+    <view class="photo-grid">
+      <image wx:for="{{record.carPhotoUrls}}" wx:key="*this" class="photo-grid__item" src="{{item}}" mode="aspectFill" />
+    </view>
+  </view>
+
+  <view class="card" wx:if="{{record.note}}">
+    <text class="section-title">备注</text>
+    <text>{{record.note}}</text>
+  </view>
+
+  <view class="card" wx:if="{{readonly && record.timeCorrected}}">
+    <text class="section-title">认定圈速</text>
+    <text class="lap-time">{{record.lapTimeDisplay}}</text>
+    <text class="text-secondary">（提交：{{record.submittedLapTimeDisplay}}）</text>
+  </view>
+
+  <view class="card" wx:if="{{readonly && record.reviewNote}}">
+    <text class="section-title">审核备注</text>
+    <text>{{record.reviewNote}}</text>
+  </view>
+
+  <view class="card review-actions" wx:if="{{!readonly}}">
+    <text class="section-title">认定圈速</text>
+    <lap-time-input value="{{lapTimeDisplay}}" bind:change="onLapTimeChange" />
+    <view class="review-actions__note">
+      <text class="section-title">审核备注（选填）</text>
+      <input class="review-actions__input" placeholder="可选填写备注" value="{{reviewNote}}" bindinput="onNoteInput" />
+    </view>
+    <view class="review-actions__btns">
+      <button class="btn-primary" bindtap="onApprove" loading="{{submitting}}" disabled="{{submitting || !lapTimeValid}}">通过</button>
+      <button class="btn-secondary" bindtap="onShowReject" disabled="{{submitting}}">拒绝</button>
+    </view>
+  </view>
+
+  <view class="reject-modal" wx:if="{{showRejectModal}}">
+    <view class="reject-modal__mask" bindtap="onCancelReject"></view>
+    <view class="reject-modal__panel card">
+      <text class="section-title">拒绝原因</text>
+      <textarea
+        class="reject-modal__textarea"
+        placeholder="请填写拒绝原因（必填）"
+        value="{{rejectNote}}"
+        bindinput="onRejectNoteInput"
+        maxlength="200"
+      />
+      <view class="reject-modal__btns">
+        <button class="btn-secondary" bindtap="onCancelReject">取消</button>
+        <button class="btn-primary" bindtap="onConfirmReject" loading="{{submitting}}">确认拒绝</button>
+      </view>
+    </view>
+  </view>
+</view>
+
+<view class="loading-tip text-secondary" wx:if="{{loading}}">加载中…</view>

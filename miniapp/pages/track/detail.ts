@@ -1,6 +1,7 @@
 import { TENCENT_MAP_SUBKEY } from '../../config';
 import { getTrack, touchRecentVisit } from '../../services/track';
 import { buildTrackMarker, openMapNavigation } from '../../utils/geo';
+import { switchToLeaderboard } from '../../utils/nav';
 import type { MapMarker } from '../../utils/geo';
 import type { TrackDetail } from '../../types';
 
@@ -77,7 +78,7 @@ Page({
 
   onViewLeaderboard() {
     const id = this.data.track?.id;
-    if (id) wx.navigateTo({ url: `/pages/leaderboard/index?trackId=${id}` });
+    if (id) switchToLeaderboard(id);
   },
 
   onSubmitRecord() {

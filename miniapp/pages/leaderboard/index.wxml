@@ -46,6 +46,9 @@
   />
 
   <view class="lb-footer" wx:if="{{trackId && !loading}}">
+    <view class="lb-pending-tip" wx:if="{{pendingReviewCount > 0 && !myRank}}">
+      <text>你有 {{pendingReviewCount}} 条成绩审核中，通过后显示排名</text>
+    </view>
     <view class="lb-my-rank" wx:if="{{myRank}}">
       <view class="lb-my-rank__inner">
         <text class="lb-my-rank__label">我的排名</text>

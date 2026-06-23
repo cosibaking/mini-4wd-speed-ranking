@@ -1,11 +1,15 @@
 <view class="container">
   <view class="record-item card" wx:for="{{records}}" wx:key="id" data-id="{{item.id}}" bindtap="onTap">
     <view class="record-item__header">
-      <text class="record-item__track">{{item.trackName || '赛道'}}</text>
-      <text class="record-item__time lap-time">{{item.lapTimeDisplay}}</text>
+      <view class="record-item__left">
+        <text class="record-item__track">{{item.trackName || '赛道'}}</text>
+        <text class="record-item__badge record-item__badge--{{item.status}}">{{statusLabel[item.status]}}</text>
+      </view>
+      <text class="record-item__time lap-time">{{item.status === 'approved' ? item.lapTimeDisplay : item.submittedLapTimeDisplay}}</text>
     </view>
     <text class="text-secondary">{{item.createdAt}}</text>
-    <text class="text-secondary" wx:if="{{item.rank}}">排名：第 {{item.rank}} 名</text>
+    <text class="text-secondary" wx:if="{{item.status === 'approved' && item.rank}}">排名：第 {{item.rank}} 名</text>
+    <text class="record-item__reject text-secondary" wx:if="{{item.status === 'rejected' && item.reviewNote}}">{{item.reviewNote}}</text>
   </view>
 
   <empty-state

@@ -4,6 +4,10 @@ exports.getLeaderboard = getLeaderboard;
 exports.getRecord = getRecord;
 exports.submitRecord = submitRecord;
 exports.getMyRecords = getMyRecords;
+exports.getTrackRecords = getTrackRecords;
+exports.getTrackPendingCount = getTrackPendingCount;
+exports.approveRecord = approveRecord;
+exports.rejectRecord = rejectRecord;
 const http_1 = require("./http");
 const config_1 = require("../config");
 const MOCK_LEADERBOARD = {
@@ -23,7 +27,7 @@ async function getLeaderboard(trackId, query = {}) {
     try {
         return await (0, http_1.request)(`/leaderboards/${trackId}`, {
             data: query,
-            auth: false,
+            auth: true,
         });
     }
     catch (e) {
@@ -45,7 +49,9 @@ async function getRecord(id) {
             trackId: MOCK_LEADERBOARD.trackId,
             trackName: MOCK_LEADERBOARD.trackName,
             user: entry.user,
+            status: 'approved',
             lapTimeDisplay: entry.lapTimeDisplay,
+            submittedLapTimeDisplay: entry.lapTimeDisplay,
             rank: entry.rank,
             videoUrl: '',
             carPhotoUrls: [],
@@ -59,4 +65,18 @@ function submitRecord(data) {
 }
 function getMyRecords(query = {}) {
     return (0, http_1.request)('/records/mine', { data: query });
+}
+function getTrackRecords(trackId, query = {}) {
+    return (0, http_1.request)(`/tracks/${trackId}/records`, {
+        data: query,
+    });
+}
+function getTrackPendingCount(trackId) {
+    return (0, http_1.request)(`/tracks/${trackId}/records/pending-count`);
+}
+function approveRecord(recordId, data) {
+    return (0, http_1.request)(`/records/${recordId}/approve`, { method: 'POST', data });
+}
+function rejectRecord(recordId, data) {
+    return (0, http_1.request)(`/records/${recordId}/reject`, { method: 'POST', data });
 }

@@ -1,0 +1,49 @@
+<view class="container">
+  <view class="records-header" wx:if="{{trackName}}">
+    <text class="records-header__name">{{trackName}}</text>
+  </view>
+
+  <view class="tab-bar">
+    <view
+      class="tab-bar__item {{status === 'pending' ? 'tab-bar__item--active' : ''}}"
+      data-status="pending"
+      bindtap="onTabChange"
+    >待审核</view>
+    <view
+      class="tab-bar__item {{status === 'approved' ? 'tab-bar__item--active' : ''}}"
+      data-status="approved"
+      bindtap="onTabChange"
+    >已通过</view>
+    <view
+      class="tab-bar__item {{status === 'rejected' ? 'tab-bar__item--active' : ''}}"
+      data-status="rejected"
+      bindtap="onTabChange"
+    >已拒绝</view>
+    <view
+      class="tab-bar__item {{status === 'all' ? 'tab-bar__item--active' : ''}}"
+      data-status="all"
+      bindtap="onTabChange"
+    >全部</view>
+  </view>
+
+  <view
+    wx:for="{{list}}"
+    wx:key="id"
+    class="card record-item"
+    data-id="{{item.id}}"
+    bindtap="onTap"
+  >
+    <view class="record-item__head">
+      <text class="record-item__user">{{item.user.nickName || '车手'}}</text>
+      <text class="record-item__badge record-item__badge--{{item.status}}">{{statusLabel[item.status]}}</text>
+    </view>
+    <view class="record-item__body">
+      <text class="record-item__time lap-time">{{item.submittedLapTimeDisplay}}</text>
+      <text class="text-secondary record-item__date">{{item.createdAt}}</text>
+    </view>
+    <text class="text-secondary record-item__hint" wx:if="{{item.status === 'pending'}}">点击审核</text>
+  </view>
+
+  <empty-state wx:if="{{!loading && list.length === 0}}" title="暂无成绩" />
+  <view class="loading-tip text-secondary" wx:if="{{loading}}">加载中…</view>
+</view>

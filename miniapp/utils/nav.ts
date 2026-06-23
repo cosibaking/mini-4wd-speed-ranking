@@ -68,6 +68,14 @@ export async function navigateWithLogin(
   }
 }
 
+export const PENDING_LEADERBOARD_TRACK_KEY = 'pending_leaderboard_track_id';
+
+/** 切换到圈速榜 Tab 并定位到指定赛道 */
+export function switchToLeaderboard(trackId: string): void {
+  wx.setStorageSync(PENDING_LEADERBOARD_TRACK_KEY, trackId);
+  wx.switchTab({ url: '/pages/leaderboard/index' });
+}
+
 /** 底部 Tab 切换时确保已登录（Tab 会先切换，登录失败则返回首页） */
 export function ensureLoginForTab(): void {
   if (!isLoggedIn()) {

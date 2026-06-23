@@ -1,5 +1,6 @@
 import { Router } from '../lib/http/index.js';
 import { authMiddleware } from '../middleware/auth.js';
+import * as recordController from '../modules/record/record.controller.js';
 import * as trackController from '../modules/track/track.controller.js';
 
 const router = new Router();
@@ -8,9 +9,14 @@ router.get('/tracks', authMiddleware(), trackController.listTracks);
 router.get('/tracks/recent', authMiddleware({ required: true }), trackController.getRecentTracks);
 router.get('/tracks/mine', authMiddleware({ required: true }), trackController.listMyTracks);
 router.get(
+  '/tracks/:trackId/records/pending-count',
+  authMiddleware({ required: true }),
+  recordController.getTrackPendingCount,
+);
+router.get(
   '/tracks/:trackId/records',
   authMiddleware({ required: true }),
-  trackController.listTrackRecords,
+  recordController.listTrackRecords,
 );
 router.post(
   '/tracks/:trackId/visit',

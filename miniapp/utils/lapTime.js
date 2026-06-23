@@ -4,6 +4,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.formatLapTime = formatLapTime;
 exports.parseLapTime = parseLapTime;
 exports.isValidLapTimeInput = isValidLapTimeInput;
+/** 全角冒号 → 半角，便于输入不区分 */
+function normalizeLapTimeInput(display) {
+    return display.trim().replace(/\uFF1A/g, ':');
+}
 /** 毫秒 → 展示字符串，如 32580 → "0:32.580" 或 "32.580" */
 function formatLapTime(ms) {
     const minutes = Math.floor(ms / 60000);
@@ -15,9 +19,9 @@ function formatLapTime(ms) {
     }
     return secStr;
 }
-/** 解析展示字符串 → 毫秒，支持 "0:32.58" / "32.580" / "0:32.580" */
+/** 解析展示字符串 → 毫秒，支持 "0:32.58" / "32.580" / "0:32.580" / "0：32.580" */
 function parseLapTime(display) {
-    const trimmed = display.trim();
+    const trimmed = normalizeLapTimeInput(display);
     if (!trimmed)
         return null;
     let minutes = 0;

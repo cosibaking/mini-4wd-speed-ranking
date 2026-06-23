@@ -39,6 +39,52 @@
   font-size: 40rpx;
 }
 
+.record-header__corrected {
+  display: block;
+  margin-bottom: 8rpx;
+  font-size: 24rpx;
+}
+
+.status-bar {
+  padding: 20rpx 24rpx;
+  border-radius: var(--radius-card);
+  margin-bottom: 20rpx;
+  font-size: 26rpx;
+  text-align: center;
+}
+
+.status-bar--pending {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.status-bar--approved {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.status-bar--rejected {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.status-detail {
+  margin: -8rpx 0 20rpx;
+  padding: 0 8rpx;
+  font-size: 26rpx;
+  line-height: 1.6;
+}
+
+.status-detail__hint,
+.status-detail__note {
+  display: block;
+}
+
+.status-detail__note {
+  margin-top: 8rpx;
+  color: var(--color-text);
+}
+
 .detail-video {
   width: 100%;
   height: 400rpx;

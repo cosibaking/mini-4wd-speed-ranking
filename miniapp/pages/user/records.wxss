@@ -1,8 +1,14 @@
 .record-item__header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 8rpx;
+}
+
+.record-item__left {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
 }
 
 .record-item__track {
@@ -10,6 +16,34 @@
   font-weight: 600;
 }
 
+.record-item__badge {
+  font-size: 22rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 8rpx;
+  align-self: flex-start;
+}
+
+.record-item__badge--pending {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.record-item__badge--approved {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.record-item__badge--rejected {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
 .record-item__time {
   font-size: 32rpx;
+}
+
+.record-item__reject {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 24rpx;
 }

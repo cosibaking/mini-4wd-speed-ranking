@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const record_1 = require("../../services/record");
 const track_1 = require("../../services/track");
-const PENDING_TRACK_KEY = 'pending_leaderboard_track_id';
+const nav_1 = require("../../utils/nav");
 Page({
     data: {
         trackId: '',
@@ -11,23 +11,24 @@ Page({
         list: [],
         total: 0,
         myRank: undefined,
+        pendingReviewCount: 0,
         loading: true,
         showPicker: false,
     },
     onLoad(options) {
-        const pendingTrackId = wx.getStorageSync(PENDING_TRACK_KEY);
+        const pendingTrackId = wx.getStorageSync(nav_1.PENDING_LEADERBOARD_TRACK_KEY);
         if (pendingTrackId) {
-            wx.removeStorageSync(PENDING_TRACK_KEY);
+            wx.removeStorageSync(nav_1.PENDING_LEADERBOARD_TRACK_KEY);
             this.init(pendingTrackId);
             return;
         }
         this.init(options.trackId);
     },
     onShow() {
-        const pendingTrackId = wx.getStorageSync(PENDING_TRACK_KEY);
+        const pendingTrackId = wx.getStorageSync(nav_1.PENDING_LEADERBOARD_TRACK_KEY);
         if (!pendingTrackId)
             return;
-        wx.removeStorageSync(PENDING_TRACK_KEY);
+        wx.removeStorageSync(nav_1.PENDING_LEADERBOARD_TRACK_KEY);
         this.loadLeaderboard(pendingTrackId);
     },
     async init(trackId) {
@@ -49,6 +50,7 @@ Page({
         }
     },
     async loadLeaderboard(trackId) {
+        var _a;
         this.setData({ loading: true, trackId });
         try {
             const res = await (0, record_1.getLeaderboard)(trackId);
@@ -57,10 +59,11 @@ Page({
                 list: res.list,
                 total: res.total,
                 myRank: res.myRank,
+                pendingReviewCount: (_a = res.pendingReviewCount) !== null && _a !== void 0 ? _a : 0,
                 loading: false,
             });
         }
-        catch (_a) {
+        catch (_b) {
             this.setData({ loading: false });
             wx.showToast({ title: '加载失败', icon: 'none' });
         }

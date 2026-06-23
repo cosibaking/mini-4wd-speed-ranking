@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const config_1 = require("../../config");
 const track_1 = require("../../services/track");
 const geo_1 = require("../../utils/geo");
+const nav_1 = require("../../utils/nav");
 Page({
     data: {
         track: null,
@@ -75,7 +76,7 @@ Page({
         var _a;
         const id = (_a = this.data.track) === null || _a === void 0 ? void 0 : _a.id;
         if (id)
-            wx.navigateTo({ url: `/pages/leaderboard/index?trackId=${id}` });
+            (0, nav_1.switchToLeaderboard)(id);
     },
     onSubmitRecord() {
         var _a;

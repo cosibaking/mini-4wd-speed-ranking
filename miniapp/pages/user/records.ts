@@ -1,15 +1,26 @@
 import { ensureLogin } from '../../services/auth';
 import { getMyRecords } from '../../services/record';
-import type { RecordBrief } from '../../types';
+import type { RecordBrief, RecordStatus } from '../../types';
+
+const STATUS_LABEL: Record<RecordStatus, string> = {
+  pending: '审核中',
+  approved: '已认证',
+  rejected: '未通过',
+};
 
 Page({
   data: {
     records: [] as RecordBrief[],
     loading: true,
+    statusLabel: STATUS_LABEL,
   },
 
   async onLoad() {
     await ensureLogin();
+    this.loadRecords();
+  },
+
+  onShow() {
     this.loadRecords();
   },
 

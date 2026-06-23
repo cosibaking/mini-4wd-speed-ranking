@@ -3,7 +3,6 @@ import type { HttpContext } from '../../lib/http/index.js';
 import { UnauthorizedError } from '../../shared/errors';
 import { parsePagination } from '../../shared/pagination';
 import { success } from '../../shared/response';
-import { recordService } from '../record/record.service';
 import {
   parseTrackListQuery,
   validateCreateTrackDto,
@@ -56,14 +55,6 @@ export async function updateTrack(ctx: HttpContext): Promise<void> {
   const dto = validateUpdateTrackDto(ctx.request.body);
   const detail = await trackService.update(id, userId, dto);
   ctx.body = success(detail);
-}
-
-export async function listTrackRecords(ctx: HttpContext): Promise<void> {
-  const userId = getAuthUserId(ctx);
-  const { trackId } = ctx.params as { trackId: string };
-  const query = parsePagination(ctx.query as Record<string, unknown>);
-  const result = await recordService.listByTrack(trackId, userId, query);
-  ctx.body = success(result);
 }
 
 export async function touchRecentVisit(ctx: HttpContext): Promise<void> {

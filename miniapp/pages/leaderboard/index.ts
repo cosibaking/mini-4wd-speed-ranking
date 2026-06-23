@@ -1,8 +1,7 @@
 import { getLeaderboard } from '../../services/record';
 import { listTracks } from '../../services/track';
 import type { LeaderboardEntry, LeaderboardResult, TrackListItem } from '../../types';
-
-const PENDING_TRACK_KEY = 'pending_leaderboard_track_id';
+import { PENDING_LEADERBOARD_TRACK_KEY } from '../../utils/nav';
 
 Page({
   data: {
@@ -12,14 +11,15 @@ Page({
     list: [] as LeaderboardEntry[],
     total: 0,
     myRank: undefined as LeaderboardResult['myRank'],
+    pendingReviewCount: 0,
     loading: true,
     showPicker: false,
   },
 
   onLoad(options: { trackId?: string }) {
-    const pendingTrackId = wx.getStorageSync(PENDING_TRACK_KEY) as string;
+    const pendingTrackId = wx.getStorageSync(PENDING_LEADERBOARD_TRACK_KEY) as string;
     if (pendingTrackId) {
-      wx.removeStorageSync(PENDING_TRACK_KEY);
+      wx.removeStorageSync(PENDING_LEADERBOARD_TRACK_KEY);
       this.init(pendingTrackId);
       return;
     }
@@ -27,9 +27,9 @@ Page({
   },
 
   onShow() {
-    const pendingTrackId = wx.getStorageSync(PENDING_TRACK_KEY) as string;
+    const pendingTrackId = wx.getStorageSync(PENDING_LEADERBOARD_TRACK_KEY) as string;
     if (!pendingTrackId) return;
-    wx.removeStorageSync(PENDING_TRACK_KEY);
+    wx.removeStorageSync(PENDING_LEADERBOARD_TRACK_KEY);
     this.loadLeaderboard(pendingTrackId);
   },
 
@@ -58,6 +58,7 @@ Page({
         list: res.list,
         total: res.total,
         myRank: res.myRank,
+        pendingReviewCount: res.pendingReviewCount ?? 0,
         loading: false,
       });
     } catch {

@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import type { RowDataPacket } from 'mysql2/promise';
 
 import { execute, query, queryOne } from '../../lib/mysql';
-import type { SubmitRecordDto } from './dto/record.types';
+import type { RecordStatus, SubmitRecordDto } from './dto/record.types';
 
 interface RecordDbRow extends RowDataPacket {
   id: string;
@@ -15,6 +15,12 @@ interface RecordDbRow extends RowDataPacket {
   config_sheet_text: string | null;
   config_sheet_url: string | null;
   note: string | null;
+  status: RecordStatus;
+  submitted_lap_time_ms: number;
+  submitted_lap_time_display: string;
+  reviewed_by: string | null;
+  reviewed_at: Date | null;
+  review_note: string | null;
   created_at: Date;
 }
 
@@ -45,6 +51,12 @@ export interface RecordRow {
   configSheetText: string | null;
   configSheetUrl: string | null;
   note: string | null;
+  status: RecordStatus;
+  submittedLapTimeMs: number;
+  submittedLapTimeDisplay: string;
+  reviewedBy: string | null;
+  reviewedAt: Date | null;
+  reviewNote: string | null;
   createdAt: Date;
   carPhotos: { imageUrl: string; sortOrder: number }[];
   user?: { id: string; nickName: string; avatarUrl: string };
@@ -75,6 +87,12 @@ function mapRecord(
     configSheetText: row.config_sheet_text,
     configSheetUrl: row.config_sheet_url,
     note: row.note,
+    status: row.status,
+    submittedLapTimeMs: row.submitted_lap_time_ms,
+    submittedLapTimeDisplay: row.submitted_lap_time_display,
+    reviewedBy: row.reviewed_by,
+    reviewedAt: row.reviewed_at,
+    reviewNote: row.review_note,
     createdAt: row.created_at,
     carPhotos: carPhotos.map((photo) => ({
       imageUrl: photo.image_url,
@@ -104,8 +122,9 @@ export class RecordRepository {
     await execute(
       `INSERT INTO records (
         id, track_id, user_id, lap_time_ms, lap_time_display, video_url,
-        config_sheet_type, config_sheet_text, config_sheet_url, note, created_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(3))`,
+        config_sheet_type, config_sheet_text, config_sheet_url, note,
+        status, submitted_lap_time_ms, submitted_lap_time_display, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, NOW(3))`,
       [
         id,
         dto.trackId,
@@ -117,6 +136,8 @@ export class RecordRepository {
         configSheetText,
         configSheetUrl,
         dto.note ?? null,
+        lapTimeMs,
+        lapTimeDisplay,
       ],
     );
 
@@ -134,6 +155,74 @@ export class RecordRepository {
       throw new Error('failed to create record');
     }
     return record;
+  }
+
+  async updateReview(
+    recordId: string,
+    data: {
+      status: 'approved';
+      lapTimeMs: number;
+      lapTimeDisplay: string;
+      reviewedBy: string;
+      reviewNote?: string | null;
+    } | {
+      status: 'rejected';
+      reviewedBy: string;
+      reviewNote?: string | null;
+    },
+  ): Promise<void> {
+    if (data.status === 'approved') {
+      await execute(
+        `UPDATE records SET
+          status = 'approved',
+          lap_time_ms = ?,
+          lap_time_display = ?,
+          reviewed_by = ?,
+          reviewed_at = NOW(3),
+          review_note = ?
+         WHERE id = ? AND status = 'pending'`,
+        [
+          data.lapTimeMs,
+          data.lapTimeDisplay,
+          data.reviewedBy,
+          data.reviewNote ?? null,
+          recordId,
+        ],
+      );
+      return;
+    }
+
+    await execute(
+      `UPDATE records SET
+        status = 'rejected',
+        reviewed_by = ?,
+        reviewed_at = NOW(3),
+        review_note = ?
+       WHERE id = ? AND status = 'pending'`,
+      [data.reviewedBy, data.reviewNote ?? null, recordId],
+    );
+  }
+
+  async countByTrackAndStatus(
+    trackId: string,
+    status: RecordStatus,
+  ): Promise<number> {
+    const row = await queryOne<RowDataPacket & { count: number }>(
+      'SELECT COUNT(*) AS count FROM records WHERE track_id = ? AND status = ?',
+      [trackId, status],
+    );
+    return Number(row?.count ?? 0);
+  }
+
+  async countPendingByUserAndTrack(
+    userId: string,
+    trackId: string,
+  ): Promise<number> {
+    const row = await queryOne<RowDataPacket & { count: number }>(
+      'SELECT COUNT(*) AS count FROM records WHERE user_id = ? AND track_id = ? AND status = ?',
+      [userId, trackId, 'pending'],
+    );
+    return Number(row?.count ?? 0);
   }
 
   async findById(recordId: string): Promise<RecordRow | null> {
@@ -196,15 +285,21 @@ export class RecordRepository {
     trackId: string,
     skip: number,
     take: number,
+    status?: RecordStatus,
   ): Promise<{ rows: RecordRow[]; total: number }> {
+    const whereClause = status
+      ? 'WHERE track_id = ? AND status = ?'
+      : 'WHERE track_id = ?';
+    const params = status ? [trackId, status] : [trackId];
+
     const [rows, countRow] = await Promise.all([
       query<RecordDbRow>(
-        'SELECT * FROM records WHERE track_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?',
-        [trackId, take, skip],
+        `SELECT * FROM records ${whereClause} ORDER BY created_at DESC LIMIT ? OFFSET ?`,
+        [...params, take, skip],
       ),
       queryOne<RowDataPacket & { count: number }>(
-        'SELECT COUNT(*) AS count FROM records WHERE track_id = ?',
-        [trackId],
+        `SELECT COUNT(*) AS count FROM records ${whereClause}`,
+        params,
       ),
     ]);
 

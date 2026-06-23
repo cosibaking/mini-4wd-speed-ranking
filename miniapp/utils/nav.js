@@ -1,6 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.PENDING_LEADERBOARD_TRACK_KEY = void 0;
 exports.navigateWithLogin = navigateWithLogin;
+exports.switchToLeaderboard = switchToLeaderboard;
 exports.ensureLoginForTab = ensureLoginForTab;
 const auth_1 = require("../services/auth");
 const session_1 = require("../stores/session");
@@ -63,6 +65,12 @@ async function navigateWithLogin(url, options) {
     finally {
         wx.hideLoading();
     }
+}
+exports.PENDING_LEADERBOARD_TRACK_KEY = 'pending_leaderboard_track_id';
+/** 切换到圈速榜 Tab 并定位到指定赛道 */
+function switchToLeaderboard(trackId) {
+    wx.setStorageSync(exports.PENDING_LEADERBOARD_TRACK_KEY, trackId);
+    wx.switchTab({ url: '/pages/leaderboard/index' });
 }
 /** 底部 Tab 切换时确保已登录（Tab 会先切换，登录失败则返回首页） */
 function ensureLoginForTab() {

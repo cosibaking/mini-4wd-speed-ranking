@@ -24,6 +24,14 @@ export function forbiddenViewRecordsError(): AppError {
   return recordError(40302, '无权查看该赛道全部成绩', 403);
 }
 
+export function forbiddenReviewRecordError(): AppError {
+  return recordError(40303, '无权审核该成绩', 403);
+}
+
+export function recordNotPendingError(): AppError {
+  return recordError(40901, '该成绩不在待审核状态', 409);
+}
+
 export function validationError(message: string): AppError {
   return new AppError(ErrorCode.VALIDATION, message, 400);
 }

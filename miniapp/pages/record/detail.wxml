@@ -1,4 +1,15 @@
 <view class="container" wx:if="{{record}}">
+  <view class="status-bar status-bar--{{record.status}}">
+    <text wx:if="{{record.status === 'pending'}}">审核中</text>
+    <text wx:elif="{{record.status === 'approved'}}">已认证</text>
+    <text wx:else>未通过</text>
+  </view>
+
+  <view class="status-detail" wx:if="{{record.status === 'pending' || record.reviewNote}}">
+    <text class="status-detail__hint text-secondary" wx:if="{{record.status === 'pending'}}">等待主理人认证，暂不上榜</text>
+    <text class="status-detail__note" wx:if="{{record.reviewNote}}">主理人留言：{{record.reviewNote}}</text>
+  </view>
+
   <view class="card record-header">
     <view class="record-header__user">
       <image class="record-header__avatar" src="{{record.user.avatarUrl || '/assets/default-avatar.png'}}" mode="aspectFill" />
@@ -7,10 +18,16 @@
         <text class="text-secondary record-header__track">{{record.trackName}}</text>
       </view>
     </view>
-    <view class="record-header__stats">
-      <text class="record-header__rank">第 {{record.rank}} 名</text>
+    <view class="record-header__stats" wx:if="{{record.status === 'approved'}}">
+      <text class="record-header__rank" wx:if="{{record.isBestRecord && record.rank}}">当前排名：第 {{record.rank}} 名</text>
       <text class="record-header__time lap-time">{{record.lapTimeDisplay}}</text>
     </view>
+    <view class="record-header__stats" wx:else>
+      <text class="record-header__time lap-time">{{record.submittedLapTimeDisplay}}</text>
+    </view>
+    <text class="text-secondary record-header__corrected" wx:if="{{record.timeCorrected}}">
+      提交圈速：{{record.submittedLapTimeDisplay}} → 认定：{{record.lapTimeDisplay}}
+    </text>
     <text class="text-secondary">提交于 {{record.createdAt}}</text>
   </view>
 

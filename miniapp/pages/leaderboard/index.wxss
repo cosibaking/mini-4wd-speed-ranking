@@ -119,6 +119,16 @@
   margin-bottom: 16rpx;
 }
 
+.lb-pending-tip {
+  margin-bottom: 16rpx;
+  padding: 20rpx 24rpx;
+  background: #fef3c7;
+  color: #b45309;
+  border-radius: var(--radius-card);
+  font-size: 26rpx;
+  text-align: center;
+}
+
 .lb-my-rank__inner {
   display: flex;
   align-items: center;

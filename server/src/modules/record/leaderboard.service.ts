@@ -50,6 +50,8 @@ export class LeaderboardService {
       const result = JSON.parse(cached) as LeaderboardResult;
       if (viewerId) {
         result.myRank = await this.getMyRank(trackId, viewerId);
+        result.pendingReviewCount =
+          await recordRepository.countPendingByUserAndTrack(viewerId, trackId);
       }
       return result;
     }
@@ -83,9 +85,11 @@ export class LeaderboardService {
 
     if (viewerId) {
       result.myRank = await this.getMyRank(trackId, viewerId);
+      result.pendingReviewCount =
+        await recordRepository.countPendingByUserAndTrack(viewerId, trackId);
     }
 
-    const toCache = { ...result, myRank: undefined };
+    const toCache = { ...result, myRank: undefined, pendingReviewCount: undefined };
     await redis.set(key, JSON.stringify(toCache), CACHE_TTL_SECONDS);
     return result;
   }
