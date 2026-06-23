@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "主理人申请",
+  "usingComponents": {
+    "empty-state": "/components/EmptyState/empty-state"
+  }
+}

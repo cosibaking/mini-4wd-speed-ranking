@@ -128,6 +128,7 @@ declare const wx: {
     fail?: (err: { errMsg: string }) => void;
   }): void;
   redirectTo(option: { url: string }): void;
+  navigateBack(option?: { delta?: number }): void;
   switchTab(option: {
     url: string;
     success?: () => void;
@@ -198,6 +199,13 @@ declare const wx: {
     width: number;
     left: number;
     right: number;
+  };
+  getEnterOptionsSync(): {
+    scene: number;
+    referrerInfo?: {
+      appId?: string;
+      extraData?: Record<string, unknown>;
+    };
   };
 };
 

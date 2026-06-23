@@ -1,0 +1,36 @@
+<view class="container">
+  <view class="tab-bar">
+    <view
+      class="tab-bar__item {{status === 'pending' ? 'tab-bar__item--active' : ''}}"
+      data-status="pending"
+      bindtap="onTabChange"
+    >待审核</view>
+    <view
+      class="tab-bar__item {{status === 'approved' ? 'tab-bar__item--active' : ''}}"
+      data-status="approved"
+      bindtap="onTabChange"
+    >已通过</view>
+    <view
+      class="tab-bar__item {{status === 'rejected' ? 'tab-bar__item--active' : ''}}"
+      data-status="rejected"
+      bindtap="onTabChange"
+    >已拒绝</view>
+  </view>
+
+  <view wx:for="{{list}}" wx:key="id" class="card app-item">
+    <view class="app-item__head">
+      <text class="app-item__name">{{item.realName}}</text>
+      <text class="app-item__nick">{{item.applicantNickName}}</text>
+    </view>
+    <text class="app-item__line">手机：{{item.phone}}</text>
+    <text class="app-item__line" wx:if="{{item.wechat}}">微信：{{item.wechat}}</text>
+    <text class="app-item__line">身份证：{{item.idCardMasked}}</text>
+    <text class="app-item__time">{{item.createdAt}}</text>
+    <view class="app-item__actions" wx:if="{{status === 'pending'}}">
+      <button class="btn-primary" size="mini" data-id="{{item.id}}" bindtap="onApprove">通过</button>
+      <button class="btn-secondary" size="mini" data-id="{{item.id}}" bindtap="onReject">拒绝</button>
+    </view>
+  </view>
+
+  <empty-state wx:if="{{!loading && list.length === 0}}" title="暂无申请" />
+</view>

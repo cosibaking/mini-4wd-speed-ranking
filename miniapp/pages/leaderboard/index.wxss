@@ -1,5 +1,5 @@
 .leaderboard-page {
-  padding-bottom: calc(160rpx + env(safe-area-inset-bottom));
+  padding-bottom: calc(240rpx + env(safe-area-inset-bottom));
 }
 
 .lb-header {
@@ -101,7 +101,7 @@
   border-bottom: none;
 }
 
-.lb-my-rank {
+.lb-footer {
   position: fixed;
   left: 0;
   right: 0;
@@ -109,6 +109,14 @@
   padding: 16rpx 32rpx calc(16rpx + env(safe-area-inset-bottom));
   background: linear-gradient(180deg, rgba(250, 248, 245, 0) 0%, rgba(250, 248, 245, 0.95) 24%, #FAF8F5 100%);
   z-index: 10;
+}
+
+.lb-upload-btn {
+  width: 100%;
+}
+
+.lb-my-rank {
+  margin-bottom: 16rpx;
 }
 
 .lb-my-rank__inner {

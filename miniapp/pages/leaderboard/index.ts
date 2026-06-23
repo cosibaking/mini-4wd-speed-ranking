@@ -2,6 +2,8 @@ import { getLeaderboard } from '../../services/record';
 import { listTracks } from '../../services/track';
 import type { LeaderboardEntry, LeaderboardResult, TrackListItem } from '../../types';
 
+const PENDING_TRACK_KEY = 'pending_leaderboard_track_id';
+
 Page({
   data: {
     trackId: '',
@@ -15,7 +17,20 @@ Page({
   },
 
   onLoad(options: { trackId?: string }) {
+    const pendingTrackId = wx.getStorageSync(PENDING_TRACK_KEY) as string;
+    if (pendingTrackId) {
+      wx.removeStorageSync(PENDING_TRACK_KEY);
+      this.init(pendingTrackId);
+      return;
+    }
     this.init(options.trackId);
+  },
+
+  onShow() {
+    const pendingTrackId = wx.getStorageSync(PENDING_TRACK_KEY) as string;
+    if (!pendingTrackId) return;
+    wx.removeStorageSync(PENDING_TRACK_KEY);
+    this.loadLeaderboard(pendingTrackId);
   },
 
   async init(trackId?: string) {
@@ -61,12 +76,7 @@ Page({
     this.loadLeaderboard(id);
   },
 
-  onEmptyAction() {
-    const trackId = this.data.trackId;
-    if (trackId) {
-      wx.navigateTo({ url: `/pages/record/submit?trackId=${trackId}` });
-    } else {
-      wx.navigateTo({ url: '/pages/track/list' });
-    }
+  onUpload() {
+    wx.navigateTo({ url: `/pages/record/submit?trackId=${this.data.trackId}` });
   },
 });

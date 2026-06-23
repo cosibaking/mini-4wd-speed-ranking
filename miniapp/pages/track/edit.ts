@@ -48,7 +48,13 @@ Page({
   },
 
   async onLoad(options: { id?: string }) {
-    await ensureLogin();
+    const user = await ensureLogin();
+    if (!user.isOrganizer) {
+      wx.redirectTo({
+        url: user.organizerApplication ? '/pages/organizer/status' : '/pages/organizer/apply',
+      });
+      return;
+    }
     this.syncOrganizerName();
 
     if (options.id) {

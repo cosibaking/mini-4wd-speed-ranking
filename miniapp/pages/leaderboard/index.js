@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const record_1 = require("../../services/record");
 const track_1 = require("../../services/track");
+const PENDING_TRACK_KEY = 'pending_leaderboard_track_id';
 Page({
     data: {
         trackId: '',
@@ -14,7 +15,20 @@ Page({
         showPicker: false,
     },
     onLoad(options) {
+        const pendingTrackId = wx.getStorageSync(PENDING_TRACK_KEY);
+        if (pendingTrackId) {
+            wx.removeStorageSync(PENDING_TRACK_KEY);
+            this.init(pendingTrackId);
+            return;
+        }
         this.init(options.trackId);
+    },
+    onShow() {
+        const pendingTrackId = wx.getStorageSync(PENDING_TRACK_KEY);
+        if (!pendingTrackId)
+            return;
+        wx.removeStorageSync(PENDING_TRACK_KEY);
+        this.loadLeaderboard(pendingTrackId);
     },
     async init(trackId) {
         var _a;
@@ -59,13 +73,7 @@ Page({
         this.setData({ showPicker: false });
         this.loadLeaderboard(id);
     },
-    onEmptyAction() {
-        const trackId = this.data.trackId;
-        if (trackId) {
-            wx.navigateTo({ url: `/pages/record/submit?trackId=${trackId}` });
-        }
-        else {
-            wx.navigateTo({ url: '/pages/track/list' });
-        }
+    onUpload() {
+        wx.navigateTo({ url: `/pages/record/submit?trackId=${this.data.trackId}` });
     },
 });

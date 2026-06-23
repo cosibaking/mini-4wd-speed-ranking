@@ -30,6 +30,16 @@ export const config = {
     appId: process.env.WECHAT_APP_ID ?? '',
     appSecret: process.env.WECHAT_APP_SECRET ?? '',
     mock: parseBoolean(process.env.WECHAT_MOCK, false),
+    realNameMock: parseBoolean(process.env.WECHAT_REALNAME_MOCK, false),
+    /** WECHAT_MOCK 下可选：固定登录 code，openId 为 mock_{code}，便于匹配 ADMIN_OPEN_IDS */
+    mockLoginCode: process.env.MOCK_LOGIN_CODE?.trim() ?? '',
+  },
+  admin: {
+    /** 小程序开发者/管理员 openId，逗号分隔，登录时自动授予 admin 角色 */
+    openIds: (process.env.ADMIN_OPEN_IDS ?? '')
+      .split(',')
+      .map((id) => id.trim())
+      .filter(Boolean),
   },
 } as const;
 

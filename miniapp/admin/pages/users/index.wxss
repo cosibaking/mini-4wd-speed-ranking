@@ -1,0 +1,44 @@
+.user-item {
+  margin-bottom: 20rpx;
+  padding: 24rpx;
+}
+
+.user-item__head {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.user-item__avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  margin-right: 16rpx;
+  background: var(--color-border);
+}
+
+.user-item__info {
+  flex: 1;
+}
+
+.user-item__name {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.user-item__badge {
+  display: inline-block;
+  margin-top: 8rpx;
+  margin-right: 8rpx;
+}
+
+.tag--muted {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.user-item__actions {
+  display: flex;
+  gap: 16rpx;
+}

@@ -48,8 +48,14 @@ async function runMigrations(): Promise<void> {
     const sql = fs.readFileSync(sqlPath, 'utf8');
     const statements = sql
       .split(/;\s*\n/)
-      .map((statement) => statement.trim())
-      .filter((statement) => statement.length > 0 && !statement.startsWith('--'));
+      .map((statement) =>
+        statement
+          .split('\n')
+          .filter((line) => !line.trim().startsWith('--'))
+          .join('\n')
+          .trim(),
+      )
+      .filter((statement) => statement.length > 0);
 
     for (const statement of statements) {
       await execute(statement);

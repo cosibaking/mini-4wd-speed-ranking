@@ -10,6 +10,8 @@ Page({
     avatarUrl: '',
     editingNickname: false,
     saving: false,
+    nicknameDraft: '',
+    showNicknameInput: true,
   },
 
   async onLoad() {
@@ -57,32 +59,40 @@ Page({
 
   onEditNickname() {
     if (this.data.editingNickname) return;
-    wx.showModal({
-      title: '修改昵称',
-      content: '是否使用微信昵称？',
-      confirmText: '使用',
-      cancelText: '自定义',
-      success: (res) => {
-        if (res.confirm) {
-          this.useWeChatNickname();
-        } else if (res.cancel) {
-          this.setData({ editingNickname: true });
-        }
-      },
+    this.setData({
+      editingNickname: true,
+      nicknameDraft: '',
+      showNicknameInput: true,
     });
   },
 
-  async useWeChatNickname() {
-    try {
-      const profile = await getUserProfile();
-      await this.saveProfile({ nickName: profile.nickName });
-    } catch {
-      wx.showToast({ title: '获取微信昵称失败', icon: 'none' });
-    }
+  onNicknameInput(e: WechatMiniprogram.Input) {
+    const value = e.detail.value;
+    this.setData({ nicknameDraft: value, nickName: value });
   },
 
-  onNicknameInput(e: WechatMiniprogram.Input) {
-    this.setData({ nickName: e.detail.value });
+  onNicknameChange(e: WechatMiniprogram.Input) {
+    const value = e.detail.value.trim();
+    if (!value) return;
+
+    const prev = this.data.nicknameDraft;
+    if (value === prev) {
+      this.setData({ nickName: value });
+      return;
+    }
+    if (prev && value.startsWith(prev)) {
+      this.setData({ nicknameDraft: value, nickName: value });
+      return;
+    }
+
+    // 点击「用微信昵称」时 bindchange 会触发，重挂载输入框以刷新显示
+    this.setData({ showNicknameInput: false, nicknameDraft: '' }, () => {
+      this.setData({
+        showNicknameInput: true,
+        nicknameDraft: value,
+        nickName: value,
+      });
+    });
   },
 
   onCancelNickname() {
@@ -90,11 +100,13 @@ Page({
     this.setData({
       editingNickname: false,
       nickName: user?.nickName || '',
+      nicknameDraft: '',
+      showNicknameInput: true,
     });
   },
 
   async onSaveNickname() {
-    const nickName = this.data.nickName.trim();
+    const nickName = (this.data.nicknameDraft || this.data.nickName).trim();
     if (!nickName) {
       wx.showToast({ title: '昵称不能为空', icon: 'none' });
       return;

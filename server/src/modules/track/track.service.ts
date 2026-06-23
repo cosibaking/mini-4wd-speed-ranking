@@ -1,7 +1,9 @@
 import { haversineMeters } from '../../shared/haversine';
 import { buildPaginationResult, getSkip } from '../../shared/pagination';
 import type { PaginationQuery, PaginationResult } from '../../shared/types';
+import { userRepository } from '../auth/user.repository.js';
 import { leaderboardService } from '../record/leaderboard.service';
+import { organizerNotCertifiedError } from '../organizer/errors.js';
 import type {
   CreateTrackDto,
   LeaderboardSummary,
@@ -70,6 +72,11 @@ function toListItem(
 
 export class TrackService {
   async create(creatorId: string, dto: CreateTrackDto): Promise<TrackDetail> {
+    const creator = await userRepository.findById(creatorId);
+    if (!creator?.isOrganizerCertified) {
+      throw organizerNotCertifiedError();
+    }
+
     const duplicate = await trackRepository.isNameDuplicate(creatorId, dto.name);
     if (duplicate) {
       throw duplicateTrackNameError();
@@ -84,6 +91,11 @@ export class TrackService {
     operatorId: string,
     dto: UpdateTrackDto,
   ): Promise<TrackDetail> {
+    const creator = await userRepository.findById(operatorId);
+    if (!creator?.isOrganizerCertified) {
+      throw organizerNotCertifiedError();
+    }
+
     const existing = await trackRepository.findById(trackId);
     if (!existing) {
       throw trackNotFoundError();

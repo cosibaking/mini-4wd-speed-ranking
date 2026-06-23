@@ -1,0 +1,47 @@
+<view class="container status-page">
+  <view class="card status-card" wx:if="{{application}}">
+    <view class="status-badge status-badge--{{application.status}}">{{statusText}}</view>
+    <view class="status-row">
+      <text class="status-label">姓名</text>
+      <text class="status-value">{{application.realName}}</text>
+    </view>
+    <view class="status-row">
+      <text class="status-label">手机号</text>
+      <text class="status-value">{{application.phone}}</text>
+    </view>
+    <view class="status-row" wx:if="{{application.wechat}}">
+      <text class="status-label">微信号</text>
+      <text class="status-value">{{application.wechat}}</text>
+    </view>
+    <view class="status-row">
+      <text class="status-label">提交时间</text>
+      <text class="status-value">{{application.createdAt}}</text>
+    </view>
+    <view class="status-note" wx:if="{{application.reviewNote}}">
+      <text class="status-label">审核备注</text>
+      <text class="status-value">{{application.reviewNote}}</text>
+    </view>
+    <text class="status-hint" wx:if="{{application.status === 'pending'}}">
+      管理员将线下联系核实，请保持手机畅通。认证通过后可在首页进入主理人工作台。
+    </text>
+    <text class="status-hint" wx:if="{{application.status === 'rejected'}}">
+      申请未通过，您可修改信息后重新申请。
+    </text>
+  </view>
+
+  <button
+    wx:if="{{application && application.status === 'rejected'}}"
+    class="btn-primary status-action"
+    bindtap="onReapply"
+  >
+    重新申请
+  </button>
+
+  <button
+    wx:if="{{isOrganizer}}"
+    class="btn-primary status-action"
+    bindtap="onGoTracks"
+  >
+    进入主理人工作台
+  </button>
+</view>

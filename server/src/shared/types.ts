@@ -28,11 +28,30 @@ export interface GeoPoint {
 /** 圈速：对外展示字符串，对内存储毫秒 */
 export type LapTimeDisplay = string;
 
+export type AdminRole = 'admin' | 'operator';
+
+export type OrganizerApplicationStatus = 'pending' | 'approved' | 'rejected';
+
+export interface OrganizerApplicationBrief {
+  id: string;
+  status: OrganizerApplicationStatus;
+  realName: string;
+  phone: string;
+  wechat?: string;
+  reviewNote?: string;
+  createdAt: string;
+  reviewedAt?: string;
+}
+
 export interface UserProfile {
   id: string;
   nickName: string;
   avatarUrl: string;
+  /** 是否已通过管理员线下认证的主理人 */
   isOrganizer: boolean;
+  isAdmin: boolean;
+  adminRole?: AdminRole;
+  organizerApplication?: OrganizerApplicationBrief;
   createdAt: string;
 }
 

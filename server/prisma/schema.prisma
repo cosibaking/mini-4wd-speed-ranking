@@ -7,28 +7,66 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        String   @id @db.Char(36)
-  openId    String   @unique @map("open_id") @db.VarChar(64)
-  unionId   String?  @map("union_id") @db.VarChar(64)
-  nickName  String   @default("") @map("nick_name") @db.VarChar(64)
-  avatarUrl String   @default("") @map("avatar_url") @db.VarChar(512)
-  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.DateTime(3)
+enum AdminRole {
+  admin
+  operator
+}
 
-  tracks            Track[]            @relation("TrackCreator")
-  records           Record[]
-  posts             Post[]
-  comments          Comment[]
-  likes             Like[]
-  followers         Follow[]           @relation("Follower")
-  followees         Follow[]           @relation("Followee")
-  recentTrackVisits RecentTrackVisit[]
-  trackBestRecords  TrackBestRecord[]
-  mediaObjects      MediaObject[]
+enum OrganizerApplicationStatus {
+  pending
+  approved
+  rejected
+}
+
+model User {
+  id                   String     @id @db.Char(36)
+  openId               String     @unique @map("open_id") @db.VarChar(64)
+  unionId              String?    @map("union_id") @db.VarChar(64)
+  nickName             String     @default("") @map("nick_name") @db.VarChar(64)
+  avatarUrl            String     @default("") @map("avatar_url") @db.VarChar(512)
+  isOrganizerCertified Boolean    @default(false) @map("is_organizer_certified")
+  adminRole            AdminRole? @map("admin_role")
+  createdAt            DateTime   @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt            DateTime   @updatedAt @map("updated_at") @db.DateTime(3)
+
+  tracks                 Track[]                 @relation("TrackCreator")
+  records                Record[]
+  posts                  Post[]
+  comments               Comment[]
+  likes                  Like[]
+  followers              Follow[]                @relation("Follower")
+  followees              Follow[]                @relation("Followee")
+  recentTrackVisits      RecentTrackVisit[]
+  trackBestRecords       TrackBestRecord[]
+  mediaObjects           MediaObject[]
+  organizerApplications  OrganizerApplication[]  @relation("OrganizerApplicant")
+  reviewedApplications   OrganizerApplication[]  @relation("OrganizerReviewer")
 
   @@index([createdAt], map: "idx_users_created")
   @@map("users")
+}
+
+model OrganizerApplication {
+  id                  String                     @id @db.Char(36)
+  userId              String                     @map("user_id") @db.Char(36)
+  realName            String                     @map("real_name") @db.VarChar(64)
+  idCardNumber        String                     @map("id_card_number") @db.VarChar(18)
+  phone               String                     @db.VarChar(20)
+  wechat              String?                    @db.VarChar(64)
+  status              OrganizerApplicationStatus @default(pending)
+  realNameVerifiedAt  DateTime?                  @map("real_name_verified_at") @db.DateTime(3)
+  reviewNote          String?                    @map("review_note") @db.VarChar(255)
+  reviewedBy          String?                    @map("reviewed_by") @db.Char(36)
+  reviewedAt          DateTime?                  @map("reviewed_at") @db.DateTime(3)
+  createdAt           DateTime                   @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt           DateTime                   @updatedAt @map("updated_at") @db.DateTime(3)
+
+  user     User  @relation("OrganizerApplicant", fields: [userId], references: [id])
+  reviewer User? @relation("OrganizerReviewer", fields: [reviewedBy], references: [id])
+
+  @@index([userId], map: "idx_oa_user")
+  @@index([status, createdAt(sort: Desc)], map: "idx_oa_status_created")
+  @@map("organizer_applications")
 }
 
 model Track {

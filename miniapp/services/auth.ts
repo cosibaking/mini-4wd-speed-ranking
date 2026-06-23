@@ -1,11 +1,29 @@
 import { getToken, request, setToken } from './http';
+import { getClientConfig } from './clientConfig';
+import { MOCK_LOGIN_CODE } from '../config';
 import { setSessionUser } from '../stores/session';
 import type { UserProfile } from '../types';
 
-export async function login(): Promise<{ token: string; user: UserProfile }> {
+async function resolveLoginCode(): Promise<string> {
+  try {
+    const clientConfig = await getClientConfig();
+    if (clientConfig.wechatMock && clientConfig.mockLoginCode) {
+      return clientConfig.mockLoginCode;
+    }
+  } catch {
+    // ignore
+  }
+  if (MOCK_LOGIN_CODE) {
+    return MOCK_LOGIN_CODE;
+  }
   const { code } = await new Promise<WechatMiniprogram.LoginSuccessCallbackResult>(
-    (resolve, reject) => wx.login({ success: resolve, fail: reject })
+    (resolve, reject) => wx.login({ success: resolve, fail: reject }),
   );
+  return code;
+}
+
+export async function login(): Promise<{ token: string; user: UserProfile }> {
+  const code = await resolveLoginCode();
   return request('/auth/login', { method: 'POST', data: { code }, auth: false });
 }
 
@@ -32,6 +50,22 @@ export async function ensureLogin(): Promise<UserProfile> {
     setToken(result.token);
     setSessionUser(result.user);
     return result.user;
+  }
+}
+
+/** 刷新当前用户资料（如管理权限变更后） */
+export async function refreshUser(): Promise<UserProfile | null> {
+  if (!isLoggedIn()) {
+    setSessionUser(null);
+    return null;
+  }
+  try {
+    const user = await getMe();
+    setSessionUser(user);
+    return user;
+  } catch {
+    setSessionUser(null);
+    return null;
   }
 }
 

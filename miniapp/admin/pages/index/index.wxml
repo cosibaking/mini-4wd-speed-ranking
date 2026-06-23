@@ -1,0 +1,34 @@
+<view class="container admin-home">
+  <view class="admin-stats card" wx:if="{{stats}}">
+    <view class="admin-stat">
+      <text class="admin-stat__num">{{stats.pendingApplications}}</text>
+      <text class="admin-stat__label">待审申请</text>
+    </view>
+    <view class="admin-stat">
+      <text class="admin-stat__num">{{stats.trackCount}}</text>
+      <text class="admin-stat__label">赛道总数</text>
+    </view>
+    <view class="admin-stat">
+      <text class="admin-stat__num">{{stats.userCount}}</text>
+      <text class="admin-stat__label">用户总数</text>
+    </view>
+  </view>
+
+  <view class="admin-menu card">
+    <view class="admin-menu__item" bindtap="onApplications">
+      <text class="admin-menu__title">主理人申请</text>
+      <text class="admin-menu__desc">审核实名申请，线下核实后通过</text>
+      <text class="admin-menu__chevron">›</text>
+    </view>
+    <view class="admin-menu__item" bindtap="onTracks">
+      <text class="admin-menu__title">赛道管理</text>
+      <text class="admin-menu__desc">查看全部赛道</text>
+      <text class="admin-menu__chevron">›</text>
+    </view>
+    <view class="admin-menu__item" bindtap="onUsers">
+      <text class="admin-menu__title">用户管理</text>
+      <text class="admin-menu__desc">授予或撤销主理人认证</text>
+      <text class="admin-menu__chevron">›</text>
+    </view>
+  </view>
+</view>

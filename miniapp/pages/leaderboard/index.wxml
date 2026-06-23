@@ -35,8 +35,6 @@
     wx:if="{{!loading && list.length === 0 && trackId}}"
     title="还没有人挑战"
     desc="来做第一个上榜的车手吧"
-    actionText="上传成绩"
-    bind:action="onEmptyAction"
   />
 
   <empty-state
@@ -47,12 +45,15 @@
     bind:action="onTogglePicker"
   />
 
-  <view class="lb-my-rank" wx:if="{{myRank}}">
-    <view class="lb-my-rank__inner">
-      <text class="lb-my-rank__label">我的排名</text>
-      <text class="lb-my-rank__value">第 <text class="lap-time">{{myRank.rank}}</text> 名</text>
-      <text class="lb-my-rank__time lap-time">{{myRank.lapTimeDisplay}}</text>
+  <view class="lb-footer" wx:if="{{trackId && !loading}}">
+    <view class="lb-my-rank" wx:if="{{myRank}}">
+      <view class="lb-my-rank__inner">
+        <text class="lb-my-rank__label">我的排名</text>
+        <text class="lb-my-rank__value">第 <text class="lap-time">{{myRank.rank}}</text> 名</text>
+        <text class="lb-my-rank__time lap-time">{{myRank.lapTimeDisplay}}</text>
+      </view>
     </view>
+    <button class="btn-primary lb-upload-btn" bindtap="onUpload">上传成绩</button>
   </view>
 
   <view class="loading-tip" wx:if="{{loading}}">加载中…</view>

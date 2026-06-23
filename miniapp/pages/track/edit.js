@@ -32,7 +32,13 @@ Page({
     },
     async onLoad(options) {
         var _a, _b;
-        await (0, auth_1.ensureLogin)();
+        const user = await (0, auth_1.ensureLogin)();
+        if (!user.isOrganizer) {
+            wx.redirectTo({
+                url: user.organizerApplication ? '/pages/organizer/status' : '/pages/organizer/apply',
+            });
+            return;
+        }
         this.syncOrganizerName();
         if (options.id) {
             this.setData({ trackId: options.id, isEdit: true });

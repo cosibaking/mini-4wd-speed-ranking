@@ -109,7 +109,7 @@ Page({
 
     this.setData({ submitting: true });
     try {
-      const record = await submitRecord({
+      await submitRecord({
         trackId,
         lapTimeDisplay: lapTime,
         videoUrl,
@@ -117,10 +117,7 @@ Page({
         carPhotoUrls: carPhotoUrls.length ? carPhotoUrls : undefined,
         note: note.trim() || undefined,
       });
-      wx.showToast({ title: '提交成功', icon: 'success' });
-      setTimeout(() => {
-        wx.redirectTo({ url: `/pages/leaderboard/index?trackId=${trackId}&highlight=${record.id}` });
-      }, 1000);
+      wx.redirectTo({ url: `/pages/record/success?trackId=${trackId}` });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : '提交失败';
       wx.showToast({ title: msg, icon: 'none' });

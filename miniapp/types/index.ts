@@ -23,11 +23,27 @@ export interface GeoPoint {
   address: string;
 }
 
+export type OrganizerApplicationStatus = 'pending' | 'approved' | 'rejected';
+
+export interface OrganizerApplicationBrief {
+  id: string;
+  status: OrganizerApplicationStatus;
+  realName: string;
+  phone: string;
+  wechat?: string;
+  reviewNote?: string;
+  createdAt: string;
+  reviewedAt?: string;
+}
+
 export interface UserProfile {
   id: string;
   nickName: string;
   avatarUrl: string;
   isOrganizer: boolean;
+  isAdmin: boolean;
+  adminRole?: 'admin' | 'operator';
+  organizerApplication?: OrganizerApplicationBrief;
   createdAt: string;
 }
 

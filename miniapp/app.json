@@ -7,6 +7,7 @@
     "pages/location/picker",
     "pages/leaderboard/index",
     "pages/record/submit",
+    "pages/record/success",
     "pages/record/detail",
     "pages/community/index",
     "pages/community/post",
@@ -15,7 +16,20 @@
     "pages/user/profile",
     "pages/user/tracks",
     "pages/user/records",
-    "pages/user/following"
+    "pages/user/following",
+    "pages/organizer/apply",
+    "pages/organizer/status"
+  ],
+  "subPackages": [
+    {
+      "root": "admin",
+      "pages": [
+        "pages/index/index",
+        "pages/applications/index",
+        "pages/tracks/index",
+        "pages/users/index"
+      ]
+    }
   ],
   "window": {
     "navigationBarBackgroundColor": "#E85D04",

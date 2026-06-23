@@ -6,9 +6,17 @@ Page({
     data: {
         tracks: [],
         loading: true,
+        isOrganizer: false,
     },
     async onLoad() {
-        await (0, auth_1.ensureLogin)();
+        const user = await (0, auth_1.ensureLogin)();
+        if (!user.isOrganizer) {
+            wx.redirectTo({
+                url: user.organizerApplication ? '/pages/organizer/status' : '/pages/organizer/apply',
+            });
+            return;
+        }
+        this.setData({ isOrganizer: true });
         this.loadTracks();
     },
     async loadTracks() {

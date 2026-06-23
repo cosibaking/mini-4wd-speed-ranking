@@ -6,10 +6,18 @@ Page({
   data: {
     tracks: [] as TrackListItem[],
     loading: true,
+    isOrganizer: false,
   },
 
   async onLoad() {
-    await ensureLogin();
+    const user = await ensureLogin();
+    if (!user.isOrganizer) {
+      wx.redirectTo({
+        url: user.organizerApplication ? '/pages/organizer/status' : '/pages/organizer/apply',
+      });
+      return;
+    }
+    this.setData({ isOrganizer: true });
     this.loadTracks();
   },
 

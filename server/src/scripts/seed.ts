@@ -73,9 +73,12 @@ async function main(): Promise<void> {
   }
 
   await execute(
-    `INSERT INTO users (id, open_id, nick_name, avatar_url, created_at, updated_at)
-     VALUES (?, ?, ?, '', NOW(3), NOW(3))
-     ON DUPLICATE KEY UPDATE nick_name = VALUES(nick_name)`,
+    `INSERT INTO users (
+      id, open_id, nick_name, avatar_url, is_organizer_certified, created_at, updated_at
+    ) VALUES (?, ?, ?, '', 1, NOW(3), NOW(3))
+     ON DUPLICATE KEY UPDATE
+       nick_name = VALUES(nick_name),
+       is_organizer_certified = 1`,
     [DEMO_USER.id, DEMO_USER.openId, DEMO_USER.nickName],
   );
 

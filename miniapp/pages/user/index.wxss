@@ -48,6 +48,12 @@
 
 .user-header__badge {
   display: inline-block;
+  margin-right: 8rpx;
+}
+
+.tag--admin {
+  background: #1a1208;
+  color: #fff;
 }
 
 .user-header__hint {
@@ -80,6 +86,10 @@
 
 .menu-item--highlight {
   background: rgba(255, 247, 237, 0.6);
+}
+
+.menu-item--admin {
+  background: rgba(26, 18, 8, 0.06);
 }
 
 .menu-item__left {

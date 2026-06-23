@@ -20,13 +20,16 @@
     <view class="profile-field profile-field--edit" wx:else>
       <text class="profile-field__label">昵称</text>
       <input
+        wx:if="{{showNicknameInput}}"
         class="profile-field__input"
         type="nickname"
-        value="{{nickName}}"
+        name="nickname"
+        value="{{nicknameDraft}}"
         placeholder="请输入昵称"
         maxlength="32"
         focus="{{editingNickname}}"
         bindinput="onNicknameInput"
+        bindchange="onNicknameChange"
         bindconfirm="onSaveNickname"
       />
       <view class="profile-field__actions">

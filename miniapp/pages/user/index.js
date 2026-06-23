@@ -11,18 +11,23 @@ Page({
         this.loadUser();
     },
     async loadUser() {
-        const cached = (0, session_1.getSessionUser)();
-        if (cached) {
-            this.setData({ user: cached, loggedIn: true });
-            return;
-        }
         try {
-            const user = await (0, auth_1.ensureLogin)();
-            (0, session_1.setSessionUser)(user);
-            this.setData({ user, loggedIn: true });
+            const user = await (0, auth_1.refreshUser)();
+            if (user) {
+                this.setData({ user, loggedIn: true });
+                return;
+            }
+            const cached = (0, session_1.getSessionUser)();
+            if (cached) {
+                this.setData({ user: cached, loggedIn: true });
+                return;
+            }
+            const loggedInUser = await (0, auth_1.ensureLogin)();
+            (0, session_1.setSessionUser)(loggedInUser);
+            this.setData({ user: loggedInUser, loggedIn: true });
         }
         catch (_a) {
-            this.setData({ loggedIn: false });
+            this.setData({ user: null, loggedIn: false });
         }
     },
     async onLogin() {

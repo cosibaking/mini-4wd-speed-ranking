@@ -1,0 +1,46 @@
+.success-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding-top: 0;
+}
+
+.success-page__icon {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-primary-light), var(--color-primary));
+  color: #fff;
+  font-size: 64rpx;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 40rpx;
+}
+
+.success-page__title {
+  font-size: 40rpx;
+  font-weight: 600;
+  margin-bottom: 16rpx;
+}
+
+.success-page__desc {
+  text-align: center;
+  margin-bottom: 80rpx;
+}
+
+.success-page__actions {
+  width: 100%;
+}
+
+.success-page__btn {
+  width: 100%;
+  margin-bottom: 24rpx;
+}
+
+.success-page__btn:last-child {
+  margin-bottom: 0;
+}

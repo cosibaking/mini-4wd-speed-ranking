@@ -1,0 +1,8 @@
+<view class="container">
+  <view wx:for="{{list}}" wx:key="id" class="card track-item" bindtap="onOpen" data-id="{{item.id}}">
+    <text class="track-item__name">{{item.name}}</text>
+    <text class="track-item__meta">{{item.address}}</text>
+    <text class="track-item__meta">主理人：{{item.organizerName}} · {{item.recordCount}} 条成绩</text>
+  </view>
+  <empty-state wx:if="{{!loading && list.length === 0}}" title="暂无赛道" />
+</view>

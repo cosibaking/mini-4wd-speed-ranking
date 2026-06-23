@@ -1,5 +1,7 @@
 import { getRecentTracks, listTracks } from '../../services/track';
+import { ensureLogin, refreshUser } from '../../services/auth';
 import { ensureLoginForTab, navigateWithLogin } from '../../utils/nav';
+import { getSessionUser, setSessionUser } from '../../stores/session';
 import type { TrackListItem } from '../../types';
 
 Page({
@@ -7,6 +9,7 @@ Page({
     recentTracks: [] as TrackListItem[],
     loading: true,
     topPadding: 0,
+    showAdminEntry: false,
   },
 
   onLoad() {
@@ -17,7 +20,13 @@ Page({
   },
 
   onShow() {
+    this.refreshAdminEntry();
     this.loadRecent();
+  },
+
+  async refreshAdminEntry() {
+    const user = await refreshUser();
+    this.setData({ showAdminEntry: !!user?.isAdmin });
   },
 
   async loadRecent() {
@@ -39,12 +48,40 @@ Page({
     }
   },
 
-  onOrganizerTap() {
-    navigateWithLogin('/pages/user/tracks');
+  async onOrganizerTap() {
+    if (!getSessionUser()) {
+      const ok = await navigateWithLogin('/pages/organizer/apply');
+      if (!ok) return;
+    }
+
+    wx.showLoading({ title: '加载中', mask: true });
+    try {
+      const user = await ensureLogin();
+      setSessionUser(user);
+
+      if (user.isOrganizer) {
+        wx.navigateTo({ url: '/pages/user/tracks' });
+        return;
+      }
+      if (user.organizerApplication) {
+        wx.navigateTo({ url: '/pages/organizer/status' });
+        return;
+      }
+      wx.navigateTo({ url: '/pages/organizer/apply' });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : '加载失败';
+      wx.showToast({ title: msg, icon: 'none' });
+    } finally {
+      wx.hideLoading();
+    }
   },
 
   onDriverTap() {
     navigateWithLogin('/pages/track/list');
+  },
+
+  onAdminTap() {
+    wx.navigateTo({ url: '/admin/pages/index/index' });
   },
 
   onTabItemTap(e: { pagePath: string; index: number; text: string }) {

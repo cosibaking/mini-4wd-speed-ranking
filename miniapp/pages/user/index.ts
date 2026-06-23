@@ -1,4 +1,4 @@
-import { ensureLogin, getUserProfile, updateMe } from '../../services/auth';
+import { ensureLogin, getUserProfile, refreshUser, updateMe } from '../../services/auth';
 import { getSessionUser, setSessionUser } from '../../stores/session';
 import type { UserProfile } from '../../types';
 
@@ -13,17 +13,22 @@ Page({
   },
 
   async loadUser() {
-    const cached = getSessionUser();
-    if (cached) {
-      this.setData({ user: cached, loggedIn: true });
-      return;
-    }
     try {
-      const user = await ensureLogin();
-      setSessionUser(user);
-      this.setData({ user, loggedIn: true });
+      const user = await refreshUser();
+      if (user) {
+        this.setData({ user, loggedIn: true });
+        return;
+      }
+      const cached = getSessionUser();
+      if (cached) {
+        this.setData({ user: cached, loggedIn: true });
+        return;
+      }
+      const loggedInUser = await ensureLogin();
+      setSessionUser(loggedInUser);
+      this.setData({ user: loggedInUser, loggedIn: true });
     } catch {
-      this.setData({ loggedIn: false });
+      this.setData({ user: null, loggedIn: false });
     }
   },
 

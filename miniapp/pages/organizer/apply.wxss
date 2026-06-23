@@ -1,0 +1,53 @@
+.apply-page .apply-intro {
+  margin-bottom: 24rpx;
+}
+
+.apply-intro__title {
+  display: block;
+  font-size: 34rpx;
+  font-weight: 600;
+  margin-bottom: 12rpx;
+}
+
+.apply-intro__desc {
+  display: block;
+  font-size: 26rpx;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+
+.apply-intro__mock {
+  display: block;
+  margin-top: 16rpx;
+  padding: 12rpx 16rpx;
+  background: #fef3c7;
+  color: #b45309;
+  border-radius: 8rpx;
+  font-size: 24rpx;
+  line-height: 1.5;
+}
+
+.apply-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  margin-top: 32rpx;
+}
+
+.apply-actions__btn {
+  width: 100%;
+}
+
+.apply-tip {
+  margin-top: 24rpx;
+  text-align: center;
+  font-size: 24rpx;
+}
+
+.apply-tip__ok {
+  color: #16a34a;
+}
+
+.apply-tip__hint {
+  color: var(--color-text-secondary);
+}

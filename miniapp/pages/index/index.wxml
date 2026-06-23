@@ -10,7 +10,7 @@
         <view class="entry-btn__icon entry-btn__icon--light">🛤</view>
         <view class="entry-btn__body">
           <text class="entry-btn__title">我是主理人</text>
-          <text class="entry-btn__desc">创建赛道 · 发布认定规则</text>
+          <text class="entry-btn__desc">申请认证 · 创建赛道</text>
         </view>
         <text class="entry-btn__chevron">›</text>
       </button>
@@ -19,6 +19,14 @@
         <view class="entry-btn__body">
           <text class="entry-btn__title">我是车手</text>
           <text class="entry-btn__desc">选择赛道 · 挑战圈速榜</text>
+        </view>
+        <text class="entry-btn__chevron">›</text>
+      </button>
+      <button class="entry-btn entry-btn--admin" wx:if="{{showAdminEntry}}" bindtap="onAdminTap">
+        <view class="entry-btn__icon entry-btn__icon--admin">⚙</view>
+        <view class="entry-btn__body">
+          <text class="entry-btn__title">管理后台</text>
+          <text class="entry-btn__desc">主理人审核 · 赛道与用户管理</text>
         </view>
         <text class="entry-btn__chevron">›</text>
       </button>

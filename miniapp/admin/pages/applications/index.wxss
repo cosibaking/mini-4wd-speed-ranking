@@ -1,0 +1,61 @@
+.tab-bar {
+  display: flex;
+  margin-bottom: 24rpx;
+  background: #fff;
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+
+.tab-bar__item {
+  flex: 1;
+  text-align: center;
+  padding: 20rpx 0;
+  font-size: 26rpx;
+  color: var(--color-text-secondary);
+}
+
+.tab-bar__item--active {
+  color: var(--color-primary);
+  font-weight: 600;
+  background: var(--color-primary-bg);
+}
+
+.app-item {
+  margin-bottom: 20rpx;
+  padding: 24rpx;
+}
+
+.app-item__head {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12rpx;
+}
+
+.app-item__name {
+  font-size: 30rpx;
+  font-weight: 600;
+}
+
+.app-item__nick {
+  font-size: 24rpx;
+  color: var(--color-text-secondary);
+}
+
+.app-item__line {
+  display: block;
+  font-size: 26rpx;
+  margin-bottom: 8rpx;
+}
+
+.app-item__time {
+  display: block;
+  font-size: 22rpx;
+  color: var(--color-text-placeholder);
+  margin-top: 8rpx;
+}
+
+.app-item__actions {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 20rpx;
+}

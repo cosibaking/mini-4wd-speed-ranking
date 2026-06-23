@@ -4,6 +4,7 @@
     <view class="user-header__info">
       <text class="user-header__name">{{user.nickName || '微信用户'}}</text>
       <text class="user-header__badge tag" wx:if="{{user.isOrganizer}}">赛道主理人</text>
+      <text class="user-header__badge tag tag--admin" wx:if="{{user.isAdmin}}">管理员</text>
       <text class="user-header__hint text-secondary" wx:else>四驱车手</text>
     </view>
     <text class="user-header__arrow">›</text>
@@ -19,6 +20,13 @@
   </view>
 
   <view class="menu card">
+    <view class="menu-item menu-item--admin" data-url="/admin/pages/index/index" bindtap="onNav" wx:if="{{loggedIn && user && user.isAdmin}}">
+      <view class="menu-item__left">
+        <text class="icon-badge">⚙</text>
+        <text>管理后台</text>
+      </view>
+      <text class="menu-item__arrow">›</text>
+    </view>
     <view class="menu-item" data-url="/pages/user/tracks" bindtap="onNav">
       <view class="menu-item__left">
         <text class="icon-badge">🛤</text>
@@ -40,7 +48,14 @@
       </view>
       <text class="menu-item__arrow">›</text>
     </view>
-    <view class="menu-item menu-item--highlight" data-url="/pages/track/edit" bindtap="onNav">
+    <view class="menu-item menu-item--highlight" data-url="/pages/organizer/apply" bindtap="onNav" wx:if="{{loggedIn && user && !user.isOrganizer}}">
+      <view class="menu-item__left">
+        <text class="icon-badge">📝</text>
+        <text>申请赛道主理人</text>
+      </view>
+      <text class="menu-item__arrow">›</text>
+    </view>
+    <view class="menu-item menu-item--highlight" data-url="/pages/track/edit" bindtap="onNav" wx:if="{{loggedIn && user && user.isOrganizer}}">
       <view class="menu-item__left">
         <text class="icon-badge">＋</text>
         <text>新建赛道</text>

@@ -6,6 +6,8 @@
     "miniapp"
   ],
   "scripts": {
+    "dev": "npm run dev:server",
+    "build": "npm run build:server",
     "dev:server": "npm run dev -w server",
     "compile:miniapp": "npm run compile -w miniapp",
     "build:server": "npm run build -w server",

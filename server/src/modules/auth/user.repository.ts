@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import type { ExecuteValues, RowDataPacket } from 'mysql2/promise';
 
 import { execute, query, queryOne } from '../../lib/mysql.js';
+import type { AdminRole } from '../../shared/types.js';
 
 export interface UserRow extends RowDataPacket {
   id: string;
@@ -9,6 +10,8 @@ export interface UserRow extends RowDataPacket {
   union_id: string | null;
   nick_name: string;
   avatar_url: string;
+  is_organizer_certified: number;
+  admin_role: AdminRole | null;
   created_at: Date;
   updated_at: Date;
 }
@@ -20,6 +23,8 @@ function mapUser(row: UserRow) {
     unionId: row.union_id,
     nickName: row.nick_name,
     avatarUrl: row.avatar_url,
+    isOrganizerCertified: Boolean(row.is_organizer_certified),
+    adminRole: row.admin_role,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -42,12 +47,14 @@ export class UserRepository {
     return row ? mapUser(row) : null;
   }
 
-  async create(data: { openId: string; unionId?: string | null }) {
+  async create(data: { openId: string; unionId?: string | null; adminRole?: AdminRole | null }) {
     const id = randomUUID();
     await execute(
-      `INSERT INTO users (id, open_id, union_id, nick_name, avatar_url, created_at, updated_at)
-       VALUES (?, ?, ?, '', '', NOW(3), NOW(3))`,
-      [id, data.openId, data.unionId ?? null],
+      `INSERT INTO users (
+        id, open_id, union_id, nick_name, avatar_url,
+        is_organizer_certified, admin_role, created_at, updated_at
+      ) VALUES (?, ?, ?, '', '', 0, ?, NOW(3), NOW(3))`,
+      [id, data.openId, data.unionId ?? null, data.adminRole ?? null],
     );
     const user = await this.findById(id);
     if (!user) {
@@ -58,7 +65,13 @@ export class UserRepository {
 
   async update(
     id: string,
-    data: { unionId?: string | null; nickName?: string; avatarUrl?: string },
+    data: {
+      unionId?: string | null;
+      nickName?: string;
+      avatarUrl?: string;
+      adminRole?: AdminRole | null;
+      isOrganizerCertified?: boolean;
+    },
   ) {
     const fields: string[] = [];
     const params: ExecuteValues = [];
@@ -74,6 +87,14 @@ export class UserRepository {
     if (data.avatarUrl !== undefined) {
       fields.push('avatar_url = ?');
       params.push(data.avatarUrl);
+    }
+    if (data.adminRole !== undefined) {
+      fields.push('admin_role = ?');
+      params.push(data.adminRole);
+    }
+    if (data.isOrganizerCertified !== undefined) {
+      fields.push('is_organizer_certified = ?');
+      params.push(data.isOrganizerCertified ? 1 : 0);
     }
 
     if (fields.length === 0) {
@@ -120,6 +141,23 @@ export class UserRepository {
       [creatorId],
     );
     return Number(row?.count ?? 0);
+  }
+
+  async listForAdmin(skip: number, pageSize: number) {
+    const rows = await query<UserRow>(
+      `SELECT id, open_id, nick_name, avatar_url, is_organizer_certified, admin_role, created_at
+       FROM users
+       ORDER BY created_at DESC
+       LIMIT ? OFFSET ?`,
+      [pageSize, skip],
+    );
+    const countRow = await queryOne<RowDataPacket & { count: number }>(
+      'SELECT COUNT(*) AS count FROM users',
+    );
+    return {
+      rows: rows.map(mapUser),
+      total: Number(countRow?.count ?? 0),
+    };
   }
 }
 

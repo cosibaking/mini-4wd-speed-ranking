@@ -256,6 +256,31 @@ export class TrackRepository {
       [trackId],
     );
   }
+
+  async countAll(): Promise<number> {
+    const row = await queryOne<RowDataPacket & { count: number }>(
+      'SELECT COUNT(*) AS count FROM tracks',
+    );
+    return Number(row?.count ?? 0);
+  }
+
+  async listAllForAdmin(skip: number, take: number): Promise<{ rows: TrackRow[]; total: number }> {
+    const [rows, countRow] = await Promise.all([
+      query<TrackDbRow>(
+        'SELECT * FROM tracks ORDER BY created_at DESC LIMIT ? OFFSET ?',
+        [take, skip],
+      ),
+      queryOne<RowDataPacket & { count: number }>(
+        'SELECT COUNT(*) AS count FROM tracks',
+      ),
+    ]);
+
+    const mapped = await Promise.all(
+      rows.map(async (row) => mapTrack(row, await loadFloorPlans(row.id))),
+    );
+
+    return { rows: mapped, total: Number(countRow?.count ?? 0) };
+  }
 }
 
 export const trackRepository = new TrackRepository();

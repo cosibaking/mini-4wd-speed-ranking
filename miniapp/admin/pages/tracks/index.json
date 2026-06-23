@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "赛道管理",
+  "usingComponents": {
+    "empty-state": "/components/EmptyState/empty-state"
+  }
+}
