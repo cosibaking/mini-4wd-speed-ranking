@@ -1,6 +1,8 @@
 {
+  "navigationStyle": "custom",
   "navigationBarTitleText": "成绩审核",
   "usingComponents": {
-    "empty-state": "/components/EmptyState/empty-state"
+    "empty-state": "/components/EmptyState/empty-state",
+    "nav-bar": "/components/NavBar/nav-bar"
   }
 }

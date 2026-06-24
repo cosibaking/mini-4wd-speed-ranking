@@ -1,3 +1,4 @@
+<nav-bar title="赛道管理" />
 <view class="container">
   <view wx:for="{{list}}" wx:key="id" class="card track-item" bindtap="onOpen" data-id="{{item.id}}">
     <text class="track-item__name">{{item.name}}</text>

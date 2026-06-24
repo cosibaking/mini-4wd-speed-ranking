@@ -1,3 +1,4 @@
+<nav-bar title="管理后台" background="#1a1208" />
 <view class="container admin-home">
   <view class="admin-stats card" wx:if="{{stats}}">
     <view class="admin-stat">

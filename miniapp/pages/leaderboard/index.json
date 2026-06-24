@@ -1,7 +1,9 @@
 {
+  "navigationStyle": "custom",
   "usingComponents": {
     "record-row": "/components/RecordRow/record-row",
-    "empty-state": "/components/EmptyState/empty-state"
+    "empty-state": "/components/EmptyState/empty-state",
+    "nav-bar": "/components/NavBar/nav-bar"
   },
   "navigationBarTitleText": "圈速榜"
 }

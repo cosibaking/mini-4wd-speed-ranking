@@ -1,3 +1,7 @@
 {
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "nav-bar": "/components/NavBar/nav-bar"
+  },
   "navigationBarTitleText": "主理人申请状态"
 }

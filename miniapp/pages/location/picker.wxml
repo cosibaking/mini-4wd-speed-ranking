@@ -1,3 +1,4 @@
+<nav-bar title="选择位置" />
 <view class="picker-page">
   <view class="picker-search">
     <input

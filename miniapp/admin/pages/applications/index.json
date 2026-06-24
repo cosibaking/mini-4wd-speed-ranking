@@ -1,6 +1,8 @@
 {
+  "navigationStyle": "custom",
   "navigationBarTitleText": "主理人申请",
   "usingComponents": {
-    "empty-state": "/components/EmptyState/empty-state"
+    "empty-state": "/components/EmptyState/empty-state",
+    "nav-bar": "/components/NavBar/nav-bar"
   }
 }

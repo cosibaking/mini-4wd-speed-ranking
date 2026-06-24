@@ -1,3 +1,4 @@
+<nav-bar title="编辑赛道" />
 <view class="container edit-page">
   <view class="edit-steps">
     <view class="edit-step {{step >= 1 ? 'edit-step--active' : ''}}">1 基本信息</view>

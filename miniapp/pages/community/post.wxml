@@ -1,3 +1,4 @@
+<nav-bar title="帖子详情" />
 <view class="container post-page" wx:if="{{post}}">
   <view class="card">
     <text class="post-title">{{post.title}}</text>

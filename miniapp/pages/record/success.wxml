@@ -1,3 +1,4 @@
+<nav-bar title="上传成功" />
 <view class="container success-page">
   <view class="success-page__icon">✓</view>
   <text class="success-page__title">上传成功</text>

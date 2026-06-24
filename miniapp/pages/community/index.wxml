@@ -1,3 +1,4 @@
+<nav-bar title="社区" />
 <view class="container community-page">
   <view class="board-tabs-wrap">
     <scroll-view scroll-x class="board-tabs" enhanced show-scrollbar="{{false}}">

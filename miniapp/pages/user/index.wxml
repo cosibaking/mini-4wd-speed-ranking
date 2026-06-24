@@ -1,3 +1,4 @@
+<nav-bar title="我的" />
 <view class="container user-page">
   <view class="user-header card user-header--clickable" wx:if="{{loggedIn && user}}" bindtap="onEditProfile">
     <image class="user-header__avatar" src="{{user.avatarUrl || '/assets/default-avatar.png'}}" mode="aspectFill" />

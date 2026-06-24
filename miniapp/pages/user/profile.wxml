@@ -1,3 +1,4 @@
+<nav-bar title="修改资料" />
 <view class="container profile-page">
   <view class="profile-avatar card" bindtap="onEditAvatar">
     <image

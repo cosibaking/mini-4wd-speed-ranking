@@ -1,3 +1,4 @@
+<nav-bar title="审核成绩" />
 <view class="container" wx:if="{{record}}">
   <view class="card review-status review-status--{{record.status}}">
     <text wx:if="{{record.status === 'pending'}}">待审核</text>

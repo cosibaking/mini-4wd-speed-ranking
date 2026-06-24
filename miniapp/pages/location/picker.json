@@ -1,4 +1,7 @@
 {
+  "navigationStyle": "custom",
   "navigationBarTitleText": "选择位置",
-  "usingComponents": {}
+  "usingComponents": {
+    "nav-bar": "/components/NavBar/nav-bar"
+  }
 }

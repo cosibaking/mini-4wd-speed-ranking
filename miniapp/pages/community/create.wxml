@@ -1,3 +1,4 @@
+<nav-bar title="发帖" />
 <view class="container">
   <view class="card">
     <text class="form-label">所属板块 *</text>

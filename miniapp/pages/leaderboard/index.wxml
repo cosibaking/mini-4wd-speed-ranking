@@ -1,3 +1,4 @@
+<nav-bar title="圈速榜" />
 <view class="container leaderboard-page">
   <view class="lb-header card">
     <view class="lb-header__select" bindtap="onTogglePicker">

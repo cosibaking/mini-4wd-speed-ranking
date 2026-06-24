@@ -1,3 +1,4 @@
+<nav-bar title="成绩详情" />
 <view class="container" wx:if="{{record}}">
   <view class="status-bar status-bar--{{record.status}}">
     <text wx:if="{{record.status === 'pending'}}">审核中</text>

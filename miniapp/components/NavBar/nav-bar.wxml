@@ -1,0 +1,19 @@
+<view
+  class="nav-bar {{fixed ? 'nav-bar--fixed' : ''}}"
+  style="padding-top: {{statusBarHeight}}px; background: {{background}};"
+>
+  <view class="nav-bar__content" style="height: {{navBarHeight}}px;">
+    <view
+      wx:if="{{showBack}}"
+      class="nav-bar__back"
+      style="width: {{menuLeft}}px; height: {{navBarHeight}}px;"
+      bindtap="onBack"
+      hover-class="nav-bar__back--hover"
+      hover-stay-time="100"
+    >
+      <view class="nav-bar__arrow" style="border-color: {{color}};"></view>
+    </view>
+    <text class="nav-bar__title" style="color: {{color}};">{{title}}</text>
+  </view>
+</view>
+<view wx:if="{{fixed && placeholder}}" class="nav-bar__placeholder" style="height: {{totalHeight}}px;"></view>

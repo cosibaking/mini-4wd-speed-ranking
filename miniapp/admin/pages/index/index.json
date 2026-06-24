@@ -1,4 +1,8 @@
 {
+  "navigationStyle": "custom",
   "navigationBarTitleText": "管理后台",
-  "navigationBarBackgroundColor": "#1a1208"
+  "navigationBarBackgroundColor": "#1a1208",
+  "usingComponents": {
+    "nav-bar": "/components/NavBar/nav-bar"
+  }
 }

@@ -1,3 +1,4 @@
+<nav-bar title="我管理的赛道" />
 <view class="container">
   <button class="btn-primary create-btn" bindtap="onCreate">+ 新建赛道</button>
 

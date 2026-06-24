@@ -1,3 +1,4 @@
+<nav-bar title="主理人申请状态" />
 <view class="container status-page">
   <view class="card status-card" wx:if="{{application}}">
     <view class="status-badge status-badge--{{application.status}}">{{statusText}}</view>

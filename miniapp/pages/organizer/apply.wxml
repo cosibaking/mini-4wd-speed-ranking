@@ -1,3 +1,4 @@
+<nav-bar title="申请赛道主理人" />
 <view class="container apply-page">
   <view class="card apply-intro">
     <text class="apply-intro__title">成为赛道主理人</text>

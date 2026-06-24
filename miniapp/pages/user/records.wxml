@@ -1,3 +1,4 @@
+<nav-bar title="我的成绩" />
 <view class="container">
   <view class="record-item card" wx:for="{{records}}" wx:key="id" data-id="{{item.id}}" bindtap="onTap">
     <view class="record-item__header">

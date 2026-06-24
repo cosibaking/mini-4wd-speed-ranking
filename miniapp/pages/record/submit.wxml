@@ -1,3 +1,4 @@
+<nav-bar title="上传成绩" />
 <view class="container">
   <view class="card" wx:if="{{track}}">
     <text class="section-title">{{track.name}}</text>

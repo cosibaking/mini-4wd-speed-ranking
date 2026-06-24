@@ -1,8 +1,18 @@
 import { getRecentTracks, listTracks } from '../../services/track';
 import { ensureLogin, refreshUser } from '../../services/auth';
 import { ensureLoginForTab, navigateWithLogin } from '../../utils/nav';
+import { getNavBarLayout } from '../../utils/navBar';
 import { getSessionUser, setSessionUser } from '../../stores/session';
 import type { TrackListItem } from '../../types';
+
+const HOME_BG_WIDTH = 571;
+const HOME_BG_HEIGHT = 1024;
+
+function calcBgTiles(windowWidth: number, minHeight: number): number[] {
+  const tileHeight = windowWidth * (HOME_BG_HEIGHT / HOME_BG_WIDTH);
+  const count = Math.max(1, Math.ceil(minHeight / tileHeight) + 1);
+  return Array.from({ length: count }, (_, i) => i);
+}
 
 Page({
   data: {
@@ -10,13 +20,16 @@ Page({
     loading: true,
     topPadding: 0,
     showAdminEntry: false,
+    bgTiles: [] as number[],
   },
 
   onLoad() {
     const sys = wx.getSystemInfoSync();
-    const menu = wx.getMenuButtonBoundingClientRect();
-    const navBarHeight = (menu.top - sys.statusBarHeight) * 2 + menu.height;
-    this.setData({ topPadding: sys.statusBarHeight + navBarHeight });
+    const { totalHeight } = getNavBarLayout();
+    this.setData({
+      topPadding: totalHeight,
+      bgTiles: calcBgTiles(sys.windowWidth, sys.windowHeight),
+    });
   },
 
   onShow() {

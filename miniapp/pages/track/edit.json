@@ -1,6 +1,8 @@
 {
+  "navigationStyle": "custom",
   "usingComponents": {
-    "lap-time-input": "/components/LapTimeInput/lap-time-input"
+    "lap-time-input": "/components/LapTimeInput/lap-time-input",
+    "nav-bar": "/components/NavBar/nav-bar"
   },
   "navigationBarTitleText": "编辑赛道"
 }

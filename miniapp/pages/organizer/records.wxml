@@ -1,3 +1,4 @@
+<nav-bar title="成绩审核" />
 <view class="container">
   <view class="records-header" wx:if="{{trackName}}">
     <text class="records-header__name">{{trackName}}</text>

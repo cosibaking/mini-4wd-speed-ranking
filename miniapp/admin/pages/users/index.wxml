@@ -1,3 +1,4 @@
+<nav-bar title="用户管理" />
 <view class="container">
   <view wx:for="{{list}}" wx:key="id" class="card user-item">
     <view class="user-item__head">

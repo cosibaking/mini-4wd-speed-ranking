@@ -1,3 +1,4 @@
+<nav-bar title="我的关注" />
 <view class="container">
   <view class="follow-item card" wx:for="{{users}}" wx:key="id">
     <image class="follow-item__avatar" src="{{item.avatarUrl || '/assets/default-avatar.png'}}" mode="aspectFill" />

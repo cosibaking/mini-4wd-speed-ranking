@@ -1,3 +1,4 @@
+<nav-bar title="赛道详情" />
 <view class="container" wx:if="{{track}}">
   <view class="card detail-card">
     <view class="detail-card__header" bindtap="onToggleDetail">

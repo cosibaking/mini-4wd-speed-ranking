@@ -1,5 +1,13 @@
 <view class="index-page">
-  <image class="index-bg" src="/assets/home-bg.png" mode="aspectFill" />
+  <view class="index-bg">
+    <image
+      wx:for="{{bgTiles}}"
+      wx:key="*this"
+      class="index-bg__tile"
+      src="/assets/home-bg.png"
+      mode="widthFix"
+    />
+  </view>
   <view class="index-mask"></view>
 
   <view class="index-content" style="padding-top: {{topPadding}}px">
@@ -10,7 +18,7 @@
         <view class="entry-btn__icon entry-btn__icon--light">🛤</view>
         <view class="entry-btn__body">
           <text class="entry-btn__title">我是主理人</text>
-          <text class="entry-btn__desc">申请认证 · 创建赛道</text>
+          <text class="entry-btn__desc">申请认证 · 创建&管理赛道</text>
         </view>
         <text class="entry-btn__chevron">›</text>
       </button>

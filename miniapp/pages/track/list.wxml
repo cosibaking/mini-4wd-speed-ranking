@@ -1,3 +1,4 @@
+<nav-bar title="赛道列表" />
 <view class="container track-list-page">
   <view class="page-head">
     <text class="page-head__title">选择赛道</text>
