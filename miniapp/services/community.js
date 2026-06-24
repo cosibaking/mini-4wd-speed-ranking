@@ -12,6 +12,7 @@ exports.listFollowing = listFollowing;
 exports.listFollowingPosts = listFollowingPosts;
 const http_1 = require("./http");
 const config_1 = require("../config");
+const mediaUrl_1 = require("../utils/mediaUrl");
 const MOCK_BOARDS = [
     { id: 'b1', name: '赛道/赛事专区', description: '赛道活动、赛事通知' },
     { id: 'b2', name: '新手入门区', description: '入门教程、规则科普' },
@@ -40,9 +41,51 @@ const MOCK_POSTS = [
         createdAt: '2026-06-16T14:30:00Z',
     },
 ];
+function normalizePostDetail(raw) {
+    var _a, _b;
+    const imageUrls = (0, mediaUrl_1.normalizeUrlList)((_a = raw.imageUrls) !== null && _a !== void 0 ? _a : raw.images);
+    const followingAuthor = (_b = raw.followingAuthor) !== null && _b !== void 0 ? _b : raw.authorFollowed !== null && raw.authorFollowed !== void 0 ? raw.authorFollowed : false;
+    return {
+        ...raw,
+        images: imageUrls,
+        followingAuthor,
+    };
+}
+function flattenComments(list) {
+    const flat = [];
+    for (const item of list) {
+        const { replies, ...rest } = item;
+        flat.push(rest);
+        if (replies === null || replies === void 0 ? void 0 : replies.length) {
+            flat.push(...flattenComments(replies));
+        }
+    }
+    return flat;
+}
+function normalizeComment(raw) {
+    var _a, _b, _c, _d, _e, _f;
+    const imageUrls = (0, mediaUrl_1.normalizeUrlList)((_a = raw.imageUrls) !== null && _a !== void 0 ? _a : raw.images);
+    const repliesRaw = (_c = raw.replies) !== null && _c !== void 0 ? _c : [];
+    const author = (_d = raw.author) !== null && _d !== void 0 ? _d : { id: '', nickName: '用户', avatarUrl: '' };
+    return {
+        id: String((_e = raw.id) !== null && _e !== void 0 ? _e : ''),
+        author,
+        content: String((_f = raw.content) !== null && _f !== void 0 ? _f : ''),
+        images: imageUrls,
+        imageUrls,
+        likeCount: Number(raw.likeCount !== null && raw.likeCount !== void 0 ? raw.likeCount : 0),
+        liked: raw.liked,
+        createdAt: String(raw.createdAt !== null && raw.createdAt !== void 0 ? raw.createdAt : ''),
+        parentId: raw.parentId ? String(raw.parentId) : undefined,
+        replyTo: raw.replyTo,
+        replies: repliesRaw.map(normalizeComment),
+    };
+}
 async function listBoards() {
+    var _a;
     try {
-        return await (0, http_1.request)('/boards', { auth: false });
+        const res = await (0, http_1.request)('/boards', { auth: false });
+        return Array.isArray(res) ? res : ((_a = res.list) !== null && _a !== void 0 ? _a : []);
     }
     catch (e) {
         if (!config_1.USE_MOCK_FALLBACK)
@@ -51,6 +94,15 @@ async function listBoards() {
     }
 }
 async function listPosts(query = {}) {
+    if (!query.boardId) {
+        return {
+            list: [],
+            total: 0,
+            page: query.page || 1,
+            pageSize: query.pageSize || 20,
+            hasMore: false,
+        };
+    }
     try {
         return await (0, http_1.request)('/posts', { data: query, auth: false });
     }
@@ -73,7 +125,8 @@ async function listPosts(query = {}) {
 }
 async function getPost(id) {
     try {
-        return await (0, http_1.request)(`/posts/${id}`, { auth: false });
+        const raw = await (0, http_1.request)(`/posts/${id}`, { auth: false });
+        return normalizePostDetail(raw);
     }
     catch (e) {
         if (!config_1.USE_MOCK_FALLBACK)
@@ -89,14 +142,25 @@ async function getPost(id) {
     }
 }
 function createPost(data) {
-    return (0, http_1.request)('/posts', { method: 'POST', data });
+    var _a;
+    const { images, imageUrls, ...rest } = data;
+    return (0, http_1.request)('/posts', {
+        method: 'POST',
+        data: { ...rest, imageUrls: (_a = imageUrls !== null && imageUrls !== void 0 ? imageUrls : images) !== null && _a !== void 0 ? _a : [] },
+    }).then(normalizePostDetail);
 }
-async function listComments(postId, query = {}) {
+async function listComments(postId, query = { page: 1, pageSize: 100 }) {
+    var _a;
     try {
-        return await (0, http_1.request)(`/posts/${postId}/comments`, {
-            data: query,
+        const res = await (0, http_1.request)(`/posts/${postId}/comments`, {
+            data: { page: (_a = query.page) !== null && _a !== void 0 ? _a : 1, pageSize: query.pageSize !== null && query.pageSize !== void 0 ? query.pageSize : 100 },
             auth: false,
         });
+        const normalized = (res.list !== null && res.list !== void 0 ? res.list : []).map(normalizeComment);
+        return {
+            ...res,
+            list: flattenComments(normalized),
+        };
     }
     catch (e) {
         if (!config_1.USE_MOCK_FALLBACK)
@@ -107,6 +171,7 @@ async function listComments(postId, query = {}) {
                     id: 'c1',
                     author: { id: 'u3', nickName: '弯道王', avatarUrl: '' },
                     content: '说得对，周末见！',
+                    images: [],
                     likeCount: 2,
                     createdAt: '2026-06-17T11:00:00Z',
                 },
@@ -118,14 +183,22 @@ async function listComments(postId, query = {}) {
         };
     }
 }
-function createComment(postId, content) {
+function createComment(postId, data) {
+    var _a;
     return (0, http_1.request)(`/posts/${postId}/comments`, {
         method: 'POST',
-        data: { content },
-    });
+        data: {
+            content: data.content,
+            imageUrls: (_a = data.images) !== null && _a !== void 0 ? _a : [],
+            ...(data.parentId ? { parentId: data.parentId } : {}),
+        },
+    }).then(normalizeComment);
 }
 function toggleLike(target) {
-    return (0, http_1.request)('/social/like', { method: 'POST', data: target });
+    return (0, http_1.request)('/social/like', {
+        method: 'POST',
+        data: { targetType: target.type, targetId: target.id },
+    });
 }
 function toggleFollow(followeeId) {
     return (0, http_1.request)('/social/follow', { method: 'POST', data: { followeeId } });

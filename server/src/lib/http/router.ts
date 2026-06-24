@@ -1,6 +1,11 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { URL } from 'node:url';
 
+import { isMockMediaEnabled } from '../../modules/media/path.builder.js';
+import {
+  getRequestOrigin,
+  rewriteMockMediaUrlsInValue,
+} from '../../modules/media/url.rewrite.js';
 import type { HttpContext, HttpHandler, HttpMiddleware } from './types.js';
 
 interface RouteRecord {
@@ -204,7 +209,20 @@ export async function createContext(
 }
 
 export function sendResponse(ctx: HttpContext): void {
-  const payload = ctx.body ?? null;
+  let payload = ctx.body ?? null;
+
+  if (
+    payload &&
+    typeof payload === 'object' &&
+    'data' in payload &&
+    isMockMediaEnabled()
+  ) {
+    const apiPayload = payload as { code: number; message: string; data: unknown };
+    const origin = getRequestOrigin(ctx.headers);
+    apiPayload.data = rewriteMockMediaUrlsInValue(apiPayload.data, origin);
+    payload = apiPayload;
+  }
+
   const body = JSON.stringify(payload);
   ctx.res.statusCode = ctx.status;
   ctx.res.setHeader('Content-Type', 'application/json; charset=utf-8');

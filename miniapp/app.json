@@ -14,6 +14,7 @@
     "pages/community/create",
     "pages/user/index",
     "pages/user/profile",
+    "pages/user/detail",
     "pages/user/tracks",
     "pages/user/records",
     "pages/user/following",

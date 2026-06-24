@@ -38,5 +38,31 @@
         <button class="btn-primary profile-field__btn" size="mini" bindtap="onSaveNickname" loading="{{saving}}">保存</button>
       </view>
     </view>
+
+    <view class="profile-field profile-field--bio" bindtap="onEditBio" wx:if="{{!editingBio}}">
+      <text class="profile-field__label">个人简介</text>
+      <view class="profile-field__value profile-field__value--bio">
+        <text class="{{bio ? '' : 'text-secondary'}}">{{bio || '介绍一下自己吧'}}</text>
+        <text class="profile-field__arrow">›</text>
+      </view>
+    </view>
+
+    <view class="profile-field profile-field--edit profile-field--bio-edit" wx:else>
+      <text class="profile-field__label">个人简介</text>
+      <textarea
+        class="profile-field__textarea"
+        value="{{bioDraft}}"
+        placeholder="介绍一下自己吧"
+        maxlength="200"
+        auto-height
+        focus="{{editingBio}}"
+        bindinput="onBioInput"
+      />
+      <text class="profile-field__counter text-secondary">{{bioDraft.length}}/200</text>
+      <view class="profile-field__actions">
+        <button class="btn-secondary profile-field__btn" size="mini" bindtap="onCancelBio">取消</button>
+        <button class="btn-primary profile-field__btn" size="mini" bindtap="onSaveBio" loading="{{saving}}">保存</button>
+      </view>
+    </view>
   </view>
 </view>

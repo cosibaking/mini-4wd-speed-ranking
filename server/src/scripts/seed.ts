@@ -57,6 +57,29 @@ const BOARDS = [
   },
 ] as const;
 
+const DEMO_POSTS = [
+  {
+    id: '00000000-0000-4000-8000-000000000201',
+    boardId: 'track_event',
+    title: '周末朝阳公园交流赛报名',
+    content: '本周六上午9点，欢迎车友带车来刷圈。赛道已开放练习，记得带好电池和备用马达。',
+    trackId: DEMO_TRACKS[0].id,
+    likeCount: 12,
+    commentCount: 5,
+    hotScore: 120,
+  },
+  {
+    id: '00000000-0000-4000-8000-000000000202',
+    boardId: 'driver_chat',
+    title: '这款马达怎么配齿轮比？',
+    content: '刚入手高速马达，求大佬指点齿轮比和导轮搭配，目前用的是 3.5:1。',
+    trackId: null,
+    likeCount: 8,
+    commentCount: 15,
+    hotScore: 95,
+  },
+] as const;
+
 async function main(): Promise<void> {
   await connectMysql();
 
@@ -105,7 +128,35 @@ async function main(): Promise<void> {
     );
   }
 
-  console.log(`Seeded ${BOARDS.length} boards, ${DEMO_TRACKS.length} demo tracks`);
+  for (const post of DEMO_POSTS) {
+    await execute(
+      `INSERT INTO posts (
+         id, board_id, author_id, track_id, title, content,
+         like_count, comment_count, hot_score, created_at, updated_at
+       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(3), NOW(3))
+       ON DUPLICATE KEY UPDATE
+         title = VALUES(title),
+         content = VALUES(content),
+         like_count = VALUES(like_count),
+         comment_count = VALUES(comment_count),
+         hot_score = VALUES(hot_score)`,
+      [
+        post.id,
+        post.boardId,
+        DEMO_USER.id,
+        post.trackId,
+        post.title,
+        post.content,
+        post.likeCount,
+        post.commentCount,
+        post.hotScore,
+      ],
+    );
+  }
+
+  console.log(
+    `Seeded ${BOARDS.length} boards, ${DEMO_TRACKS.length} demo tracks, ${DEMO_POSTS.length} demo posts`,
+  );
 }
 
 main()

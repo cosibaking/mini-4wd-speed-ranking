@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const track_1 = require("../../services/track");
 const auth_1 = require("../../services/auth");
 const nav_1 = require("../../utils/nav");
+const navBar_1 = require("../../utils/navBar");
 const session_1 = require("../../stores/session");
 const HOME_BG_WIDTH = 571;
 const HOME_BG_HEIGHT = 1024;
@@ -21,10 +22,9 @@ Page({
     },
     onLoad() {
         const sys = wx.getSystemInfoSync();
-        const menu = wx.getMenuButtonBoundingClientRect();
-        const navBarHeight = (menu.top - sys.statusBarHeight) * 2 + menu.height;
+        const { totalHeight } = (0, navBar_1.getNavBarLayout)();
         this.setData({
-            topPadding: sys.statusBarHeight + navBarHeight,
+            topPadding: totalHeight,
             bgTiles: calcBgTiles(sys.windowWidth, sys.windowHeight),
         });
     },

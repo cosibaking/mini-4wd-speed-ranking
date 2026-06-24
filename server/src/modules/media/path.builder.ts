@@ -10,6 +10,7 @@ const PURPOSE_SEGMENTS: Record<MediaPurpose, string> = {
   record_config: 'record/config',
   record_car_photo: 'record/car',
   post_image: 'post/image',
+  comment_image: 'comment/image',
 };
 
 function getEnvPrefix(): string {
@@ -31,10 +32,10 @@ function getMockMediaHost(): string {
   return process.env.MOCK_MEDIA_HOST ?? '127.0.0.1';
 }
 
-export function buildPublicUrl(objectKey: string): string {
+export function buildPublicUrl(objectKey: string, mediaHost?: string): string {
   if (isMockMediaEnabled()) {
     const port = config.port;
-    const host = getMockMediaHost();
+    const host = mediaHost ?? getMockMediaHost();
     return `http://${host}:${port}/mock-media/${objectKey}`;
   }
 
@@ -71,8 +72,8 @@ export function isMockMediaEnabled(): boolean {
   return isDev && !hasCosConfig;
 }
 
-export function getMockUploadUrl(objectKey: string): string {
+export function getMockUploadUrl(objectKey: string, mediaHost?: string): string {
   const port = config.port;
-  const host = getMockMediaHost();
+  const host = mediaHost ?? getMockMediaHost();
   return `http://${host}:${port}/mock-media/upload/${encodeURIComponent(objectKey)}`;
 }

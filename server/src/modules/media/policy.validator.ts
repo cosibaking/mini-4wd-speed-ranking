@@ -40,6 +40,11 @@ const POLICIES: Record<MediaPurpose, PurposePolicy> = {
     extensions: ['jpg', 'jpeg', 'png'],
     maxSize: 10 * MB,
   },
+  comment_image: {
+    mediaType: 'image',
+    extensions: ['jpg', 'jpeg', 'png'],
+    maxSize: 10 * MB,
+  },
 };
 
 export function getContentType(fileExt: MediaFileExt): string {

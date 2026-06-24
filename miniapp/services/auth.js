@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.login = login;
 exports.getMe = getMe;
+exports.getUser = getUser;
 exports.updateMe = updateMe;
 exports.isLoggedIn = isLoggedIn;
 exports.ensureLogin = ensureLogin;
@@ -33,6 +34,9 @@ async function login() {
 }
 function getMe() {
     return (0, http_1.request)('/users/me');
+}
+function getUser(id) {
+    return (0, http_1.request)(`/users/${id}`);
 }
 function updateMe(data) {
     return (0, http_1.request)('/users/me', { method: 'PATCH', data });

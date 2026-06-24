@@ -1,5 +1,6 @@
 import { API_BASE } from '../config';
 import type { ApiResponse } from '../types';
+import { resolveMediaUrlsInData } from '../utils/mediaUrl';
 
 const TOKEN_KEY = 'token';
 
@@ -64,7 +65,7 @@ function rawRequest<T>(options: RawRequestOptions): Promise<T> {
       success: (res) => {
         const body = res.data as ApiResponse<T>;
         if (body.code === 0) {
-          resolve(body.data);
+          resolve(resolveMediaUrlsInData(body.data));
           return;
         }
         if (body.code === 40100 && !skipAutoLogin) {

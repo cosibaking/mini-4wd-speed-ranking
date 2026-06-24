@@ -1,0 +1,65 @@
+.comment-item {
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid var(--color-border);
+}
+
+.comment-item--reply {
+  padding: 12rpx 0 12rpx 24rpx;
+  border-bottom: none;
+  border-left: 4rpx solid var(--color-border);
+  margin-top: 8rpx;
+}
+
+.comment-item__author {
+  font-weight: 600;
+  font-size: 26rpx;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.comment-item__content {
+  font-size: 26rpx;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+.comment-item__reply-to {
+  color: var(--color-primary);
+}
+
+.comment-item__text {
+  color: var(--color-text-secondary);
+}
+
+.comment-item__images {
+  display: flex;
+  gap: 12rpx;
+  flex-wrap: wrap;
+  margin-top: 8rpx;
+}
+
+.comment-item__image {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: var(--radius-btn);
+}
+
+.comment-item__actions {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  margin-top: 8rpx;
+}
+
+.comment-item__action {
+  font-size: 24rpx;
+  color: var(--color-text-secondary);
+}
+
+.comment-item__replies {
+  margin-top: 4rpx;
+}
+
+.comment-item__replies .comment-item--reply:last-child {
+  padding-bottom: 0;
+}

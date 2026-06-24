@@ -47,6 +47,7 @@ export interface UserProfile {
   id: string;
   nickName: string;
   avatarUrl: string;
+  bio: string;
   /** 是否已通过管理员线下认证的主理人 */
   isOrganizer: boolean;
   isAdmin: boolean;
@@ -59,11 +60,13 @@ export interface PublicUser {
   id: string;
   nickName: string;
   avatarUrl: string;
+  bio?: string;
 }
 
 export interface UpdateProfileDto {
   nickName?: string;
   avatarUrl?: string;
+  bio?: string;
 }
 
 export interface JwtPayload {

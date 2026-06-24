@@ -89,6 +89,7 @@ export class AuthService {
     openId: string;
     nickName: string;
     avatarUrl: string;
+    bio: string;
     isOrganizerCertified: boolean;
     adminRole: 'admin' | 'operator' | null;
     createdAt: Date;
@@ -102,6 +103,7 @@ export class AuthService {
       id: user.id,
       nickName: user.nickName,
       avatarUrl: user.avatarUrl,
+      bio: user.bio ?? '',
       isOrganizer: user.isOrganizerCertified,
       isAdmin: !!adminRole,
       adminRole: adminRole ?? undefined,

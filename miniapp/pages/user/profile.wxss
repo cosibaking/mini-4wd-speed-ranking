@@ -75,3 +75,35 @@
   margin: 0;
   min-width: 120rpx;
 }
+
+.profile-field--bio {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12rpx;
+}
+
+.profile-field__value--bio {
+  justify-content: space-between;
+  align-items: flex-start;
+  line-height: 1.5;
+}
+
+.profile-field--bio-edit {
+  gap: 12rpx;
+}
+
+.profile-field__textarea {
+  background: var(--color-bg);
+  border-radius: var(--radius-btn);
+  padding: 20rpx 24rpx;
+  border: 2rpx solid var(--color-border);
+  font-size: 28rpx;
+  min-height: 160rpx;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.profile-field__counter {
+  font-size: 24rpx;
+  text-align: right;
+}

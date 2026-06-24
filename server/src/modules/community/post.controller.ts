@@ -60,11 +60,13 @@ export async function listComments(ctx: HttpContext): Promise<void> {
 export async function createComment(ctx: HttpContext): Promise<void> {
   const authorId = ctx.state.auth!.userId;
   const postId = ctx.params.id;
-  const body = ctx.request.body as { content?: string };
+  const body = ctx.request.body as { content?: string; imageUrls?: string[]; parentId?: string };
 
   const data = await socialService.createComment(authorId, {
     postId,
     content: body.content ?? '',
+    imageUrls: body.imageUrls,
+    parentId: body.parentId,
   });
 
   ctx.body = success(data);

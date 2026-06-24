@@ -9,8 +9,11 @@ Page({
         nickName: '',
         avatarUrl: '',
         editingNickname: false,
+        editingBio: false,
         saving: false,
         nicknameDraft: '',
+        bio: '',
+        bioDraft: '',
         showNicknameInput: true,
     },
     async onLoad() {
@@ -19,6 +22,7 @@ Page({
             user,
             nickName: user.nickName || '',
             avatarUrl: user.avatarUrl || '',
+            bio: user.bio || '',
         });
     },
     onEditAvatar() {
@@ -56,7 +60,7 @@ Page({
         }
     },
     onEditNickname() {
-        if (this.data.editingNickname)
+        if (this.data.editingNickname || this.data.editingBio)
             return;
         this.setData({
             editingNickname: true,
@@ -108,6 +112,31 @@ Page({
         await this.saveProfile({ nickName });
         this.setData({ editingNickname: false });
     },
+    onEditBio() {
+        if (this.data.editingBio || this.data.editingNickname)
+            return;
+        this.setData({
+            editingBio: true,
+            bioDraft: this.data.bio,
+        });
+    },
+    onBioInput(e) {
+        this.setData({ bioDraft: e.detail.value });
+    },
+    onCancelBio() {
+        const user = this.data.user;
+        this.setData({
+            editingBio: false,
+            bio: (user === null || user === void 0 ? void 0 : user.bio) || '',
+            bioDraft: '',
+        });
+    },
+    async onSaveBio() {
+        var _a;
+        const bio = ((_a = this.data.bioDraft) !== null && _a !== void 0 ? _a : this.data.bio).trim();
+        await this.saveProfile({ bio });
+        this.setData({ editingBio: false, bio, bioDraft: '' });
+    },
     async saveProfile(data) {
         if (this.data.saving)
             return;
@@ -119,6 +148,7 @@ Page({
                 user: updated,
                 nickName: updated.nickName,
                 avatarUrl: updated.avatarUrl,
+                bio: updated.bio || '',
                 saving: false,
             });
             wx.showToast({ title: '保存成功', icon: 'success' });

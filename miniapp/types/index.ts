@@ -40,6 +40,7 @@ export interface UserProfile {
   id: string;
   nickName: string;
   avatarUrl: string;
+  bio: string;
   isOrganizer: boolean;
   isAdmin: boolean;
   adminRole?: 'admin' | 'operator';
@@ -51,6 +52,11 @@ export interface PublicUser {
   id: string;
   nickName: string;
   avatarUrl: string;
+  bio?: string;
+}
+
+export interface PublicUserDetail extends PublicUser {
+  following?: boolean;
 }
 
 export interface LeaderboardSummary {
@@ -156,6 +162,7 @@ export interface PostListItem {
   commentCount: number;
   liked?: boolean;
   createdAt: string;
+  coverImage?: string | null;
 }
 
 export interface PostDetail extends PostListItem {
@@ -166,11 +173,22 @@ export interface PostDetail extends PostListItem {
   followingAuthor?: boolean;
 }
 
+export interface CommentReplyTo {
+  id: string;
+  nickName: string;
+}
+
 export interface CommentItem {
   id: string;
   author: PublicUser;
   content: string;
+  images: string[];
+  /** 原始网络 URL，用于预览及相册返回后重新下载展示 */
+  imageUrls?: string[];
   likeCount: number;
   liked?: boolean;
   createdAt: string;
+  parentId?: string;
+  replyTo?: CommentReplyTo;
+  replies?: CommentItem[];
 }

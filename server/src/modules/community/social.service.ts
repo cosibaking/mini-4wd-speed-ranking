@@ -2,6 +2,7 @@ import { ValidationError } from '../../shared/errors.js';
 import { buildPaginationResult, getSkip } from '../../shared/pagination.js';
 import type { PaginationQuery, PaginationResult } from '../../shared/types.js';
 import { userService } from '../auth/user.service.js';
+import { isValidMediaUrl } from '../media/path.builder.js';
 import type { CommentItem, CreateCommentDto } from './dto/create-comment.dto.js';
 import {
   cannotFollowSelfError,
@@ -17,6 +18,46 @@ import { postRepository } from './post.repository.js';
 import { checkRateLimit } from './rateLimit.util.js';
 
 export type LikeTarget = { type: 'post'; id: string } | { type: 'comment'; id: string };
+
+function validateCommentImageUrls(imageUrls: string[]): string[] {
+  if (imageUrls.length > 9) {
+    throw new ValidationError('图片最多 9 张');
+  }
+
+  for (const url of imageUrls) {
+    if (!isValidMediaUrl(url)) {
+      throw new ValidationError('图片地址无效');
+    }
+  }
+
+  return imageUrls;
+}
+
+function toCommentItem(
+  comment: {
+    id: string;
+    parentId?: string | null;
+    content: string;
+    imageUrls: string[];
+    author: { id: string; nickName: string; avatarUrl: string };
+    likeCount: number;
+    createdAt: Date;
+  },
+  liked: boolean,
+  replyTo?: CommentItem['replyTo'],
+): CommentItem {
+  return {
+    id: comment.id,
+    content: comment.content,
+    imageUrls: comment.imageUrls,
+    author: comment.author,
+    likeCount: comment.likeCount,
+    liked,
+    createdAt: comment.createdAt.toISOString(),
+    ...(comment.parentId ? { parentId: comment.parentId } : {}),
+    ...(replyTo ? { replyTo } : {}),
+  };
+}
 
 export class SocialService {
   async toggleLike(
@@ -67,21 +108,37 @@ export class SocialService {
     }
 
     const content = dto.content.trim();
-    if (content.length < 1 || content.length > 500) {
+    const imageUrls = validateCommentImageUrls(dto.imageUrls ?? []);
+
+    if (content.length === 0 && imageUrls.length === 0) {
+      throw new ValidationError('评论内容或图片至少填写一项');
+    }
+
+    if (content.length > 500) {
       throw postContentLengthError();
     }
 
-    const comment = await commentRepository.create(dto.postId, userId, content);
+    let parentId: string | undefined;
+    let replyTo: CommentItem['replyTo'];
+    if (dto.parentId) {
+      const parent = await commentRepository.findById(dto.parentId);
+      if (!parent || parent.postId !== dto.postId) {
+        throw new ValidationError('回复的评论不存在');
+      }
+      parentId = parent.id;
+      replyTo = { id: parent.author.id, nickName: parent.author.nickName };
+    }
+
+    const comment = await commentRepository.create(
+      dto.postId,
+      userId,
+      content,
+      imageUrls,
+      parentId ?? null,
+    );
     await postRepository.incrementCommentCount(dto.postId);
 
-    return {
-      id: comment.id,
-      content: comment.content,
-      author: comment.author,
-      likeCount: comment.likeCount,
-      liked: false,
-      createdAt: comment.createdAt.toISOString(),
-    };
+    return toCommentItem(comment, false, replyTo);
   }
 
   async listComments(
@@ -108,16 +165,21 @@ export class SocialService {
           )
         : new Set<string>();
 
-    const list: CommentItem[] = rows.map((comment) => ({
-      id: comment.id,
-      content: comment.content,
-      author: comment.author,
-      likeCount: comment.likeCount,
-      liked: viewerId !== undefined ? likedIds.has(comment.id) : false,
-      createdAt: comment.createdAt.toISOString(),
-    }));
+    const flat: CommentItem[] = rows.map((comment) => {
+      const parent = comment.parentId
+        ? rows.find((row) => row.id === comment.parentId)
+        : undefined;
+      const replyTo = parent
+        ? { id: parent.author.id, nickName: parent.author.nickName }
+        : undefined;
+      return toCommentItem(
+        comment,
+        viewerId !== undefined ? likedIds.has(comment.id) : false,
+        replyTo,
+      );
+    });
 
-    return buildPaginationResult(list, total, query);
+    return buildPaginationResult(flat, total, query);
   }
 
   async toggleFollow(

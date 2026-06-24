@@ -1,5 +1,6 @@
 import { request } from './http';
 import { USE_MOCK_FALLBACK } from '../config';
+import { normalizeUrlList } from '../utils/mediaUrl';
 import type {
   Board,
   CommentItem,
@@ -40,9 +41,55 @@ const MOCK_POSTS: PostListItem[] = [
   },
 ];
 
+function normalizePostDetail(raw: Record<string, unknown>): PostDetail {
+  const imageUrls = normalizeUrlList(raw.imageUrls ?? raw.images);
+  const followingAuthor =
+    (raw.followingAuthor as boolean | undefined) ??
+    (raw.authorFollowed as boolean | undefined) ??
+    false;
+
+  return {
+    ...(raw as unknown as PostDetail),
+    images: imageUrls,
+    followingAuthor,
+  };
+}
+
+function flattenComments(list: CommentItem[]): CommentItem[] {
+  const flat: CommentItem[] = [];
+  for (const item of list) {
+    const { replies, ...rest } = item;
+    flat.push(rest);
+    if (replies?.length) {
+      flat.push(...flattenComments(replies));
+    }
+  }
+  return flat;
+}
+
+function normalizeComment(raw: Record<string, unknown>): CommentItem {
+  const imageUrls = normalizeUrlList(raw.imageUrls ?? raw.images);
+  const repliesRaw = (raw.replies as Record<string, unknown>[] | undefined) ?? [];
+  const author = (raw.author as CommentItem['author']) ?? { id: '', nickName: '用户', avatarUrl: '' };
+  return {
+    id: String(raw.id ?? ''),
+    author,
+    content: String(raw.content ?? ''),
+    images: imageUrls,
+    imageUrls,
+    likeCount: Number(raw.likeCount ?? 0),
+    liked: raw.liked as boolean | undefined,
+    createdAt: String(raw.createdAt ?? ''),
+    parentId: raw.parentId ? String(raw.parentId) : undefined,
+    replyTo: raw.replyTo as CommentItem['replyTo'],
+    replies: repliesRaw.map(normalizeComment),
+  };
+}
+
 export async function listBoards(): Promise<Board[]> {
   try {
-    return await request<Board[]>('/boards', { auth: false });
+    const res = await request<{ list: Board[] } | Board[]>('/boards', { auth: false });
+    return Array.isArray(res) ? res : (res.list ?? []);
   } catch (e) {
     if (!USE_MOCK_FALLBACK) throw e;
     return MOCK_BOARDS;
@@ -52,6 +99,15 @@ export async function listBoards(): Promise<Board[]> {
 export async function listPosts(
   query: PaginationQuery & { boardId?: string; sort?: 'latest' | 'hot' } = {}
 ): Promise<PaginationResult<PostListItem>> {
+  if (!query.boardId) {
+    return {
+      list: [],
+      total: 0,
+      page: query.page || 1,
+      pageSize: query.pageSize || 20,
+      hasMore: false,
+    };
+  }
   try {
     return await request('/posts', { data: query as Record<string, unknown>, auth: false });
   } catch (e) {
@@ -72,7 +128,8 @@ export async function listPosts(
 
 export async function getPost(id: string): Promise<PostDetail> {
   try {
-    return await request<PostDetail>(`/posts/${id}`, { auth: false });
+    const raw = await request<Record<string, unknown>>(`/posts/${id}`, { auth: false });
+    return normalizePostDetail(raw);
   } catch (e) {
     if (!USE_MOCK_FALLBACK) throw e;
     const item = MOCK_POSTS.find((p) => p.id === id) || MOCK_POSTS[0];
@@ -86,19 +143,34 @@ export async function getPost(id: string): Promise<PostDetail> {
   }
 }
 
-export function createPost(data: Record<string, unknown>): Promise<PostDetail> {
-  return request<PostDetail>('/posts', { method: 'POST', data });
+export function createPost(data: {
+  boardId: string;
+  title: string;
+  content: string;
+  images?: string[];
+  imageUrls?: string[];
+}): Promise<PostDetail> {
+  const { images, imageUrls, ...rest } = data;
+  return request<Record<string, unknown>>('/posts', {
+    method: 'POST',
+    data: { ...rest, imageUrls: imageUrls ?? images ?? [] },
+  }).then(normalizePostDetail);
 }
 
 export async function listComments(
   postId: string,
-  query: PaginationQuery = {}
+  query: PaginationQuery = { page: 1, pageSize: 100 }
 ): Promise<PaginationResult<CommentItem>> {
   try {
-    return await request(`/posts/${postId}/comments`, {
-      data: query as Record<string, unknown>,
+    const res = await request<PaginationResult<Record<string, unknown>>>(`/posts/${postId}/comments`, {
+      data: { page: query.page ?? 1, pageSize: query.pageSize ?? 100 } as Record<string, unknown>,
       auth: false,
     });
+    const normalized = (res.list ?? []).map(normalizeComment);
+    return {
+      ...res,
+      list: flattenComments(normalized),
+    };
   } catch (e) {
     if (!USE_MOCK_FALLBACK) throw e;
     return {
@@ -107,6 +179,7 @@ export async function listComments(
           id: 'c1',
           author: { id: 'u3', nickName: '弯道王', avatarUrl: '' },
           content: '说得对，周末见！',
+          images: [],
           likeCount: 2,
           createdAt: '2026-06-17T11:00:00Z',
         },
@@ -119,15 +192,25 @@ export async function listComments(
   }
 }
 
-export function createComment(postId: string, content: string): Promise<CommentItem> {
-  return request<CommentItem>(`/posts/${postId}/comments`, {
+export function createComment(
+  postId: string,
+  data: { content: string; images?: string[]; parentId?: string }
+): Promise<CommentItem> {
+  return request<Record<string, unknown>>(`/posts/${postId}/comments`, {
     method: 'POST',
-    data: { content },
-  });
+    data: {
+      content: data.content,
+      imageUrls: data.images ?? [],
+      ...(data.parentId ? { parentId: data.parentId } : {}),
+    },
+  }).then(normalizeComment);
 }
 
 export function toggleLike(target: { type: 'post' | 'comment'; id: string }): Promise<{ liked: boolean; likeCount: number }> {
-  return request('/social/like', { method: 'POST', data: target });
+  return request('/social/like', {
+    method: 'POST',
+    data: { targetType: target.type, targetId: target.id },
+  });
 }
 
 export function toggleFollow(followeeId: string): Promise<{ following: boolean }> {

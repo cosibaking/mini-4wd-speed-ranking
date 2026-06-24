@@ -11,6 +11,7 @@ interface PresignParams {
   objectKey: string;
   fileSize: number;
   contentType: string;
+  mediaHost?: string;
 }
 
 interface PresignResult {
@@ -26,7 +27,7 @@ function buildExpireAt(): string {
 class MockCosClient {
   presignedPut(params: PresignParams): PresignResult {
     return {
-      uploadUrl: getMockUploadUrl(params.objectKey),
+      uploadUrl: getMockUploadUrl(params.objectKey, params.mediaHost),
       expireAt: buildExpireAt(),
       headers: {
         'Content-Type': params.contentType,
@@ -146,9 +147,10 @@ export async function createPresignedPut(
   objectKey: string,
   fileExt: string,
   fileSize: number,
+  mediaHost?: string,
 ): Promise<PresignResult> {
   const contentType = getContentType(fileExt as 'jpg' | 'jpeg' | 'png' | 'mp4');
-  return getCosClient().presignedPut({ objectKey, fileSize, contentType });
+  return getCosClient().presignedPut({ objectKey, fileSize, contentType, mediaHost });
 }
 
 export async function verifyObjectExists(objectKey: string): Promise<boolean> {

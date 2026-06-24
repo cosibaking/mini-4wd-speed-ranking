@@ -10,6 +10,7 @@ export interface UserRow extends RowDataPacket {
   union_id: string | null;
   nick_name: string;
   avatar_url: string;
+  bio: string;
   is_organizer_certified: number;
   admin_role: AdminRole | null;
   created_at: Date;
@@ -23,6 +24,7 @@ function mapUser(row: UserRow) {
     unionId: row.union_id,
     nickName: row.nick_name,
     avatarUrl: row.avatar_url,
+    bio: row.bio ?? '',
     isOrganizerCertified: Boolean(row.is_organizer_certified),
     adminRole: row.admin_role,
     createdAt: row.created_at,
@@ -69,6 +71,7 @@ export class UserRepository {
       unionId?: string | null;
       nickName?: string;
       avatarUrl?: string;
+      bio?: string;
       adminRole?: AdminRole | null;
       isOrganizerCertified?: boolean;
     },
@@ -87,6 +90,10 @@ export class UserRepository {
     if (data.avatarUrl !== undefined) {
       fields.push('avatar_url = ?');
       params.push(data.avatarUrl);
+    }
+    if (data.bio !== undefined) {
+      fields.push('bio = ?');
+      params.push(data.bio);
     }
     if (data.adminRole !== undefined) {
       fields.push('admin_role = ?');
@@ -124,7 +131,7 @@ export class UserRepository {
 
     const placeholders = ids.map(() => '?').join(', ');
     const rows = await query<UserRow>(
-      `SELECT id, nick_name, avatar_url FROM users WHERE id IN (${placeholders})`,
+      `SELECT id, nick_name, avatar_url, bio FROM users WHERE id IN (${placeholders})`,
       ids,
     );
 
@@ -132,6 +139,7 @@ export class UserRepository {
       id: row.id,
       nickName: row.nick_name,
       avatarUrl: row.avatar_url,
+      bio: row.bio ?? '',
     }));
   }
 

@@ -1,10 +1,10 @@
 import type { HttpContext } from '../../lib/http/index.js';
 
-import { UnauthorizedError, ValidationError } from '../../shared/errors.js';
+import { UnauthorizedError, ValidationError, NotFoundError } from '../../shared/errors.js';
 import { success } from '../../shared/response.js';
 import { authService } from './auth.service.js';
 import { userService } from './user.service.js';
-
+import { socialService } from '../community/social.service.js';
 function getAuthUserId(ctx: HttpContext): string {
   if (!ctx.state.auth) {
     throw new UnauthorizedError();
@@ -36,13 +36,38 @@ export async function getMe(ctx: HttpContext): Promise<void> {
   ctx.body = success(user);
 }
 
+export async function getUser(ctx: HttpContext): Promise<void> {
+  const userId = ctx.params.id;
+  if (!userId) {
+    throw new ValidationError('用户 ID 无效');
+  }
+
+  const profiles = await userService.getPublicProfiles([userId]);
+  const user = profiles.get(userId);
+  if (!user) {
+    throw new NotFoundError('用户不存在');
+  }
+
+  const viewerId = ctx.state.auth?.userId;
+  let following: boolean | undefined;
+  if (viewerId && viewerId !== userId) {
+    following = await socialService.isFollowing(viewerId, userId);
+  }
+
+  ctx.body = success({
+    ...user,
+    ...(following !== undefined ? { following } : {}),
+  });
+}
+
 export async function patchMe(ctx: HttpContext): Promise<void> {
   const userId = getAuthUserId(ctx);
-  const body = ctx.request.body as { nickName?: string; avatarUrl?: string } | undefined;
+  const body = ctx.request.body as { nickName?: string; avatarUrl?: string; bio?: string } | undefined;
 
   const user = await userService.updateProfile(userId, {
     nickName: body?.nickName,
     avatarUrl: body?.avatarUrl,
+    bio: body?.bio,
   });
 
   ctx.body = success(user);

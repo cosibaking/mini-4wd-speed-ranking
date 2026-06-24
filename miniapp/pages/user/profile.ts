@@ -9,8 +9,11 @@ Page({
     nickName: '',
     avatarUrl: '',
     editingNickname: false,
+    editingBio: false,
     saving: false,
     nicknameDraft: '',
+    bio: '',
+    bioDraft: '',
     showNicknameInput: true,
   },
 
@@ -20,6 +23,7 @@ Page({
       user,
       nickName: user.nickName || '',
       avatarUrl: user.avatarUrl || '',
+      bio: user.bio || '',
     });
   },
 
@@ -58,7 +62,7 @@ Page({
   },
 
   onEditNickname() {
-    if (this.data.editingNickname) return;
+    if (this.data.editingNickname || this.data.editingBio) return;
     this.setData({
       editingNickname: true,
       nicknameDraft: '',
@@ -115,7 +119,34 @@ Page({
     this.setData({ editingNickname: false });
   },
 
-  async saveProfile(data: { nickName?: string; avatarUrl?: string }) {
+  onEditBio() {
+    if (this.data.editingBio || this.data.editingNickname) return;
+    this.setData({
+      editingBio: true,
+      bioDraft: this.data.bio,
+    });
+  },
+
+  onBioInput(e: WechatMiniprogram.Input) {
+    this.setData({ bioDraft: e.detail.value });
+  },
+
+  onCancelBio() {
+    const user = this.data.user;
+    this.setData({
+      editingBio: false,
+      bio: user?.bio || '',
+      bioDraft: '',
+    });
+  },
+
+  async onSaveBio() {
+    const bio = (this.data.bioDraft ?? this.data.bio).trim();
+    await this.saveProfile({ bio });
+    this.setData({ editingBio: false, bio, bioDraft: '' });
+  },
+
+  async saveProfile(data: { nickName?: string; avatarUrl?: string; bio?: string }) {
     if (this.data.saving) return;
     this.setData({ saving: true });
     try {
@@ -125,6 +156,7 @@ Page({
         user: updated,
         nickName: updated.nickName,
         avatarUrl: updated.avatarUrl,
+        bio: updated.bio || '',
         saving: false,
       });
       wx.showToast({ title: '保存成功', icon: 'success' });

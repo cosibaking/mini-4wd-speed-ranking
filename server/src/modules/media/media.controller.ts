@@ -10,6 +10,7 @@ import { mediaService } from './media.service.js';
 import { saveObject } from './mock.store.js';
 import { parseMultipartBody } from './multipart.util.js';
 import { isMockMediaEnabled } from './path.builder.js';
+import { getRequestMediaHost } from './url.rewrite.js';
 async function readRawBody(req: IncomingMessage): Promise<Buffer> {
   const chunks: Buffer[] = [];
   for await (const chunk of req) {
@@ -56,6 +57,7 @@ const VALID_PURPOSES: MediaPurpose[] = [
   'record_config',
   'record_car_photo',
   'post_image',
+  'comment_image',
 ];
 
 const VALID_EXTENSIONS: MediaFileExt[] = ['jpg', 'jpeg', 'png', 'mp4'];
@@ -90,7 +92,8 @@ function parseUploadCredentialBody(body: unknown): UploadCredentialRequest {
 export async function uploadCredential(ctx: HttpContext): Promise<void> {
   const userId = ctx.state.auth!.userId;
   const req = parseUploadCredentialBody(ctx.request.body);
-  const data = await mediaService.getUploadCredential(userId, req);
+  const mediaHost = getRequestMediaHost(ctx.headers);
+  const data = await mediaService.getUploadCredential(userId, req, mediaHost);
   ctx.body = success(data);
 }
 

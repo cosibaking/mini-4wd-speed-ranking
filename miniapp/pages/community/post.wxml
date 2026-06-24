@@ -1,36 +1,150 @@
 <nav-bar title="帖子详情" />
+
 <view class="container post-page" wx:if="{{post}}">
-  <view class="card">
-    <text class="post-title">{{post.title}}</text>
-    <view class="post-author">
-      <image class="post-author__avatar" src="{{post.author.avatarUrl || '/assets/default-avatar.png'}}" mode="aspectFill" />
-      <text>{{post.author.nickName}}</text>
-      <button class="follow-btn" size="mini" bindtap="onFollow">{{post.followingAuthor ? '已关注' : '+ 关注'}}</button>
-    </view>
-    <text class="post-content">{{post.content}}</text>
-    <view class="post-images" wx:if="{{post.images.length > 0}}">
-      <image wx:for="{{post.images}}" wx:key="*this" class="post-images__item" src="{{item}}" mode="widthFix" />
-    </view>
-    <view class="post-actions">
-      <text class="post-actions__item" bindtap="onLike">{{post.liked ? '❤️' : '🤍'}} {{post.likeCount}}</text>
-      <text class="post-actions__item">💬 {{post.commentCount}}</text>
-      <button class="post-actions__share" open-type="share" size="mini">分享</button>
-    </view>
-  </view>
 
   <view class="card">
-    <text class="section-title">评论 ({{comments.length}})</text>
-    <view class="comment-item" wx:for="{{comments}}" wx:key="id">
-      <text class="comment-item__author">{{item.author.nickName}}</text>
-      <text class="comment-item__content">{{item.content}}</text>
+
+    <text class="post-title">{{post.title}}</text>
+
+    <view class="post-author">
+
+      <view class="post-author__profile" bindtap="onOpenUser" data-id="{{post.author.id}}">
+
+        <image class="post-author__avatar" src="{{post.author.avatarUrl || '/assets/default-avatar.png'}}" mode="aspectFill" />
+
+        <text class="post-author__name">{{post.author.nickName}}</text>
+
+      </view>
+
+      <button class="follow-btn" size="mini" bindtap="onFollow">{{post.followingAuthor ? '已关注' : '+ 关注'}}</button>
+
     </view>
-    <text class="text-secondary" wx:if="{{comments.length === 0}}">暂无评论，来抢沙发吧</text>
+
+    <text class="post-content">{{post.content}}</text>
+
+    <view class="post-images" wx:if="{{post.images && post.images.length > 0}}">
+
+      <image
+        wx:for="{{post.images}}"
+        wx:key="*this"
+        class="post-images__item"
+        src="{{item}}"
+        mode="widthFix"
+        bindtap="onPreviewPostImage"
+        data-url="{{item}}"
+      />
+
+    </view>
+
+    <view class="post-actions">
+
+      <text class="post-actions__item" bindtap="onLike">{{post.liked ? '❤️' : '🤍'}} {{post.likeCount}}</text>
+
+      <text class="post-actions__item">💬 {{post.commentCount}}</text>
+
+      <button class="post-actions__share" open-type="share" size="mini">分享给微信好友</button>
+
+    </view>
+
   </view>
+
+
+
+  <view class="card">
+
+    <text class="section-title">评论 ({{post.commentCount}})</text>
+
+    <view
+      wx:for="{{comments}}"
+      wx:key="id"
+      class="comment-item {{item.parentId ? 'comment-item--reply' : ''}}"
+    >
+
+      <view class="comment-item__author-row" bindtap="onOpenUser" data-id="{{item.author.id}}">
+
+        <image class="comment-item__avatar" src="{{item.author.avatarUrl || '/assets/default-avatar.png'}}" mode="aspectFill" />
+
+        <text class="comment-item__author">{{item.author.nickName}}</text>
+
+      </view>
+
+      <view class="comment-item__content" wx:if="{{item.replyTo || item.content}}">
+        <text wx:if="{{item.replyTo}}" class="comment-item__reply-to">回复 @{{item.replyTo.nickName}}：</text>
+        <text wx:if="{{item.content}}">{{item.content}}</text>
+      </view>
+
+      <view class="comment-item__images" wx:if="{{item.images && item.images.length > 0}}">
+
+        <image
+          wx:for="{{item.images}}"
+          wx:for-item="img"
+          wx:for-index="imgIdx"
+          wx:key="imgIdx"
+          class="comment-item__image"
+          src="{{img}}"
+          mode="aspectFill"
+          bindtap="onPreviewCommentImage"
+          data-comment-id="{{item.id}}"
+          data-index="{{imgIdx}}"
+        />
+
+      </view>
+
+      <view class="comment-item__actions">
+        <text class="comment-item__action" bindtap="onCommentLike" data-id="{{item.id}}">{{item.liked ? '❤️' : '🤍'}} {{item.likeCount}}</text>
+        <text class="comment-item__action" bindtap="onCommentReply" data-id="{{item.id}}" data-nickname="{{item.author.nickName}}">回复</text>
+      </view>
+
+    </view>
+
+    <text class="text-secondary" wx:if="{{comments.length === 0}}">暂无评论，来抢沙发吧</text>
+
+  </view>
+
+
 
   <view class="comment-bar">
-    <input class="comment-bar__input" placeholder="写评论…" value="{{commentText}}" bindinput="onCommentInput" />
-    <button class="comment-bar__send" size="mini" bindtap="onSendComment">发送</button>
+
+    <view class="comment-bar__reply-hint" wx:if="{{replyTo}}">
+
+      <text class="comment-bar__reply-text">回复 @{{replyTo.nickName}}</text>
+
+      <text class="comment-bar__cancel-reply" bindtap="onCancelReply">取消</text>
+
+    </view>
+
+    <view class="comment-bar__previews" wx:if="{{commentImagePreviews.length > 0}}">
+
+      <image
+        wx:for="{{commentImagePreviews}}"
+        wx:for-index="idx"
+        wx:key="idx"
+        class="comment-bar__preview"
+        src="{{item}}"
+        mode="aspectFill"
+      />
+
+    </view>
+
+    <view class="comment-bar__row">
+
+      <input
+        class="comment-bar__input"
+        placeholder="{{replyTo ? '回复 ' + replyTo.nickName + '…' : '写评论…'}}"
+        value="{{commentText}}"
+        bindinput="onCommentInput"
+      />
+
+      <view class="comment-bar__image-btn" bindtap="onAddCommentImage">📷</view>
+
+      <button class="comment-bar__send" size="mini" bindtap="onSendComment">发送</button>
+
+    </view>
+
   </view>
+
 </view>
+
+
 
 <view class="loading-tip text-secondary" wx:if="{{loading}}">加载中…</view>

@@ -14,8 +14,8 @@ export class UserService {
     return authService.buildUserProfile(user);
   }
 
-  async updateProfile(userId: string, dto: { nickName?: string; avatarUrl?: string }): Promise<UserProfile> {
-    const data: { nickName?: string; avatarUrl?: string } = {};
+  async updateProfile(userId: string, dto: { nickName?: string; avatarUrl?: string; bio?: string }): Promise<UserProfile> {
+    const data: { nickName?: string; avatarUrl?: string; bio?: string } = {};
 
     if (dto.nickName !== undefined) {
       const nickName = dto.nickName.trim();
@@ -31,6 +31,14 @@ export class UserService {
         throw new ValidationError('头像地址必须是 HTTPS 链接');
       }
       data.avatarUrl = avatarUrl;
+    }
+
+    if (dto.bio !== undefined) {
+      const bio = dto.bio.trim();
+      if (bio.length > 200) {
+        throw new ValidationError('个人简介不能超过 200 字');
+      }
+      data.bio = bio;
     }
 
     if (Object.keys(data).length === 0) {
@@ -57,6 +65,7 @@ export class UserService {
         id: user.id,
         nickName: user.nickName,
         avatarUrl: user.avatarUrl,
+        bio: user.bio || undefined,
       });
     }
 

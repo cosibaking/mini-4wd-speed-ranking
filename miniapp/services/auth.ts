@@ -2,7 +2,7 @@ import { getToken, request, setToken } from './http';
 import { getClientConfig } from './clientConfig';
 import { MOCK_LOGIN_CODE } from '../config';
 import { setSessionUser } from '../stores/session';
-import type { UserProfile } from '../types';
+import type { PublicUserDetail, UserProfile } from '../types';
 
 async function resolveLoginCode(): Promise<string> {
   try {
@@ -31,7 +31,11 @@ export function getMe(): Promise<UserProfile> {
   return request<UserProfile>('/users/me');
 }
 
-export function updateMe(data: { nickName?: string; avatarUrl?: string }): Promise<UserProfile> {
+export function getUser(id: string): Promise<PublicUserDetail> {
+  return request<PublicUserDetail>(`/users/${id}`);
+}
+
+export function updateMe(data: { nickName?: string; avatarUrl?: string; bio?: string }): Promise<UserProfile> {
   return request<UserProfile>('/users/me', { method: 'PATCH', data });
 }
 

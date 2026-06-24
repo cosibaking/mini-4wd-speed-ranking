@@ -9,8 +9,8 @@ async function main(): Promise<void> {
 
   const server = createApp();
 
-  server.listen(config.port, () => {
-    console.log(`[server] listening on http://localhost:${config.port}`);
+  server.listen(config.port, '0.0.0.0', () => {
+    console.log(`[server] listening on http://0.0.0.0:${config.port}`);
     console.log(`[server] health check: http://localhost:${config.port}/api/v1/health`);
   });
 }

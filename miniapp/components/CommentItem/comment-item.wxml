@@ -1,0 +1,34 @@
+<view class="comment-item {{isReply ? 'comment-item--reply' : ''}}">
+  <text class="comment-item__author">{{comment.author.nickName}}</text>
+  <view class="comment-item__content" wx:if="{{comment.content}}">
+    <text wx:if="{{comment.replyTo}}" class="comment-item__reply-to">回复 @{{comment.replyTo.nickName}}：</text>
+    <text class="comment-item__text">{{comment.content}}</text>
+  </view>
+  <view class="comment-item__images" wx:if="{{comment.images && comment.images.length > 0}}">
+    <image
+      wx:for="{{comment.images}}"
+      wx:for-item="img"
+      wx:key="*this"
+      class="comment-item__image"
+      src="{{img}}"
+      mode="aspectFill"
+      bindtap="onImageTap"
+      data-url="{{img}}"
+    />
+  </view>
+  <view class="comment-item__actions">
+    <text class="comment-item__action" bindtap="onLikeTap">{{comment.liked ? '❤️' : '🤍'}} {{comment.likeCount}}</text>
+    <text class="comment-item__action" bindtap="onReplyTap">回复</text>
+  </view>
+  <view class="comment-item__replies" wx:if="{{comment.replies && comment.replies.length > 0}}">
+    <comment-item
+      wx:for="{{comment.replies}}"
+      wx:key="id"
+      comment="{{item}}"
+      is-reply="{{true}}"
+      bind:like="onChildLike"
+      bind:reply="onChildReply"
+      bind:previewimage="onChildPreviewImage"
+    />
+  </view>
+</view>

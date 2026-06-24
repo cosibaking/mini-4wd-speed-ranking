@@ -16,7 +16,7 @@
       <text class="text-secondary">{{post.author.nickName}}</text>
     </view>
     <view class="post-card__stats">
-      <text class="post-card__stat">👍 {{post.likeCount}}</text>
+      <text class="post-card__stat">{{post.liked ? '❤️' : '🤍'}} {{post.likeCount}}</text>
       <text class="post-card__stat">💬 {{post.commentCount}}</text>
     </view>
   </view>

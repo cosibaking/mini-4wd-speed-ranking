@@ -4,7 +4,8 @@ export type MediaPurpose =
   | 'record_video'
   | 'record_config'
   | 'record_car_photo'
-  | 'post_image';
+  | 'post_image'
+  | 'comment_image';
 
 export type MediaFileExt = 'jpg' | 'jpeg' | 'png' | 'mp4';
 

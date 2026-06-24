@@ -69,7 +69,7 @@ Page({
         boardId,
         title: title.trim(),
         content: content.trim(),
-        images,
+        imageUrls: images,
       });
       wx.showToast({ title: '发布成功', icon: 'success' });
       setTimeout(() => {

@@ -6,6 +6,7 @@ exports.getToken = getToken;
 exports.setToken = setToken;
 exports.clearToken = clearToken;
 const config_1 = require("../config");
+const mediaUrl_1 = require("../utils/mediaUrl");
 const TOKEN_KEY = 'token';
 let loginPromise = null;
 function getToken() {
@@ -50,7 +51,7 @@ function rawRequest(options) {
             success: (res) => {
                 const body = res.data;
                 if (body.code === 0) {
-                    resolve(body.data);
+                    resolve((0, mediaUrl_1.resolveMediaUrlsInData)(body.data));
                     return;
                 }
                 if (body.code === 40100 && !skipAutoLogin) {

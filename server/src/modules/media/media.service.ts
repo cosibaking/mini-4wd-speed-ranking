@@ -19,6 +19,7 @@ export class MediaService {
   async getUploadCredential(
     userId: string,
     req: UploadCredentialRequest,
+    mediaHost?: string,
   ): Promise<UploadCredential> {
     validateUploadRequest(req);
 
@@ -28,8 +29,8 @@ export class MediaService {
     }
 
     const objectKey = buildObjectKey(userId, req.purpose, req.fileExt);
-    const publicUrl = buildPublicUrl(objectKey);
-    const presigned = await createPresignedPut(objectKey, req.fileExt, req.fileSize);
+    const publicUrl = buildPublicUrl(objectKey, mediaHost);
+    const presigned = await createPresignedPut(objectKey, req.fileExt, req.fileSize, mediaHost);
 
     await mediaRepository.insertPending({
       objectKey,

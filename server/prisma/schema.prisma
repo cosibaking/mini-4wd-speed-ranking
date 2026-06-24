@@ -24,6 +24,7 @@ model User {
   unionId              String?    @map("union_id") @db.VarChar(64)
   nickName             String     @default("") @map("nick_name") @db.VarChar(64)
   avatarUrl            String     @default("") @map("avatar_url") @db.VarChar(512)
+  bio                  String     @default("") @db.VarChar(200)
   isOrganizerCertified Boolean    @default(false) @map("is_organizer_certified")
   adminRole            AdminRole? @map("admin_role")
   createdAt            DateTime   @default(now()) @map("created_at") @db.DateTime(3)
@@ -228,16 +229,33 @@ model PostImage {
 model Comment {
   id        String   @id @db.Char(36)
   postId    String   @map("post_id") @db.Char(36)
+  parentId  String?  @map("parent_id") @db.Char(36)
   authorId  String   @map("author_id") @db.Char(36)
   content   String   @db.VarChar(500)
   likeCount Int      @default(0) @map("like_count") @db.UnsignedInt
   createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
 
-  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
-  author User @relation(fields: [authorId], references: [id])
+  post     Post            @relation(fields: [postId], references: [id], onDelete: Cascade)
+  parent   Comment?        @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies  Comment[]       @relation("CommentReplies")
+  author   User            @relation(fields: [authorId], references: [id])
+  images   CommentImage[]
 
   @@index([postId, createdAt], map: "idx_comments_post")
+  @@index([parentId], map: "idx_comments_parent")
   @@map("comments")
+}
+
+model CommentImage {
+  id        BigInt @id @default(autoincrement()) @db.UnsignedBigInt
+  commentId String @map("comment_id") @db.Char(36)
+  imageUrl  String @map("image_url") @db.VarChar(512)
+  sortOrder Int    @default(0) @map("sort_order") @db.TinyInt
+
+  comment Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@index([commentId], map: "idx_ci_comment")
+  @@map("comment_images")
 }
 
 model Like {

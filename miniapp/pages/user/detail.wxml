@@ -1,0 +1,34 @@
+<nav-bar title="用户详情" />
+
+<view class="container user-detail-page" wx:if="{{user}}">
+
+  <view class="user-detail card">
+
+    <image class="user-detail__avatar" src="{{user.avatarUrl || '/assets/default-avatar.png'}}" mode="aspectFill" />
+
+    <text class="user-detail__name">{{user.nickName || '微信用户'}}</text>
+
+    <text class="user-detail__bio text-secondary">{{user.bio || '这个人很懒，什么都没写'}}</text>
+
+    <button
+      wx:if="{{!isSelf && following !== undefined}}"
+      class="user-detail__follow"
+      size="mini"
+      bindtap="onToggleFollow"
+      loading="{{followLoading}}"
+    >{{following ? '已关注' : '+ 关注'}}</button>
+
+    <button
+      wx:if="{{isSelf}}"
+      class="user-detail__edit"
+      size="mini"
+      bindtap="onEditProfile"
+    >编辑资料</button>
+
+  </view>
+
+</view>
+
+<view class="loading-tip text-secondary" wx:if="{{loading}}">加载中…</view>
+
+<view class="loading-tip text-secondary" wx:if="{{!loading && !user}}">用户不存在</view>

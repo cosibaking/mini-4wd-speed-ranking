@@ -1,0 +1,40 @@
+.user-detail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48rpx 32rpx;
+  text-align: center;
+}
+
+.user-detail__avatar {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 50%;
+  background: var(--color-border);
+  margin-bottom: 24rpx;
+}
+
+.user-detail__name {
+  font-size: 36rpx;
+  font-weight: 700;
+  margin-bottom: 16rpx;
+}
+
+.user-detail__bio {
+  font-size: 28rpx;
+  line-height: 1.6;
+  max-width: 100%;
+  word-break: break-all;
+}
+
+.user-detail__follow,
+.user-detail__edit {
+  margin-top: 32rpx;
+  background: var(--color-primary) !important;
+  color: #fff !important;
+}
+
+.loading-tip {
+  text-align: center;
+  padding: 80rpx;
+}
