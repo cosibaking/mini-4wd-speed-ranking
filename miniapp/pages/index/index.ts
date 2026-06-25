@@ -1,5 +1,5 @@
 import { getRecentTracks, listTracks } from '../../services/track';
-import { ensureLogin, refreshUser } from '../../services/auth';
+import { ensureLogin, isLoggedIn, refreshUser } from '../../services/auth';
 import { ensureLoginForTab, navigateWithLogin } from '../../utils/nav';
 import { getNavBarLayout } from '../../utils/navBar';
 import { getSessionUser, setSessionUser } from '../../stores/session';
@@ -47,9 +47,12 @@ Page({
     try {
       let recent: TrackListItem[] = [];
       try {
+        if (!isLoggedIn()) {
+          await ensureLogin();
+        }
         recent = await getRecentTracks();
       } catch {
-        // 未登录或最近访问接口不可用时忽略
+        // 未登录或最近访问为空时忽略
       }
       if (recent.length === 0) {
         const res = await listTracks({ pageSize: 3 });

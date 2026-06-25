@@ -18,6 +18,7 @@
   <view class="admin-menu card">
     <view class="admin-menu__item" bindtap="onApplications">
       <text class="admin-menu__title">主理人申请</text>
+      <view class="admin-menu__dot" wx:if="{{stats && stats.pendingApplications > 0}}"></view>
       <text class="admin-menu__desc">审核实名申请，线下核实后通过</text>
       <text class="admin-menu__chevron">›</text>
     </view>

@@ -57,6 +57,14 @@ class MockCosClient {
     logCos(`headObject mock ok objectKey=${objectKey} size=${info.size}`);
     return info;
   }
+
+  async putObject(objectKey: string, body: Buffer, contentType: string): Promise<void> {
+    const { saveObject } = await import('./mock.store.js');
+    await saveObject(objectKey, body);
+    logCos(
+      `putObject mock ok objectKey=${objectKey} size=${body.length} contentType=${contentType}`,
+    );
+  }
 }
 
 class RealCosClient {
@@ -65,6 +73,10 @@ class RealCosClient {
     headObject: (
       options: Record<string, unknown>,
       callback: (error: Error | null, data?: { headers?: Record<string, string> }) => void,
+    ) => void;
+    putObject: (
+      options: Record<string, unknown>,
+      callback: (error: Error | null) => void,
     ) => void;
   } | null = null;
 
@@ -149,6 +161,34 @@ class RealCosClient {
       );
     });
   }
+
+  async putObject(objectKey: string, body: Buffer, contentType: string): Promise<void> {
+    const cos = this.loadSdk()!;
+
+    return new Promise((resolve, reject) => {
+      cos.putObject(
+        {
+          Bucket: this.bucket,
+          Region: this.region,
+          Key: objectKey,
+          Body: body,
+          ContentType: contentType,
+        },
+        (error) => {
+          if (error) {
+            logCosError(`putObject failed bucket=${this.bucket} objectKey=${objectKey}`, error);
+            reject(error);
+            return;
+          }
+
+          logCos(
+            `putObject ok bucket=${this.bucket} objectKey=${objectKey} size=${body.length} contentType=${contentType}`,
+          );
+          resolve();
+        },
+      );
+    });
+  }
 }
 
 let client: MockCosClient | RealCosClient | null = null;
@@ -182,6 +222,14 @@ export async function createPresignedPut(
 ): Promise<PresignResult> {
   const contentType = getContentType(fileExt as 'jpg' | 'jpeg' | 'png' | 'mp4');
   return getCosClient().presignedPut({ objectKey, fileSize, contentType, mediaHost });
+}
+
+export async function uploadObject(
+  objectKey: string,
+  body: Buffer,
+  contentType: string,
+): Promise<void> {
+  await getCosClient().putObject(objectKey, body, contentType);
 }
 
 export async function verifyObjectExists(objectKey: string): Promise<boolean> {

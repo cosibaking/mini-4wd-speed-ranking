@@ -2,6 +2,7 @@ declare function App(options: Record<string, unknown>): void;
 declare function Page(options: Record<string, unknown>): void;
 declare function Component(options: Record<string, unknown>): void;
 declare function getApp<T = Record<string, unknown>>(): T;
+declare function getCurrentPages(): Array<{ route?: string } & Record<string, unknown>>;
 declare function requirePlugin(name: string): unknown;
 
 declare namespace WechatMiniprogram {
@@ -30,12 +31,8 @@ declare namespace WechatMiniprogram {
     detail: { value: string };
   }
 
-  interface CustomEvent extends BaseEvent {
-    detail: {
-      value?: string;
-      valid?: boolean;
-      [key: string]: unknown;
-    };
+  interface CustomEvent<T extends IAnyObject = IAnyObject> extends BaseEvent {
+    detail: T;
   }
 
   interface MapTapEvent extends BaseEvent {
@@ -84,6 +81,12 @@ interface WxUploadFileOption {
   fail?: (err: { errMsg: string }) => void;
 }
 
+interface WxDownloadFileOption {
+  url: string;
+  success?: (res: { statusCode: number; tempFilePath: string }) => void;
+  fail?: (err: { errMsg: string }) => void;
+}
+
 interface WxChooseMediaOption {
   count?: number;
   mediaType?: Array<'image' | 'video' | 'mix'>;
@@ -96,6 +99,7 @@ interface WxChooseMediaOption {
 declare const wx: {
   request(option: WxRequestOption): void;
   uploadFile(option: WxUploadFileOption): void;
+  downloadFile(option: WxDownloadFileOption): void;
   getFileSystemManager(): {
     readFile(option: {
       filePath: string;
@@ -131,6 +135,17 @@ declare const wx: {
   navigateBack(option?: { delta?: number }): void;
   switchTab(option: {
     url: string;
+    success?: () => void;
+    fail?: (err: { errMsg: string }) => void;
+  }): void;
+  setTabBarBadge(option: {
+    index: number;
+    text: string;
+    success?: () => void;
+    fail?: (err: { errMsg: string }) => void;
+  }): void;
+  removeTabBarBadge(option: {
+    index: number;
     success?: () => void;
     fail?: (err: { errMsg: string }) => void;
   }): void;

@@ -17,6 +17,12 @@ Page({
     this.loadStats();
   },
 
+  onShow() {
+    if (this.data.stats !== null) {
+      this.loadStats();
+    }
+  },
+
   async loadStats() {
     try {
       const stats = await getAdminDashboard();

@@ -1,0 +1,33 @@
+<nav-bar title="站内信" />
+<view class="container messages-page">
+  <view class="messages-toolbar" wx:if="{{messages.length > 0}}">
+    <button class="btn-secondary messages-toolbar__btn" bindtap="onMarkAllRead" loading="{{markingAll}}" disabled="{{markingAll}}">
+      全部已读
+    </button>
+  </view>
+
+  <view
+    class="message-item card {{item.isRead ? 'message-item--read' : 'message-item--unread'}}"
+    wx:for="{{messages}}"
+    wx:key="id"
+    data-id="{{item.id}}"
+    data-link="{{item.payload.linkPath}}"
+    bindtap="onTap"
+  >
+    <view class="message-item__header">
+      <text class="message-item__type">{{item.typeLabel}}</text>
+      <text class="message-item__time text-secondary">{{item.timeLabel}}</text>
+    </view>
+    <text class="message-item__title">{{item.title}}</text>
+    <text class="message-item__content text-secondary">{{item.content}}</text>
+    <view class="message-item__dot" wx:if="{{!item.isRead}}"></view>
+  </view>
+
+  <empty-state
+    wx:if="{{!loading && messages.length === 0}}"
+    title="暂无消息"
+    desc="成绩审核、互动提醒等通知会出现在这里"
+  />
+
+  <view class="loading-tip" wx:if="{{loading}}">加载中…</view>
+</view>

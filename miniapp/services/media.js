@@ -19,13 +19,10 @@ class UploadCancelledError extends Error {
     }
 }
 exports.UploadCancelledError = UploadCancelledError;
-function isMockUploadUrl(uploadUrl) {
-    return uploadUrl.includes('/mock-media/upload/');
-}
-function uploadViaMockApi(objectKey, filePath) {
+function uploadViaServerApi(objectKey, filePath) {
     return new Promise((resolve, reject) => {
         wx.uploadFile({
-            url: `${(0, http_1.getApiBase)()}/media/mock-upload`,
+            url: `${(0, http_1.getApiBase)()}/media/upload`,
             filePath,
             name: 'file',
             formData: { objectKey },
@@ -53,6 +50,9 @@ function uploadViaMockApi(objectKey, filePath) {
         });
     });
 }
+async function uploadBinary(_uploadUrl, filePath, _headers, objectKey) {
+    await uploadViaServerApi(objectKey, filePath);
+}
 function inferImageExt(tempFilePath) {
     var _a;
     const ext = (_a = tempFilePath.split('.').pop()) === null || _a === void 0 ? void 0 : _a.toLowerCase();
@@ -72,37 +72,6 @@ function getLocalFileSize(filePath) {
             fail: reject,
         });
     });
-}
-function uploadFilePut(uploadUrl, filePath, headers) {
-    return new Promise((resolve, reject) => {
-        wx.getFileSystemManager().readFile({
-            filePath,
-            success: (readRes) => {
-                wx.request({
-                    url: uploadUrl,
-                    method: 'PUT',
-                    data: readRes.data,
-                    header: headers,
-                    success: (res) => {
-                        if (res.statusCode >= 200 && res.statusCode < 300) {
-                            resolve();
-                            return;
-                        }
-                        reject(new Error(`upload failed: ${res.statusCode}`));
-                    },
-                    fail: reject,
-                });
-            },
-            fail: reject,
-        });
-    });
-}
-async function uploadBinary(uploadUrl, filePath, headers, objectKey) {
-    if (isMockUploadUrl(uploadUrl)) {
-        await uploadViaMockApi(objectKey, filePath);
-        return;
-    }
-    await uploadFilePut(uploadUrl, filePath, headers);
 }
 async function resolveFileSize(tempFilePath, reportedSize) {
     if (reportedSize > 0) {

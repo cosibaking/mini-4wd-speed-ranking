@@ -30,14 +30,10 @@ export class UploadCancelledError extends Error {
   }
 }
 
-function isMockUploadUrl(uploadUrl: string): boolean {
-  return uploadUrl.includes('/mock-media/upload/');
-}
-
-function uploadViaMockApi(objectKey: string, filePath: string): Promise<void> {
+function uploadViaServerApi(objectKey: string, filePath: string): Promise<void> {
   return new Promise((resolve, reject) => {
     wx.uploadFile({
-      url: `${getApiBase()}/media/mock-upload`,
+      url: `${getApiBase()}/media/upload`,
       filePath,
       name: 'file',
       formData: { objectKey },
@@ -67,6 +63,15 @@ function uploadViaMockApi(objectKey: string, filePath: string): Promise<void> {
   });
 }
 
+async function uploadBinary(
+  _uploadUrl: string,
+  filePath: string,
+  _headers: Record<string, string>,
+  objectKey: string
+): Promise<void> {
+  await uploadViaServerApi(objectKey, filePath);
+}
+
 function inferImageExt(tempFilePath: string): ImageFileExt {
   const ext = tempFilePath.split('.').pop()?.toLowerCase();
   if (ext === 'png') return 'png';
@@ -83,48 +88,6 @@ function getLocalFileSize(filePath: string): Promise<number> {
       fail: reject,
     });
   });
-}
-
-function uploadFilePut(
-  uploadUrl: string,
-  filePath: string,
-  headers: Record<string, string>
-): Promise<void> {
-  return new Promise((resolve, reject) => {
-    wx.getFileSystemManager().readFile({
-      filePath,
-      success: (readRes) => {
-        wx.request({
-          url: uploadUrl,
-          method: 'PUT',
-          data: readRes.data as ArrayBuffer,
-          header: headers,
-          success: (res) => {
-            if (res.statusCode >= 200 && res.statusCode < 300) {
-              resolve();
-              return;
-            }
-            reject(new Error(`upload failed: ${res.statusCode}`));
-          },
-          fail: reject,
-        });
-      },
-      fail: reject,
-    });
-  });
-}
-
-async function uploadBinary(
-  uploadUrl: string,
-  filePath: string,
-  headers: Record<string, string>,
-  objectKey: string
-): Promise<void> {
-  if (isMockUploadUrl(uploadUrl)) {
-    await uploadViaMockApi(objectKey, filePath);
-    return;
-  }
-  await uploadFilePut(uploadUrl, filePath, headers);
 }
 
 async function resolveFileSize(tempFilePath: string, reportedSize: number): Promise<number> {

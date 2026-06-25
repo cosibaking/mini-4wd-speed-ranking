@@ -4,13 +4,15 @@ import type { HttpContext } from '../../lib/http/index.js';
 import { ValidationError } from '../../shared/errors.js';
 import { success } from '../../shared/response.js';
 import type { MediaFileExt, MediaPurpose, UploadCredentialRequest } from './dto/upload-credential.dto.js';
-import { uploadRecordNotFoundError } from './errors.js';
+import { fileSizeExceededError, uploadRecordNotFoundError } from './errors.js';
+import { uploadObject } from './cos.client.js';
 import { mediaRepository } from './media.repository.js';
 import { mediaService } from './media.service.js';
-import { saveObject } from './mock.store.js';
 import { parseMultipartBody } from './multipart.util.js';
+import { getContentType } from './policy.validator.js';
 import { isMockMediaEnabled } from './path.builder.js';
 import { getRequestMediaHost } from './url.rewrite.js';
+
 async function readRawBody(req: IncomingMessage): Promise<Buffer> {
   const chunks: Buffer[] = [];
   for await (const chunk of req) {
@@ -19,13 +21,16 @@ async function readRawBody(req: IncomingMessage): Promise<Buffer> {
   return Buffer.concat(chunks);
 }
 
-export async function mockUpload(ctx: HttpContext): Promise<void> {
-  if (!isMockMediaEnabled()) {
-    ctx.status = 404;
-    ctx.body = { code: 40404, message: 'Not Found', data: null };
-    return;
-  }
+function inferFileExt(objectKey: string): MediaFileExt {
+  const ext = objectKey.split('.').pop()?.toLowerCase();
+  if (ext === 'mp4') return 'mp4';
+  if (ext === 'png') return 'png';
+  if (ext === 'jpeg') return 'jpeg';
+  if (ext === 'jpg') return 'jpg';
+  throw new ValidationError('objectKey 扩展名无效');
+}
 
+async function handleMultipartUpload(ctx: HttpContext): Promise<void> {
   const userId = ctx.state.auth!.userId;
   const rawBody = await readRawBody(ctx.rawRequest);
   const contentType = ctx.headers['content-type'];
@@ -46,8 +51,28 @@ export async function mockUpload(ctx: HttpContext): Promise<void> {
     throw new ValidationError('文件为空');
   }
 
-  await saveObject(objectKey, file);
+  if (file.length > record.fileSize) {
+    throw fileSizeExceededError();
+  }
+
+  const fileExt = inferFileExt(objectKey);
+  const mimeType = getContentType(fileExt);
+  await uploadObject(objectKey, file, mimeType);
+}
+
+export async function proxyUpload(ctx: HttpContext): Promise<void> {
+  await handleMultipartUpload(ctx);
   ctx.body = success(null);
+}
+
+export async function mockUpload(ctx: HttpContext): Promise<void> {
+  if (!isMockMediaEnabled()) {
+    ctx.status = 404;
+    ctx.body = { code: 40404, message: 'Not Found', data: null };
+    return;
+  }
+
+  await proxyUpload(ctx);
 }
 
 const VALID_PURPOSES: MediaPurpose[] = [

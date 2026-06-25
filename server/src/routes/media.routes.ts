@@ -10,6 +10,7 @@ router.post(
   mediaController.uploadCredential,
 );
 router.post('/media/confirm', authMiddleware({ required: true }), mediaController.confirmUpload);
+router.post('/media/upload', authMiddleware({ required: true }), mediaController.proxyUpload);
 router.post('/media/mock-upload', authMiddleware({ required: true }), mediaController.mockUpload);
 
 export default router;

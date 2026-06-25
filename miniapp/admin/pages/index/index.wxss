@@ -45,6 +45,15 @@
   font-weight: 600;
 }
 
+.admin-menu__dot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+  background: #ff3b30;
+  margin-right: 12rpx;
+  flex-shrink: 0;
+}
+
 .admin-menu__desc {
   width: 100%;
   margin-top: 8rpx;

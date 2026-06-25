@@ -1,0 +1,8 @@
+{
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "empty-state": "/components/EmptyState/empty-state",
+    "nav-bar": "/components/NavBar/nav-bar"
+  },
+  "navigationBarTitleText": "站内信"
+}

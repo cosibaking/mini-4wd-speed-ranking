@@ -12,6 +12,7 @@ import {
   realNameVerifyFailedError,
 } from './errors.js';
 import { organizerRepository } from './organizer.repository.js';
+import { notificationService } from '../notification/notification.service.js';
 
 const ID_CARD_PATTERN = /^[1-9]\d{5}(18|19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{3}[\dXx]$/;
 const PHONE_PATTERN = /^1\d{10}$/;
@@ -177,6 +178,13 @@ export class OrganizerService {
     await organizerRepository.updateStatus(applicationId, 'approved', reviewerId, reviewNote);
     await userRepository.update(application.userId, { isOrganizerCertified: true });
 
+    await notificationService.notifyOrganizerReview({
+      userId: application.userId,
+      applicationId,
+      approved: true,
+      reviewNote,
+    });
+
     return { success: true };
   }
 
@@ -190,6 +198,14 @@ export class OrganizerService {
     }
 
     await organizerRepository.updateStatus(applicationId, 'rejected', reviewerId, reviewNote);
+
+    await notificationService.notifyOrganizerReview({
+      userId: application.userId,
+      applicationId,
+      approved: false,
+      reviewNote,
+    });
+
     return { success: true };
   }
 

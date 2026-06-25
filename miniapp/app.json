@@ -18,6 +18,7 @@
     "pages/user/tracks",
     "pages/user/records",
     "pages/user/following",
+    "pages/user/messages",
     "pages/organizer/apply",
     "pages/organizer/status",
     "pages/organizer/records",

@@ -7,6 +7,7 @@ exports.setToken = setToken;
 exports.clearToken = clearToken;
 const config_1 = require("../config");
 const mediaUrl_1 = require("../utils/mediaUrl");
+const loginCode_1 = require("./loginCode");
 const TOKEN_KEY = 'token';
 let loginPromise = null;
 function getToken() {
@@ -19,9 +20,7 @@ function clearToken() {
     wx.removeStorageSync(TOKEN_KEY);
 }
 async function doLogin() {
-    const { code } = await new Promise((resolve, reject) => {
-        wx.login({ success: resolve, fail: reject });
-    });
+    const code = await (0, loginCode_1.resolveLoginCode)();
     const res = await rawRequest({
         url: `${config_1.API_BASE}/auth/login`,
         method: 'POST',
@@ -79,6 +78,7 @@ async function request(path, options = {}) {
     catch (err) {
         const e = err;
         if (e.needLogin) {
+            clearToken();
             if (!loginPromise) {
                 loginPromise = doLogin().finally(() => {
                     loginPromise = null;

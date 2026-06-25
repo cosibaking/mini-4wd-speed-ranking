@@ -97,6 +97,28 @@
   align-items: center;
 }
 
+.menu-item__dot {
+  margin-left: 12rpx;
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+  background: #ff3b30;
+  flex-shrink: 0;
+}
+
+.menu-item__badge {
+  margin-left: 12rpx;
+  min-width: 32rpx;
+  height: 32rpx;
+  line-height: 32rpx;
+  padding: 0 10rpx;
+  border-radius: 16rpx;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 20rpx;
+  text-align: center;
+}
+
 .menu-item__arrow {
   color: var(--color-text-placeholder);
   font-size: 32rpx;

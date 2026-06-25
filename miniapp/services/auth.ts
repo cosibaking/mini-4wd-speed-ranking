@@ -1,26 +1,7 @@
 import { getToken, request, setToken } from './http';
-import { getClientConfig } from './clientConfig';
-import { MOCK_LOGIN_CODE } from '../config';
+import { resolveLoginCode } from './loginCode';
 import { setSessionUser } from '../stores/session';
 import type { PublicUserDetail, UserProfile } from '../types';
-
-async function resolveLoginCode(): Promise<string> {
-  try {
-    const clientConfig = await getClientConfig();
-    if (clientConfig.wechatMock && clientConfig.mockLoginCode) {
-      return clientConfig.mockLoginCode;
-    }
-  } catch {
-    // ignore
-  }
-  if (MOCK_LOGIN_CODE) {
-    return MOCK_LOGIN_CODE;
-  }
-  const { code } = await new Promise<WechatMiniprogram.LoginSuccessCallbackResult>(
-    (resolve, reject) => wx.login({ success: resolve, fail: reject }),
-  );
-  return code;
-}
 
 export async function login(): Promise<{ token: string; user: UserProfile }> {
   const code = await resolveLoginCode();

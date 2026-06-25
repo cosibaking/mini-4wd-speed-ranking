@@ -41,10 +41,13 @@ Page({
         try {
             let recent = [];
             try {
+                if (!(0, auth_1.isLoggedIn)()) {
+                    await (0, auth_1.ensureLogin)();
+                }
                 recent = await (0, track_1.getRecentTracks)();
             }
             catch (_a) {
-                // 未登录或最近访问接口不可用时忽略
+                // 未登录或最近访问为空时忽略
             }
             if (recent.length === 0) {
                 const res = await (0, track_1.listTracks)({ pageSize: 3 });

@@ -9,27 +9,10 @@ exports.ensureLogin = ensureLogin;
 exports.refreshUser = refreshUser;
 exports.getUserProfile = getUserProfile;
 const http_1 = require("./http");
-const clientConfig_1 = require("./clientConfig");
-const config_1 = require("../config");
+const loginCode_1 = require("./loginCode");
 const session_1 = require("../stores/session");
-async function resolveLoginCode() {
-    try {
-        const clientConfig = await (0, clientConfig_1.getClientConfig)();
-        if (clientConfig.wechatMock && clientConfig.mockLoginCode) {
-            return clientConfig.mockLoginCode;
-        }
-    }
-    catch (_a) {
-        // ignore
-    }
-    if (config_1.MOCK_LOGIN_CODE) {
-        return config_1.MOCK_LOGIN_CODE;
-    }
-    const { code } = await new Promise((resolve, reject) => wx.login({ success: resolve, fail: reject }));
-    return code;
-}
 async function login() {
-    const code = await resolveLoginCode();
+    const code = await (0, loginCode_1.resolveLoginCode)();
     return (0, http_1.request)('/auth/login', { method: 'POST', data: { code }, auth: false });
 }
 function getMe() {

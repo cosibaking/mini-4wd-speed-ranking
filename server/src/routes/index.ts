@@ -9,6 +9,7 @@ import recordRoutes from './record.routes.js';
 import trackRoutes from './track.routes.js';
 import organizerRoutes from './organizer.routes.js';
 import adminRoutes from './admin.routes.js';
+import notificationRoutes from './notification.routes.js';
 import * as configController from '../modules/config/config.controller.js';
 
 const router = new Router().prefixPath('/api/v1');
@@ -31,5 +32,6 @@ router.use(communityRoutes);
 router.use(mediaRoutes);
 router.use(organizerRoutes);
 router.use(adminRoutes);
+router.use(notificationRoutes);
 
 export default router;

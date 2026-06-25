@@ -21,10 +21,19 @@
   </view>
 
   <view class="menu card">
+    <view class="menu-item" data-url="/pages/user/messages" bindtap="onNav" wx:if="{{loggedIn}}">
+      <view class="menu-item__left">
+        <text class="icon-badge">✉</text>
+        <text>站内信</text>
+        <text class="menu-item__badge" wx:if="{{unreadCount > 0}}">{{unreadCount > 99 ? '99+' : unreadCount}}</text>
+      </view>
+      <text class="menu-item__arrow">›</text>
+    </view>
     <view class="menu-item menu-item--admin" data-url="/admin/pages/index/index" bindtap="onNav" wx:if="{{loggedIn && user && user.isAdmin}}">
       <view class="menu-item__left">
         <text class="icon-badge">⚙</text>
         <text>管理后台</text>
+        <view class="menu-item__dot" wx:if="{{adminHasPending}}"></view>
       </view>
       <text class="menu-item__arrow">›</text>
     </view>

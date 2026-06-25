@@ -16,6 +16,7 @@ import { followRepository } from './follow.repository.js';
 import { likeRepository } from './like.repository.js';
 import { postRepository } from './post.repository.js';
 import { checkRateLimit } from './rateLimit.util.js';
+import { notificationService } from '../notification/notification.service.js';
 
 export type LikeTarget = { type: 'post'; id: string } | { type: 'comment'; id: string };
 
@@ -93,6 +94,40 @@ export class SocialService {
       target.type === 'post'
         ? await postRepository.updateLikeCount(target.id, 1)
         : await commentRepository.updateLikeCount(target.id, 1);
+
+    if (target.type === 'post') {
+      const post = await postRepository.findById(target.id);
+      if (post) {
+        const actorProfiles = await userService.getPublicProfiles([userId]);
+        const actorProfile = actorProfiles.get(userId);
+        if (actorProfile) {
+          await notificationService.notifyPostLiked({
+            userId: post.authorId,
+            actorId: userId,
+            actorNickName: actorProfile.nickName || '车友',
+            postId: post.id,
+            postTitle: post.title,
+          });
+        }
+      }
+    } else {
+      const comment = await commentRepository.findById(target.id);
+      if (comment) {
+        const actor = await userService.getPublicProfiles([userId]);
+        const actorProfile = actor.get(userId);
+        if (actorProfile) {
+          await notificationService.notifyCommentLiked({
+            userId: comment.authorId,
+            actorId: userId,
+            actorNickName: actorProfile.nickName || '车友',
+            postId: comment.postId,
+            commentId: comment.id,
+            commentPreview: comment.content || '[图片]',
+          });
+        }
+      }
+    }
+
     return { liked: true, likeCount };
   }
 
@@ -137,6 +172,33 @@ export class SocialService {
       parentId ?? null,
     );
     await postRepository.incrementCommentCount(dto.postId);
+
+    const actorProfile = comment.author;
+    const commentPreview = content || '[图片]';
+
+    if (parentId && replyTo) {
+      const parent = await commentRepository.findById(parentId);
+      if (parent) {
+        await notificationService.notifyCommentReplied({
+          userId: parent.authorId,
+          actorId: userId,
+          actorNickName: actorProfile.nickName || '车友',
+          postId: dto.postId,
+          commentId: comment.id,
+          commentPreview,
+        });
+      }
+    } else {
+      await notificationService.notifyPostCommented({
+        userId: post.authorId,
+        actorId: userId,
+        actorNickName: actorProfile.nickName || '车友',
+        postId: dto.postId,
+        postTitle: post.title,
+        commentId: comment.id,
+        commentPreview,
+      });
+    }
 
     return toCommentItem(comment, false, replyTo);
   }

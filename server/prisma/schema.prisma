@@ -42,9 +42,40 @@ model User {
   mediaObjects           MediaObject[]
   organizerApplications  OrganizerApplication[]  @relation("OrganizerApplicant")
   reviewedApplications   OrganizerApplication[]  @relation("OrganizerReviewer")
+  notifications          Notification[]
 
   @@index([createdAt], map: "idx_users_created")
   @@map("users")
+}
+
+enum NotificationType {
+  record_approved
+  record_rejected
+  record_pending_review
+  organizer_approved
+  organizer_rejected
+  post_liked
+  comment_liked
+  post_commented
+  comment_replied
+  system
+}
+
+model Notification {
+  id        String           @id @db.Char(36)
+  userId    String           @map("user_id") @db.Char(36)
+  type      NotificationType
+  title     String           @db.VarChar(100)
+  content   String           @db.VarChar(500)
+  payload   Json?
+  isRead    Boolean          @default(false) @map("is_read")
+  createdAt DateTime         @default(now()) @map("created_at") @db.DateTime(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)], map: "idx_notifications_user_time")
+  @@index([userId, isRead, createdAt(sort: Desc)], map: "idx_notifications_user_unread")
+  @@map("notifications")
 }
 
 model OrganizerApplication {

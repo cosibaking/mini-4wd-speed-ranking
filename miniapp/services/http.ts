@@ -1,6 +1,7 @@
 import { API_BASE } from '../config';
 import type { ApiResponse } from '../types';
 import { resolveMediaUrlsInData } from '../utils/mediaUrl';
+import { resolveLoginCode } from './loginCode';
 
 const TOKEN_KEY = 'token';
 
@@ -19,12 +20,7 @@ function clearToken(): void {
 }
 
 async function doLogin(): Promise<string> {
-  const { code } = await new Promise<WechatMiniprogram.LoginSuccessCallbackResult>(
-    (resolve, reject) => {
-      wx.login({ success: resolve, fail: reject });
-    }
-  );
-
+  const code = await resolveLoginCode();
   const res = await rawRequest<{ token: string }>({
     url: `${API_BASE}/auth/login`,
     method: 'POST',
@@ -103,6 +99,7 @@ export async function request<T>(
   } catch (err: unknown) {
     const e = err as { needLogin?: boolean };
     if (e.needLogin) {
+      clearToken();
       if (!loginPromise) {
         loginPromise = doLogin().finally(() => {
           loginPromise = null;

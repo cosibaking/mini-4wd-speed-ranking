@@ -3,7 +3,6 @@ import { parseLapTime } from '../../shared/lapTime';
 import { buildPaginationResult, getSkip } from '../../shared/pagination';
 import type { PaginationQuery, PaginationResult } from '../../shared/types';
 import { trackRepository } from '../track/track.repository';
-import { trackService } from '../track/track.service';
 import { bestRecordRepository } from './bestRecord.repository';
 import type {
   ApproveRecordDto,
@@ -23,6 +22,7 @@ import {
 } from './errors';
 import { leaderboardService } from './leaderboard.service';
 import { recordRepository, type RecordRow } from './record.repository';
+import { notificationService } from '../notification/notification.service.js';
 
 function mapConfigSheet(row: RecordRow): RecordDetail['configSheet'] {
   if (row.configSheetType === 'text' && row.configSheetText) {
@@ -107,8 +107,8 @@ async function assertTrackCreator(
 
 export class RecordService {
   async submit(userId: string, dto: SubmitRecordDto): Promise<RecordDetail> {
-    const trackExists = await trackService.exists(dto.trackId);
-    if (!trackExists) {
+    const track = await trackRepository.findById(dto.trackId);
+    if (!track) {
       throw trackNotFoundForRecordError();
     }
 
@@ -125,6 +125,16 @@ export class RecordService {
       parsed.lapTimeMs,
       parsed.lapTimeDisplay,
     );
+
+    await notificationService.notifyRecordPendingReview({
+      organizerId: track.creatorId,
+      submitterId: userId,
+      submitterNickName: record.user?.nickName || '车友',
+      recordId: record.id,
+      trackId: track.id,
+      trackName: track.name,
+      lapTimeDisplay: parsed.lapTimeDisplay,
+    });
 
     return {
       ...toRecordDetail(record),
@@ -192,6 +202,16 @@ export class RecordService {
       recordId,
     );
 
+    await notificationService.notifyRecordReview({
+      userId: row.userId,
+      recordId,
+      trackId: row.trackId,
+      trackName: row.track?.name ?? '赛道',
+      lapTimeDisplay: parsed.lapTimeDisplay,
+      approved: true,
+      reviewNote: dto.reviewNote,
+    });
+
     return {
       ...toRecordDetail(result.updated, rank || undefined, isBestRecord),
       isPersonalBest: isBestRecord,
@@ -222,6 +242,16 @@ export class RecordService {
     if (!updated) {
       throw recordNotFoundError();
     }
+
+    await notificationService.notifyRecordReview({
+      userId: row.userId,
+      recordId,
+      trackId: row.trackId,
+      trackName: row.track?.name ?? '赛道',
+      lapTimeDisplay: row.submittedLapTimeDisplay,
+      approved: false,
+      reviewNote: dto.reviewNote,
+    });
 
     return toRecordDetail(updated);
   }
