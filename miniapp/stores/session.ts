@@ -16,5 +16,9 @@ export interface IAppOption {
   globalData: {
     user: UserProfile | null;
     apiBase: string;
+    privacyPopup: { show?: () => void; hide?: () => void } | null;
+    resolvePrivacyAuthorization:
+      | ((result: { buttonId?: string; event: 'agree' | 'disagree' }) => void)
+      | null;
   };
 }

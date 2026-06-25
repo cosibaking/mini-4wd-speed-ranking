@@ -207,6 +207,27 @@ declare const wx: {
       extraData?: Record<string, unknown>;
     };
   };
+  getPrivacySetting(option: {
+    success?: (res: { needAuthorization: boolean; privacyContractName: string }) => void;
+    fail?: (err: { errMsg: string }) => void;
+    complete?: () => void;
+  }): void;
+  openPrivacyContract(option?: {
+    success?: () => void;
+    fail?: (err: { errMsg: string }) => void;
+    complete?: () => void;
+  }): void;
+  onNeedPrivacyAuthorization(
+    listener: (
+      resolve: (result: { buttonId?: string; event: 'agree' | 'disagree' }) => void,
+      eventInfo: { referrer: string }
+    ) => void
+  ): void;
+  requirePrivacyAuthorize(option?: {
+    success?: () => void;
+    fail?: (err: { errMsg: string; errno?: number }) => void;
+    complete?: () => void;
+  }): void;
 };
 
 interface MapContext {

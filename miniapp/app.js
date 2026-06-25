@@ -12,12 +12,27 @@ async function restoreSession() {
         (0, session_1.setSessionUser)(null);
     }
 }
+function initPrivacyAuthorization(app) {
+    if (typeof wx.onNeedPrivacyAuthorization !== 'function')
+        return;
+    wx.onNeedPrivacyAuthorization((resolve) => {
+        app.globalData.resolvePrivacyAuthorization = resolve;
+        const popup = app.globalData.privacyPopup;
+        if (popup === null || popup === void 0 ? void 0 : popup.show) {
+            popup.show();
+            return;
+        }
+    });
+}
 App({
     globalData: {
         user: null,
         apiBase: config_1.API_BASE,
+        privacyPopup: null,
+        resolvePrivacyAuthorization: null,
     },
     onLaunch() {
+        initPrivacyAuthorization(this);
         restoreSession();
     },
 });

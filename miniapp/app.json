@@ -84,5 +84,8 @@
     "wx93ce83f128d17374"
   ],
   "sitemapLocation": "sitemap.json",
-  "style": "v2"
+  "style": "v2",
+  "usingComponents": {
+    "privacy-popup": "/components/PrivacyPopup/privacy-popup"
+  }
 }

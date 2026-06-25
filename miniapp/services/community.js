@@ -42,9 +42,9 @@ const MOCK_POSTS = [
     },
 ];
 function normalizePostDetail(raw) {
-    var _a, _b;
+    var _a, _b, _c;
     const imageUrls = (0, mediaUrl_1.normalizeUrlList)((_a = raw.imageUrls) !== null && _a !== void 0 ? _a : raw.images);
-    const followingAuthor = (_b = raw.followingAuthor) !== null && _b !== void 0 ? _b : raw.authorFollowed !== null && raw.authorFollowed !== void 0 ? raw.authorFollowed : false;
+    const followingAuthor = (_c = (_b = raw.followingAuthor) !== null && _b !== void 0 ? _b : raw.authorFollowed) !== null && _c !== void 0 ? _c : false;
     return {
         ...raw,
         images: imageUrls,
@@ -63,19 +63,19 @@ function flattenComments(list) {
     return flat;
 }
 function normalizeComment(raw) {
-    var _a, _b, _c, _d, _e, _f;
+    var _a, _b, _c, _d, _e, _f, _g;
     const imageUrls = (0, mediaUrl_1.normalizeUrlList)((_a = raw.imageUrls) !== null && _a !== void 0 ? _a : raw.images);
-    const repliesRaw = (_c = raw.replies) !== null && _c !== void 0 ? _c : [];
-    const author = (_d = raw.author) !== null && _d !== void 0 ? _d : { id: '', nickName: '用户', avatarUrl: '' };
+    const repliesRaw = (_b = raw.replies) !== null && _b !== void 0 ? _b : [];
+    const author = (_c = raw.author) !== null && _c !== void 0 ? _c : { id: '', nickName: '用户', avatarUrl: '' };
     return {
-        id: String((_e = raw.id) !== null && _e !== void 0 ? _e : ''),
+        id: String((_d = raw.id) !== null && _d !== void 0 ? _d : ''),
         author,
-        content: String((_f = raw.content) !== null && _f !== void 0 ? _f : ''),
+        content: String((_e = raw.content) !== null && _e !== void 0 ? _e : ''),
         images: imageUrls,
         imageUrls,
-        likeCount: Number(raw.likeCount !== null && raw.likeCount !== void 0 ? raw.likeCount : 0),
+        likeCount: Number((_f = raw.likeCount) !== null && _f !== void 0 ? _f : 0),
         liked: raw.liked,
-        createdAt: String(raw.createdAt !== null && raw.createdAt !== void 0 ? raw.createdAt : ''),
+        createdAt: String((_g = raw.createdAt) !== null && _g !== void 0 ? _g : ''),
         parentId: raw.parentId ? String(raw.parentId) : undefined,
         replyTo: raw.replyTo,
         replies: repliesRaw.map(normalizeComment),
@@ -150,13 +150,13 @@ function createPost(data) {
     }).then(normalizePostDetail);
 }
 async function listComments(postId, query = { page: 1, pageSize: 100 }) {
-    var _a;
+    var _a, _b, _c;
     try {
         const res = await (0, http_1.request)(`/posts/${postId}/comments`, {
-            data: { page: (_a = query.page) !== null && _a !== void 0 ? _a : 1, pageSize: query.pageSize !== null && query.pageSize !== void 0 ? query.pageSize : 100 },
+            data: { page: (_a = query.page) !== null && _a !== void 0 ? _a : 1, pageSize: (_b = query.pageSize) !== null && _b !== void 0 ? _b : 100 },
             auth: false,
         });
-        const normalized = (res.list !== null && res.list !== void 0 ? res.list : []).map(normalizeComment);
+        const normalized = ((_c = res.list) !== null && _c !== void 0 ? _c : []).map(normalizeComment);
         return {
             ...res,
             list: flattenComments(normalized),

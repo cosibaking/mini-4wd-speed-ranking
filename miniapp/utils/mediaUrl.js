@@ -17,7 +17,9 @@ function resolveMediaUrl(url) {
     }
     return url.replace(/^https?:\/\/[^/]+/, originMatch[1]);
 }
+/** 兼容 imageUrls / images 字段，以及误传的单字符串或对象数组 */
 function normalizeUrlList(value) {
+    var _a;
     if (!value)
         return [];
     if (typeof value === 'string') {
@@ -35,7 +37,8 @@ function normalizeUrlList(value) {
             continue;
         }
         if (item && typeof item === 'object') {
-            const raw = item.imageUrl ?? item.url;
+            const record = item;
+            const raw = (_a = record.imageUrl) !== null && _a !== void 0 ? _a : record.url;
             if (typeof raw === 'string' && raw.trim()) {
                 urls.push(resolveMediaUrl(raw.trim()));
             }
@@ -44,6 +47,7 @@ function normalizeUrlList(value) {
     return urls;
 }
 const displayUrlCache = new Map();
+/** 真机调试时 network image 可能无法直接渲染，下载到本地临时路径后展示 */
 function resolveDisplayImageUrl(url, force = false) {
     if (!url || (!url.startsWith('http://') && !url.startsWith('https://'))) {
         return Promise.resolve(url);
@@ -82,9 +86,10 @@ function resolveMediaUrlsInData(data) {
         return data.map((item) => resolveMediaUrlsInData(item));
     }
     if (data && typeof data === 'object') {
+        const input = data;
         const output = {};
-        for (const key of Object.keys(data)) {
-            output[key] = resolveMediaUrlsInData(data[key]);
+        for (const key of Object.keys(input)) {
+            output[key] = resolveMediaUrlsInData(input[key]);
         }
         return output;
     }

@@ -7,6 +7,15 @@ import { buildPublicUrl, getMockUploadUrl, isMockMediaEnabled } from './path.bui
 
 const PRESIGN_TTL_SECONDS = 900;
 
+function logCos(message: string): void {
+  console.log(`[cos] ${message}`);
+}
+
+function logCosError(message: string, error: unknown): void {
+  const detail = error instanceof Error ? error.message : String(error);
+  console.error(`[cos] ${message} error=${detail}`);
+}
+
 interface PresignParams {
   objectKey: string;
   fileSize: number;
@@ -26,9 +35,13 @@ function buildExpireAt(): string {
 
 class MockCosClient {
   presignedPut(params: PresignParams): PresignResult {
+    const expireAt = buildExpireAt();
+    logCos(
+      `presignedPut mock objectKey=${params.objectKey} fileSize=${params.fileSize} contentType=${params.contentType} expireAt=${expireAt}`,
+    );
     return {
       uploadUrl: getMockUploadUrl(params.objectKey, params.mediaHost),
-      expireAt: buildExpireAt(),
+      expireAt,
       headers: {
         'Content-Type': params.contentType,
       },
@@ -38,8 +51,10 @@ class MockCosClient {
   async headObject(objectKey: string): Promise<{ size: number }> {
     const info = await mockObjectExists(objectKey);
     if (!info || info.size <= 0) {
+      logCos(`headObject mock not found objectKey=${objectKey}`);
       throw new Error('object not found');
     }
+    logCos(`headObject mock ok objectKey=${objectKey} size=${info.size}`);
     return info;
   }
 }
@@ -74,13 +89,15 @@ class RealCosClient {
         SecretKey: process.env.COS_SECRET_KEY,
       });
       return this.sdk;
-    } catch {
-      throw new InternalError('COS SDK \u672a\u5b89\u88c5\uff0c\u8bf7\u6dfb\u52a0 cos-nodejs-sdk-v5 \u4f9d\u8d56');
+    } catch (error) {
+      logCosError('sdk load failed', error);
+      throw new InternalError('COS SDK \u672a\u5b89\u88c5\uff0c\u8bf7\u6dfb\u52a0 cos-nodejs-sdk-v5 \u4f9d\u8d96');
     }
   }
 
   presignedPut(params: PresignParams): PresignResult {
     const cos = this.loadSdk()!;
+    const expireAt = buildExpireAt();
     const uploadUrl = cos.getObjectUrl({
       Bucket: this.bucket,
       Region: this.region,
@@ -94,9 +111,13 @@ class RealCosClient {
       },
     });
 
+    logCos(
+      `presignedPut ok bucket=${this.bucket} region=${this.region} objectKey=${params.objectKey} fileSize=${params.fileSize} contentType=${params.contentType} expireAt=${expireAt}`,
+    );
+
     return {
       uploadUrl,
-      expireAt: buildExpireAt(),
+      expireAt,
       headers: {
         'Content-Type': params.contentType,
       },
@@ -115,12 +136,14 @@ class RealCosClient {
         },
         (error, data) => {
           if (error) {
+            logCosError(`headObject failed bucket=${this.bucket} objectKey=${objectKey}`, error);
             reject(error);
             return;
           }
 
           const lengthHeader = data?.headers?.['content-length'];
           const size = lengthHeader ? Number(lengthHeader) : 0;
+          logCos(`headObject ok bucket=${this.bucket} objectKey=${objectKey} size=${size}`);
           resolve({ size });
         },
       );
@@ -135,7 +158,15 @@ function getCosClient(): MockCosClient | RealCosClient {
     return client;
   }
 
-  client = isMockMediaEnabled() ? new MockCosClient() : new RealCosClient();
+  if (isMockMediaEnabled()) {
+    logCos('client initialized mode=mock');
+    client = new MockCosClient();
+  } else {
+    const bucket = process.env.COS_BUCKET ?? '';
+    const region = process.env.COS_REGION ?? '';
+    logCos(`client initialized mode=real bucket=${bucket} region=${region}`);
+    client = new RealCosClient();
+  }
   return client;
 }
 
@@ -156,8 +187,11 @@ export async function createPresignedPut(
 export async function verifyObjectExists(objectKey: string): Promise<boolean> {
   try {
     const result = await getCosClient().headObject(objectKey);
-    return result.size > 0;
+    const exists = result.size > 0;
+    logCos(`verifyObjectExists objectKey=${objectKey} exists=${exists} size=${result.size}`);
+    return exists;
   } catch {
+    logCos(`verifyObjectExists objectKey=${objectKey} exists=false`);
     return false;
   }
 }

@@ -9,7 +9,8 @@ function updateCommentLike(comments, id, liked, likeCount) {
 }
 async function withCommentDisplayImages(comments, force = false) {
     return Promise.all(comments.map(async (comment) => {
-        const imageUrls = (0, mediaUrl_1.normalizeUrlList)(comment.imageUrls ?? comment.images);
+        var _a;
+        const imageUrls = (0, mediaUrl_1.normalizeUrlList)((_a = comment.imageUrls) !== null && _a !== void 0 ? _a : comment.images);
         return {
             ...comment,
             imageUrls,
@@ -27,6 +28,7 @@ Page({
         replyTo: null,
         loading: true,
     },
+    /** chooseMedia 返回后微信可能清理临时文件，需在 onShow 中刷新评论图片 */
     _pendingCommentImageRefresh: false,
     onLoad(options) {
         if (options.id)
@@ -163,20 +165,22 @@ Page({
         this.setData({ commentText: e.detail.value });
     },
     onPreviewPostImage(e) {
+        var _a;
         const url = e.currentTarget.dataset.url;
-        const urls = this.data.post?.images || [];
+        const urls = ((_a = this.data.post) === null || _a === void 0 ? void 0 : _a.images) || [];
         if (!url || urls.length === 0)
             return;
         wx.previewImage({ urls, current: url });
     },
     onPreviewCommentImage(e) {
+        var _a, _b;
         const index = e.currentTarget.dataset.index;
         const commentId = e.currentTarget.dataset.commentId;
         const comment = this.data.comments.find((item) => item.id === commentId);
-        const urls = (0, mediaUrl_1.normalizeUrlList)(comment?.imageUrls ?? comment?.images);
+        const urls = (0, mediaUrl_1.normalizeUrlList)((_a = comment === null || comment === void 0 ? void 0 : comment.imageUrls) !== null && _a !== void 0 ? _a : comment === null || comment === void 0 ? void 0 : comment.images);
         if (!urls.length)
             return;
-        wx.previewImage({ urls, current: urls[index] ?? urls[0] });
+        wx.previewImage({ urls, current: (_b = urls[index]) !== null && _b !== void 0 ? _b : urls[0] });
     },
     async onAddCommentImage() {
         if (this.data.commentImages.length >= 9) {
@@ -214,7 +218,7 @@ Page({
             await (0, community_1.createComment)(post.id, {
                 content: text,
                 images,
-                parentId: replyTo?.id,
+                parentId: replyTo === null || replyTo === void 0 ? void 0 : replyTo.id,
             });
             const commentRes = await (0, community_1.listComments)(post.id);
             const comments = await withCommentDisplayImages(commentRes.list);
@@ -227,7 +231,7 @@ Page({
                 'post.commentCount': post.commentCount + 1,
             });
         }
-        catch (_c) {
+        catch (_a) {
             wx.showToast({ title: '评论失败', icon: 'none' });
         }
     },
@@ -237,8 +241,8 @@ Page({
     onShareAppMessage() {
         const post = this.data.post;
         return {
-            title: post?.title || '社区帖子',
-            path: `/pages/community/post?id=${post?.id}`,
+            title: (post === null || post === void 0 ? void 0 : post.title) || '社区帖子',
+            path: `/pages/community/post?id=${post === null || post === void 0 ? void 0 : post.id}`,
         };
     },
 });
