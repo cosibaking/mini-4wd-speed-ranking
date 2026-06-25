@@ -1,0 +1,29 @@
+# 复制为 deploy.config 后填写（deploy.config 已在 .gitignore，不会提交）
+# cp scripts/deploy.config.example scripts/deploy.config
+
+# --- SSH ---
+DEPLOY_HOST=82.156.54.232
+DEPLOY_USER=ubuntu
+# 密码登录（需本机安装 sshpass）；若已配置 SSH 密钥可留空
+DEPLOY_PASSWORD=
+
+# --- 远程路径 ---
+DEPLOY_REMOTE_DIR=/home/ubuntu/mini-4wd-speed-ranking
+
+# --- 服务 ---
+DEPLOY_PORT=3001
+DEPLOY_PM2_NAME=mini4wd-api
+DEPLOY_HEALTH_PATH=/api/v1/health
+
+# --- Git ---
+# 部署前拉取的分支；留空则跳过 git pull
+GIT_BRANCH=main
+# 有未提交改动时是否继续（true/false）
+ALLOW_DIRTY=false
+
+# --- 验证 ---
+# 部署后是否探测公网 health（需安全组放行 DEPLOY_PORT）
+VERIFY_PUBLIC=true
+# health 检查重试次数与间隔（秒）
+HEALTH_RETRIES=10
+HEALTH_INTERVAL=2
