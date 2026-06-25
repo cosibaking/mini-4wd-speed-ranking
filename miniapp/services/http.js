@@ -7,9 +7,7 @@ exports.setToken = setToken;
 exports.clearToken = clearToken;
 const config_1 = require("../config");
 const mediaUrl_1 = require("../utils/mediaUrl");
-const loginCode_1 = require("./loginCode");
 const TOKEN_KEY = 'token';
-let loginPromise = null;
 function getToken() {
     return wx.getStorageSync(TOKEN_KEY) || '';
 }
@@ -19,20 +17,8 @@ function setToken(token) {
 function clearToken() {
     wx.removeStorageSync(TOKEN_KEY);
 }
-async function doLogin() {
-    const code = await (0, loginCode_1.resolveLoginCode)();
-    const res = await rawRequest({
-        url: `${config_1.API_BASE}/auth/login`,
-        method: 'POST',
-        data: { code },
-        skipAuth: true,
-        skipAutoLogin: true,
-    });
-    setToken(res.token);
-    return res.token;
-}
 function rawRequest(options) {
-    const { url, method = 'GET', data, skipAuth, skipAutoLogin } = options;
+    const { url, method = 'GET', data, skipAuth } = options;
     const header = {
         'Content-Type': 'application/json',
     };
@@ -53,8 +39,8 @@ function rawRequest(options) {
                     resolve((0, mediaUrl_1.resolveMediaUrlsInData)(body.data));
                     return;
                 }
-                if (body.code === 40100 && !skipAutoLogin) {
-                    reject({ needLogin: true, message: body.message });
+                if (body.code === 40100) {
+                    reject(new Error(body.message || '请先登录'));
                     return;
                 }
                 reject(new Error(body.message || '请求失败'));
@@ -66,29 +52,12 @@ function rawRequest(options) {
 async function request(path, options = {}) {
     const { method = 'GET', data, auth = true } = options;
     const url = path.startsWith('http') ? path : `${config_1.API_BASE}${path}`;
-    const exec = () => rawRequest({
+    return rawRequest({
         url,
         method,
         data,
         skipAuth: !auth,
     });
-    try {
-        return await exec();
-    }
-    catch (err) {
-        const e = err;
-        if (e.needLogin) {
-            clearToken();
-            if (!loginPromise) {
-                loginPromise = doLogin().finally(() => {
-                    loginPromise = null;
-                });
-            }
-            await loginPromise;
-            return exec();
-        }
-        throw err;
-    }
 }
 function getApiBase() {
     return config_1.API_BASE;

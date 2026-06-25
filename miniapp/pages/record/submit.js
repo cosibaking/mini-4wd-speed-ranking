@@ -4,6 +4,7 @@ const auth_1 = require("../../services/auth");
 const record_1 = require("../../services/record");
 const track_1 = require("../../services/track");
 const media_1 = require("../../services/media");
+const nav_1 = require("../../utils/nav");
 Page({
     data: {
         trackId: '',
@@ -19,7 +20,9 @@ Page({
         submitting: false,
     },
     async onLoad(options) {
-        await (0, auth_1.ensureLogin)();
+        if (!(await (0, nav_1.guardLogin)('请先登录后再上传成绩')))
+            return;
+        await (0, auth_1.requireLogin)();
         if (options.trackId) {
             const track = await (0, track_1.getTrack)(options.trackId);
             this.setData({ trackId: options.trackId, track });

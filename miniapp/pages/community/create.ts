@@ -1,6 +1,7 @@
-import { ensureLogin } from '../../services/auth';
+import { requireLogin } from '../../services/auth';
 import { createPost, listBoards } from '../../services/community';
 import { chooseAndUploadImage } from '../../services/media';
+import { guardLogin } from '../../utils/nav';
 import type { Board } from '../../types';
 
 Page({
@@ -14,7 +15,8 @@ Page({
   },
 
   async onLoad() {
-    await ensureLogin();
+    if (!(await guardLogin('请先登录后再发帖'))) return;
+    await requireLogin();
     const boards = await listBoards();
     this.setData({ boards, boardId: boards[0]?.id || '' });
   },

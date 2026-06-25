@@ -11,6 +11,7 @@ Page({
         loggedIn: false,
         unreadCount: 0,
         adminHasPending: false,
+        loggingIn: false,
     },
     onShow() {
         this.loadUser();
@@ -61,42 +62,38 @@ Page({
                 return;
             }
             const cached = (0, session_1.getSessionUser)();
-            if (cached) {
-                this.setData({ user: cached, loggedIn: true });
-                await Promise.all([this.refreshUnreadBadge(), this.refreshAdminBadge()]);
-                return;
-            }
-            const loggedInUser = await (0, auth_1.ensureLogin)();
-            (0, session_1.setSessionUser)(loggedInUser);
-            this.setData({ user: loggedInUser, loggedIn: true });
-            await Promise.all([this.refreshUnreadBadge(), this.refreshAdminBadge()]);
+            this.setData({
+                user: cached,
+                loggedIn: false,
+                unreadCount: 0,
+                adminHasPending: false,
+            });
+            wx.removeTabBarBadge({ index: TAB_INDEX_USER });
         }
         catch (_a) {
             this.setData({ user: null, loggedIn: false, unreadCount: 0, adminHasPending: false });
             wx.removeTabBarBadge({ index: TAB_INDEX_USER });
         }
     },
+    /** 用户主动点击：微信原生 wx.login 登录 */
     async onLogin() {
+        if (this.data.loggingIn)
+            return;
+        this.setData({ loggingIn: true });
+        wx.showLoading({ title: '登录中...', mask: true });
         try {
-            const user = await (0, auth_1.ensureLogin)();
-            try {
-                const profile = await (0, auth_1.getUserProfile)();
-                const updated = await (0, auth_1.updateMe)({
-                    nickName: profile.nickName,
-                    avatarUrl: profile.avatarUrl,
-                });
-                (0, session_1.setSessionUser)(updated);
-                this.setData({ user: updated, loggedIn: true });
-                await Promise.all([this.refreshUnreadBadge(), this.refreshAdminBadge()]);
-            }
-            catch (_a) {
-                (0, session_1.setSessionUser)(user);
-                this.setData({ user, loggedIn: true });
-                await Promise.all([this.refreshUnreadBadge(), this.refreshAdminBadge()]);
-            }
+            const result = await (0, auth_1.login)();
+            this.setData({ user: result.user, loggedIn: true });
+            await Promise.all([this.refreshUnreadBadge(), this.refreshAdminBadge()]);
+            wx.showToast({ title: '登录成功', icon: 'success' });
         }
-        catch (_b) {
-            wx.showToast({ title: '登录失败', icon: 'none' });
+        catch (err) {
+            const msg = err instanceof Error ? err.message : '登录失败';
+            wx.showToast({ title: msg, icon: 'none' });
+        }
+        finally {
+            this.setData({ loggingIn: false });
+            wx.hideLoading();
         }
     },
     onEditProfile() {
@@ -107,9 +104,11 @@ Page({
     onNav(e) {
         const url = e.currentTarget.dataset.url;
         if (!this.data.loggedIn) {
-            this.onLogin().then(() => {
-                if (this.data.loggedIn)
-                    wx.navigateTo({ url });
+            wx.showModal({
+                title: '需要登录',
+                content: '请先登录后再继续',
+                confirmText: '去登录',
+                cancelText: '取消',
             });
             return;
         }

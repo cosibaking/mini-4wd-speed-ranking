@@ -1,4 +1,4 @@
-import { ensureLogin, getMe } from '../../services/auth';
+import { getMe, requireLogin } from '../../services/auth';
 import { getClientConfig, isRealNameMockEnabled } from '../../services/clientConfig';
 import {
   MOCK_REALNAME_CODE,
@@ -8,6 +8,7 @@ import {
   verifyOrganizerRealName,
 } from '../../services/organizer';
 import { setSessionUser } from '../../stores/session';
+import { guardLogin } from '../../utils/nav';
 
 interface ApplyForm {
   realName: string;
@@ -31,7 +32,8 @@ Page({
   },
 
   async onLoad() {
-    const [user, clientConfig] = await Promise.all([ensureLogin(), getClientConfig()]);
+    if (!(await guardLogin('请先登录后再申请'))) return;
+    const [user, clientConfig] = await Promise.all([requireLogin(), getClientConfig()]);
     this.setData({ realNameMock: isRealNameMockEnabled(clientConfig) });
 
     if (user.isOrganizer) {

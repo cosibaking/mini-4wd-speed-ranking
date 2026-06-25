@@ -1,5 +1,6 @@
-import { ensureLogin } from '../../services/auth';
+import { requireLogin } from '../../services/auth';
 import { getMyRecords } from '../../services/record';
+import { guardLogin } from '../../utils/nav';
 import type { RecordBrief, RecordStatus } from '../../types';
 
 const STATUS_LABEL: Record<RecordStatus, string> = {
@@ -16,7 +17,8 @@ Page({
   },
 
   async onLoad() {
-    await ensureLogin();
+    if (!(await guardLogin())) return;
+    await requireLogin();
     this.loadRecords();
   },
 

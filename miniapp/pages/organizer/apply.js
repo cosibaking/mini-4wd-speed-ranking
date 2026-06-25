@@ -4,6 +4,7 @@ const auth_1 = require("../../services/auth");
 const clientConfig_1 = require("../../services/clientConfig");
 const organizer_1 = require("../../services/organizer");
 const session_1 = require("../../stores/session");
+const nav_1 = require("../../utils/nav");
 Page({
     data: {
         form: {
@@ -19,7 +20,9 @@ Page({
     },
     async onLoad() {
         var _a;
-        const [user, clientConfig] = await Promise.all([(0, auth_1.ensureLogin)(), (0, clientConfig_1.getClientConfig)()]);
+        if (!(await (0, nav_1.guardLogin)('请先登录后再申请')))
+            return;
+        const [user, clientConfig] = await Promise.all([(0, auth_1.requireLogin)(), (0, clientConfig_1.getClientConfig)()]);
         this.setData({ realNameMock: (0, clientConfig_1.isRealNameMockEnabled)(clientConfig) });
         if (user.isOrganizer) {
             wx.redirectTo({ url: '/pages/user/tracks' });

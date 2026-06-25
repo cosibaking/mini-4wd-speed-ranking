@@ -1,4 +1,4 @@
-import { ensureLogin } from '../../../services/auth';
+import { requireLogin } from '../../../services/auth';
 import { getAdminDashboard } from '../../../services/admin';
 import type { AdminDashboard } from '../../../services/admin';
 
@@ -8,7 +8,7 @@ Page({
   },
 
   async onLoad() {
-    const user = await ensureLogin();
+    const user = await requireLogin();
     if (!user.isAdmin) {
       wx.showToast({ title: '无管理权限', icon: 'none' });
       setTimeout(() => wx.navigateBack(), 800);

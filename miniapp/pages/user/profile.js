@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const auth_1 = require("../../services/auth");
 const media_1 = require("../../services/media");
 const session_1 = require("../../stores/session");
+const nav_1 = require("../../utils/nav");
 Page({
     data: {
         user: null,
@@ -17,7 +18,9 @@ Page({
         showNicknameInput: true,
     },
     async onLoad() {
-        const user = await (0, auth_1.ensureLogin)();
+        if (!(await (0, nav_1.guardLogin)()))
+            return;
+        const user = await (0, auth_1.requireLogin)();
         this.setData({
             user,
             nickName: user.nickName || '',

@@ -61,7 +61,16 @@ export class WechatClient {
     }
 
     if (payload.errcode || !payload.openid) {
-      throw new ValidationError('登录凭证无效，请重试');
+      const errcode = payload.errcode ?? 'unknown';
+      const errmsg = payload.errmsg ?? 'unknown';
+      console.error(`[wechat] code2Session failed errcode=${errcode} errmsg=${errmsg}`);
+      if (errcode === 40013 || errcode === 40125) {
+        throw new ValidationError('小程序 AppID 或 AppSecret 配置错误，请检查服务端 WECHAT_APP_ID / WECHAT_APP_SECRET');
+      }
+      if (errcode === 40029 || errcode === 40163) {
+        throw new ValidationError('登录凭证已失效，请重新点击登录');
+      }
+      throw new ValidationError('微信登录失败，请重试');
     }
 
     return {

@@ -38,7 +38,7 @@ Page({
         if (!user)
             return;
         try {
-            await (0, auth_1.ensureLogin)();
+            await (0, auth_1.requireLogin)();
         }
         catch (_a) {
             wx.showToast({ title: '请先登录', icon: 'none' });

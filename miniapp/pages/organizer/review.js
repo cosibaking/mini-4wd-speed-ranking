@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const auth_1 = require("../../services/auth");
 const record_1 = require("../../services/record");
 const lapTime_1 = require("../../utils/lapTime");
+const nav_1 = require("../../utils/nav");
 Page({
     data: {
         record: null,
@@ -16,7 +17,9 @@ Page({
         readonly: false,
     },
     async onLoad(options) {
-        await (0, auth_1.ensureLogin)();
+        if (!(await (0, nav_1.guardLogin)()))
+            return;
+        await (0, auth_1.requireLogin)();
         if (options.id) {
             await this.loadRecord(options.id);
         }

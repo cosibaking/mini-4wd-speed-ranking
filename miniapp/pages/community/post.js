@@ -84,7 +84,7 @@ Page({
         if (!post)
             return;
         try {
-            await (0, auth_1.ensureLogin)();
+            await (0, auth_1.requireLogin)();
         }
         catch (_a) {
             wx.showToast({ title: '请先登录', icon: 'none' });
@@ -107,7 +107,7 @@ Page({
         if (!post)
             return;
         try {
-            await (0, auth_1.ensureLogin)();
+            await (0, auth_1.requireLogin)();
         }
         catch (_a) {
             wx.showToast({ title: '请先登录', icon: 'none' });
@@ -128,7 +128,7 @@ Page({
         if (!id)
             return;
         try {
-            await (0, auth_1.ensureLogin)();
+            await (0, auth_1.requireLogin)();
         }
         catch (_a) {
             wx.showToast({ title: '请先登录', icon: 'none' });
@@ -214,7 +214,7 @@ Page({
         if ((!text && images.length === 0) || !post)
             return;
         try {
-            await (0, auth_1.ensureLogin)();
+            await (0, auth_1.requireLogin)();
             await (0, community_1.createComment)(post.id, {
                 content: text,
                 images,

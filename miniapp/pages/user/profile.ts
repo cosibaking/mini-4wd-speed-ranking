@@ -1,6 +1,7 @@
-import { ensureLogin, getUserProfile, updateMe } from '../../services/auth';
+import { getUserProfile, requireLogin, updateMe } from '../../services/auth';
 import { chooseAndUploadImage } from '../../services/media';
 import { setSessionUser } from '../../stores/session';
+import { guardLogin } from '../../utils/nav';
 import type { UserProfile } from '../../types';
 
 Page({
@@ -18,7 +19,8 @@ Page({
   },
 
   async onLoad() {
-    const user = await ensureLogin();
+    if (!(await guardLogin())) return;
+    const user = await requireLogin();
     this.setData({
       user,
       nickName: user.nickName || '',

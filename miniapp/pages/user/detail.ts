@@ -1,4 +1,4 @@
-import { ensureLogin, getUser } from '../../services/auth';
+import { getUser, requireLogin } from '../../services/auth';
 import { toggleFollow } from '../../services/community';
 import { getSessionUser } from '../../stores/session';
 import type { PublicUserDetail } from '../../types';
@@ -37,7 +37,7 @@ Page({
     const user = this.data.user;
     if (!user) return;
     try {
-      await ensureLogin();
+      await requireLogin();
     } catch {
       wx.showToast({ title: '请先登录', icon: 'none' });
       return;

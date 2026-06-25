@@ -1,6 +1,7 @@
-import { ensureLogin } from '../../services/auth';
+import { requireLogin } from '../../services/auth';
 import { getTrackPendingCount } from '../../services/record';
 import { getMyTracks } from '../../services/track';
+import { guardLogin } from '../../utils/nav';
 import type { TrackListItem } from '../../types';
 
 interface TrackWithPending extends TrackListItem {
@@ -15,7 +16,8 @@ Page({
   },
 
   async onLoad() {
-    const user = await ensureLogin();
+    if (!(await guardLogin())) return;
+    const user = await requireLogin();
     if (!user.isOrganizer) {
       wx.redirectTo({
         url: user.organizerApplication ? '/pages/organizer/status' : '/pages/organizer/apply',

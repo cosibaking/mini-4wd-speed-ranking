@@ -1,10 +1,11 @@
-import { ensureLogin } from '../../services/auth';
+import { requireLogin } from '../../services/auth';
 import {
   getNotification,
   getUnreadNotificationCount,
   markNotificationRead,
   NOTIFICATION_TYPE_LABEL,
 } from '../../services/notification';
+import { guardLogin } from '../../utils/nav';
 import type { NotificationItem } from '../../types';
 
 const TAB_INDEX_USER = 3;
@@ -34,7 +35,8 @@ Page({
       return;
     }
 
-    await ensureLogin();
+    if (!(await guardLogin())) return;
+    await requireLogin();
     await this.loadMessage(id);
   },
 

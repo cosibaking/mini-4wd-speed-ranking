@@ -5,6 +5,7 @@ const auth_1 = require("../../services/auth");
 const track_1 = require("../../services/track");
 const media_1 = require("../../services/media");
 const session_1 = require("../../stores/session");
+const nav_1 = require("../../utils/nav");
 const geo_1 = require("../../utils/geo");
 Page({
     data: {
@@ -32,7 +33,9 @@ Page({
     },
     async onLoad(options) {
         var _a, _b;
-        const user = await (0, auth_1.ensureLogin)();
+        if (!(await (0, nav_1.guardLogin)()))
+            return;
+        const user = await (0, auth_1.requireLogin)();
         if (!user.isOrganizer) {
             wx.redirectTo({
                 url: user.organizerApplication ? '/pages/organizer/status' : '/pages/organizer/apply',

@@ -1,7 +1,8 @@
-import { ensureLogin } from '../../services/auth';
+import { requireLogin } from '../../services/auth';
 import { submitRecord } from '../../services/record';
 import { getTrack } from '../../services/track';
 import { chooseAndUploadImage, chooseAndUploadVideo } from '../../services/media';
+import { guardLogin } from '../../utils/nav';
 import type { TrackDetail } from '../../types';
 
 Page({
@@ -20,7 +21,8 @@ Page({
   },
 
   async onLoad(options: { trackId?: string }) {
-    await ensureLogin();
+    if (!(await guardLogin('请先登录后再上传成绩'))) return;
+    await requireLogin();
     if (options.trackId) {
       const track = await getTrack(options.trackId);
       this.setData({ trackId: options.trackId, track });

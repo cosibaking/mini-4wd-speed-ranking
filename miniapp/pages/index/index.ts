@@ -1,6 +1,6 @@
 import { getRecentTracks, listTracks } from '../../services/track';
-import { ensureLogin, isLoggedIn, refreshUser } from '../../services/auth';
-import { ensureLoginForTab, navigateWithLogin } from '../../utils/nav';
+import { isLoggedIn, refreshUser, requireLogin } from '../../services/auth';
+import { navigateWithLogin } from '../../utils/nav';
 import { getNavBarLayout } from '../../utils/navBar';
 import { getSessionUser, setSessionUser } from '../../stores/session';
 import type { TrackListItem } from '../../types';
@@ -46,13 +46,12 @@ Page({
     this.setData({ loading: true });
     try {
       let recent: TrackListItem[] = [];
-      try {
-        if (!isLoggedIn()) {
-          await ensureLogin();
+      if (isLoggedIn()) {
+        try {
+          recent = await getRecentTracks();
+        } catch {
+          // 最近访问为空时忽略
         }
-        recent = await getRecentTracks();
-      } catch {
-        // 未登录或最近访问为空时忽略
       }
       if (recent.length === 0) {
         const res = await listTracks({ pageSize: 3 });
@@ -72,7 +71,7 @@ Page({
 
     wx.showLoading({ title: '加载中', mask: true });
     try {
-      const user = await ensureLogin();
+      const user = await requireLogin();
       setSessionUser(user);
 
       if (user.isOrganizer) {
@@ -98,10 +97,5 @@ Page({
 
   onAdminTap() {
     wx.navigateTo({ url: '/admin/pages/index/index' });
-  },
-
-  onTabItemTap(e: { pagePath: string; index: number; text: string }) {
-    if (e.pagePath === 'pages/index/index') return;
-    ensureLoginForTab();
   },
 });

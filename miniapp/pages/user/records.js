@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const auth_1 = require("../../services/auth");
 const record_1 = require("../../services/record");
+const nav_1 = require("../../utils/nav");
 const STATUS_LABEL = {
     pending: '审核中',
     approved: '已认证',
@@ -14,7 +15,9 @@ Page({
         statusLabel: STATUS_LABEL,
     },
     async onLoad() {
-        await (0, auth_1.ensureLogin)();
+        if (!(await (0, nav_1.guardLogin)()))
+            return;
+        await (0, auth_1.requireLogin)();
         this.loadRecords();
     },
     onShow() {

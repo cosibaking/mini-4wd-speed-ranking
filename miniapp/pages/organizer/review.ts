@@ -1,6 +1,7 @@
-import { ensureLogin } from '../../services/auth';
+import { requireLogin } from '../../services/auth';
 import { approveRecord, getRecord, rejectRecord } from '../../services/record';
 import { isValidLapTimeInput } from '../../utils/lapTime';
+import { guardLogin } from '../../utils/nav';
 import type { RecordDetail } from '../../types';
 
 Page({
@@ -17,7 +18,8 @@ Page({
   },
 
   async onLoad(options: { id?: string }) {
-    await ensureLogin();
+    if (!(await guardLogin())) return;
+    await requireLogin();
     if (options.id) {
       await this.loadRecord(options.id);
     }

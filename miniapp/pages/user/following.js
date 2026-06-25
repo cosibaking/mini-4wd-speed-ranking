@@ -2,13 +2,16 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const auth_1 = require("../../services/auth");
 const community_1 = require("../../services/community");
+const nav_1 = require("../../utils/nav");
 Page({
     data: {
         users: [],
         loading: true,
     },
     async onLoad() {
-        await (0, auth_1.ensureLogin)();
+        if (!(await (0, nav_1.guardLogin)()))
+            return;
+        await (0, auth_1.requireLogin)();
         this.loadFollowing();
     },
     async loadFollowing() {

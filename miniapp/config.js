@@ -11,11 +11,8 @@ exports.TENCENT_MAP_SUBKEY = exports.MOCK_REALNAME_VERIFY = exports.MOCK_LOGIN_C
 exports.API_BASE = 'http://192.168.10.27:3000/api/v1';
 /** 开发模式：API 失败时回退 mock 数据 */
 exports.USE_MOCK_FALLBACK = true;
-/**
- * 开发模式：固定微信登录 code，对应 openId = mock_{code}。
- * 须与服务端 MOCK_LOGIN_CODE、ADMIN_OPEN_IDS 配合；留空则走真实 wx.login。
- */
-exports.MOCK_LOGIN_CODE = 'admin';
+/** @deprecated 已废弃，登录始终走 wx.login */
+exports.MOCK_LOGIN_CODE = '';
 /**
  * 开发模式：跳过微信城市服务实名校验跳转，本地模拟校验流程。
  * 须与服务端 WECHAT_REALNAME_MOCK 保持一致；也可通过 GET /config/client 动态同步。

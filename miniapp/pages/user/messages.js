@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const auth_1 = require("../../services/auth");
 const notification_1 = require("../../services/notification");
+const nav_1 = require("../../utils/nav");
 const TAB_INDEX_USER = 3;
 function formatTime(iso) {
     const date = new Date(iso);
@@ -31,7 +32,9 @@ Page({
         markingAll: false,
     },
     async onLoad() {
-        await (0, auth_1.ensureLogin)();
+        if (!(await (0, nav_1.guardLogin)()))
+            return;
+        await (0, auth_1.requireLogin)();
         this.loadMessages(true);
     },
     async onShow() {

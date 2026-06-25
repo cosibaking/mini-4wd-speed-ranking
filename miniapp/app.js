@@ -2,15 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const auth_1 = require("./services/auth");
 const config_1 = require("./config");
-const session_1 = require("./stores/session");
 async function restoreSession() {
-    try {
-        const user = await (0, auth_1.getMe)();
-        (0, session_1.setSessionUser)(user);
-    }
-    catch (_a) {
-        (0, session_1.setSessionUser)(null);
-    }
+    await (0, auth_1.refreshUser)();
 }
 function initPrivacyAuthorization(app) {
     if (typeof wx.onNeedPrivacyAuthorization !== 'function')

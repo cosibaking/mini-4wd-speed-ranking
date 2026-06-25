@@ -1,6 +1,7 @@
-import { ensureLogin, getMe } from '../../services/auth';
+import { getMe, requireLogin } from '../../services/auth';
 import { getMyOrganizerApplication } from '../../services/organizer';
 import { setSessionUser } from '../../stores/session';
+import { guardLogin } from '../../utils/nav';
 import type { OrganizerApplicationBrief } from '../../types';
 
 const STATUS_MAP: Record<string, string> = {
@@ -17,7 +18,8 @@ Page({
   },
 
   async onLoad() {
-    await ensureLogin();
+    if (!(await guardLogin())) return;
+    await requireLogin();
     await this.loadStatus();
   },
 

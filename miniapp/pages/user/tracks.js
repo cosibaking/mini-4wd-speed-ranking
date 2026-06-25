@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const auth_1 = require("../../services/auth");
 const record_1 = require("../../services/record");
 const track_1 = require("../../services/track");
+const nav_1 = require("../../utils/nav");
 Page({
     data: {
         tracks: [],
@@ -10,7 +11,9 @@ Page({
         isOrganizer: false,
     },
     async onLoad() {
-        const user = await (0, auth_1.ensureLogin)();
+        if (!(await (0, nav_1.guardLogin)()))
+            return;
+        const user = await (0, auth_1.requireLogin)();
         if (!user.isOrganizer) {
             wx.redirectTo({
                 url: user.organizerApplication ? '/pages/organizer/status' : '/pages/organizer/apply',

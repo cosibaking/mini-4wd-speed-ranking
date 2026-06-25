@@ -1,4 +1,4 @@
-import { ensureLogin, isLoggedIn } from '../services/auth';
+import { isLoggedIn, requireLogin } from '../services/auth';
 import { setSessionUser } from '../stores/session';
 
 type NavMode = 'navigate' | 'switchTab';
@@ -8,7 +8,7 @@ function showLoginConfirm(): Promise<boolean> {
     wx.showModal({
       title: '需要登录',
       content: '继续操作需使用当前微信账号登录',
-      confirmText: '微信登录',
+      confirmText: '去登录',
       cancelText: '取消',
       success: (res) => resolve(res.confirm),
       fail: () => resolve(false),
@@ -28,30 +28,59 @@ function switchTabAsync(url: string): Promise<void> {
   });
 }
 
-function showLoginError(message?: string): void {
+/** 未登录时引导用户前往「我的」页登录 */
+export function redirectToLogin(message?: string): void {
   wx.showModal({
-    title: '登录失败',
-    content: message || '微信登录未成功，请检查网络后重试',
-    showCancel: false,
+    title: '需要登录',
+    content: message ?? '请先登录后再继续',
+    confirmText: '去登录',
+    cancelText: '返回',
+    success: (res) => {
+      if (res.confirm) {
+        wx.switchTab({ url: '/pages/user/index' });
+        return;
+      }
+      const pages = getCurrentPages();
+      if (pages.length > 1) {
+        wx.navigateBack();
+      } else {
+        wx.switchTab({ url: '/pages/index/index' });
+      }
+    },
   });
 }
 
-/** 确保已登录后再跳转页面 */
+/** 页面进入前检查登录，未登录则弹窗引导 */
+export async function guardLogin(message?: string): Promise<boolean> {
+  if (isLoggedIn()) {
+    try {
+      await requireLogin();
+      return true;
+    } catch {
+      // token 失效，继续走引导登录
+    }
+  }
+  redirectToLogin(message);
+  return false;
+}
+
+/** 已登录时跳转页面；未登录则引导至「我的」页登录 */
 export async function navigateWithLogin(
   url: string,
   options?: { mode?: NavMode }
 ): Promise<boolean> {
   const mode = options?.mode ?? 'navigate';
-  const needLogin = !isLoggedIn();
 
-  if (needLogin) {
+  if (!isLoggedIn()) {
     const confirmed = await showLoginConfirm();
     if (!confirmed) return false;
+    wx.switchTab({ url: '/pages/user/index' });
+    return false;
   }
 
-  wx.showLoading({ title: '登录中...', mask: true });
+  wx.showLoading({ title: '加载中...', mask: true });
   try {
-    const user = await ensureLogin();
+    const user = await requireLogin();
     setSessionUser(user);
     if (mode === 'switchTab') {
       await switchTabAsync(url);
@@ -61,7 +90,7 @@ export async function navigateWithLogin(
     return true;
   } catch (err) {
     const message = err instanceof Error ? err.message : undefined;
-    showLoginError(message);
+    redirectToLogin(message);
     return false;
   } finally {
     wx.hideLoading();
@@ -74,24 +103,4 @@ export const PENDING_LEADERBOARD_TRACK_KEY = 'pending_leaderboard_track_id';
 export function switchToLeaderboard(trackId: string): void {
   wx.setStorageSync(PENDING_LEADERBOARD_TRACK_KEY, trackId);
   wx.switchTab({ url: '/pages/leaderboard/index' });
-}
-
-/** 底部 Tab 切换时确保已登录（Tab 会先切换，登录失败则返回首页） */
-export function ensureLoginForTab(): void {
-  if (!isLoggedIn()) {
-    wx.showLoading({ title: '登录中...', mask: true });
-  }
-
-  ensureLogin()
-    .then((user) => {
-      setSessionUser(user);
-    })
-    .catch((err) => {
-      wx.switchTab({ url: '/pages/index/index' });
-      const message = err instanceof Error ? err.message : undefined;
-      showLoginError(message);
-    })
-    .finally(() => {
-      wx.hideLoading();
-    });
 }

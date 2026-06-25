@@ -1,5 +1,6 @@
-import { ensureLogin } from '../../services/auth';
+import { requireLogin } from '../../services/auth';
 import { getTrackRecords } from '../../services/record';
+import { guardLogin } from '../../utils/nav';
 import type { RecordBrief, RecordStatus } from '../../types';
 
 const STATUS_LABEL: Record<RecordStatus, string> = {
@@ -21,7 +22,8 @@ Page({
   },
 
   async onLoad(options: { trackId?: string; trackName?: string }) {
-    await ensureLogin();
+    if (!(await guardLogin())) return;
+    await requireLogin();
     if (!options.trackId) {
       wx.showToast({ title: '参数错误', icon: 'none' });
       return;

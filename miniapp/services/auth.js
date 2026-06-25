@@ -1,19 +1,35 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.ensureLogin = exports.NeedLoginError = void 0;
 exports.login = login;
 exports.getMe = getMe;
 exports.getUser = getUser;
 exports.updateMe = updateMe;
 exports.isLoggedIn = isLoggedIn;
-exports.ensureLogin = ensureLogin;
+exports.requireLogin = requireLogin;
 exports.refreshUser = refreshUser;
 exports.getUserProfile = getUserProfile;
 const http_1 = require("./http");
 const loginCode_1 = require("./loginCode");
 const session_1 = require("../stores/session");
+class NeedLoginError extends Error {
+    constructor(message = '请先登录') {
+        super(message);
+        this.name = 'NeedLoginError';
+    }
+}
+exports.NeedLoginError = NeedLoginError;
+/** 用户主动触发：微信原生 wx.login 登录 */
 async function login() {
     const code = await (0, loginCode_1.resolveLoginCode)();
-    return (0, http_1.request)('/auth/login', { method: 'POST', data: { code }, auth: false });
+    const result = await (0, http_1.request)('/auth/login', {
+        method: 'POST',
+        data: { code },
+        auth: false,
+    });
+    (0, http_1.setToken)(result.token);
+    (0, session_1.setSessionUser)(result.user);
+    return result;
 }
 function getMe() {
     return (0, http_1.request)('/users/me');
@@ -27,20 +43,17 @@ function updateMe(data) {
 function isLoggedIn() {
     return !!(0, http_1.getToken)();
 }
-/** 确保已登录，未登录则触发微信登录 */
-async function ensureLogin() {
-    try {
-        const user = await getMe();
-        (0, session_1.setSessionUser)(user);
-        return user;
+/** 要求已登录，未登录则抛出 NeedLoginError */
+async function requireLogin() {
+    if (!isLoggedIn()) {
+        throw new NeedLoginError();
     }
-    catch (_a) {
-        const result = await login();
-        (0, http_1.setToken)(result.token);
-        (0, session_1.setSessionUser)(result.user);
-        return result.user;
-    }
+    const user = await getMe();
+    (0, session_1.setSessionUser)(user);
+    return user;
 }
+/** @deprecated 请使用 requireLogin() 或 login() */
+exports.ensureLogin = requireLogin;
 /** 刷新当前用户资料（如管理权限变更后） */
 async function refreshUser() {
     if (!isLoggedIn()) {
@@ -53,11 +66,12 @@ async function refreshUser() {
         return user;
     }
     catch (_a) {
+        (0, http_1.clearToken)();
         (0, session_1.setSessionUser)(null);
         return null;
     }
 }
-/** 获取用户昵称头像（首次授权） */
+/** 获取用户昵称头像（需用户主动授权） */
 function getUserProfile() {
     return new Promise((resolve, reject) => {
         wx.getUserProfile({

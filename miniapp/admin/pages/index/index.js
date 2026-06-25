@@ -7,7 +7,7 @@ Page({
         stats: null,
     },
     async onLoad() {
-        const user = await (0, auth_1.ensureLogin)();
+        const user = await (0, auth_1.requireLogin)();
         if (!user.isAdmin) {
             wx.showToast({ title: '无管理权限', icon: 'none' });
             setTimeout(() => wx.navigateBack(), 800);

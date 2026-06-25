@@ -1,4 +1,4 @@
-import { ensureLogin } from '../../services/auth';
+import { requireLogin } from '../../services/auth';
 import {
   createComment,
   getPost,
@@ -118,7 +118,7 @@ Page({
     const post = this.data.post;
     if (!post) return;
     try {
-      await ensureLogin();
+      await requireLogin();
     } catch {
       wx.showToast({ title: '请先登录', icon: 'none' });
       return;
@@ -139,7 +139,7 @@ Page({
     const post = this.data.post;
     if (!post) return;
     try {
-      await ensureLogin();
+      await requireLogin();
     } catch {
       wx.showToast({ title: '请先登录', icon: 'none' });
       return;
@@ -158,7 +158,7 @@ Page({
     const id = e.currentTarget.dataset.id as string;
     if (!id) return;
     try {
-      await ensureLogin();
+      await requireLogin();
     } catch {
       wx.showToast({ title: '请先登录', icon: 'none' });
       return;
@@ -244,7 +244,7 @@ Page({
     const replyTo = this.data.replyTo;
     if ((!text && images.length === 0) || !post) return;
     try {
-      await ensureLogin();
+      await requireLogin();
       await createComment(post.id, {
         content: text,
         images,

@@ -40,14 +40,13 @@ Page({
         this.setData({ loading: true });
         try {
             let recent = [];
-            try {
-                if (!(0, auth_1.isLoggedIn)()) {
-                    await (0, auth_1.ensureLogin)();
+            if ((0, auth_1.isLoggedIn)()) {
+                try {
+                    recent = await (0, track_1.getRecentTracks)();
                 }
-                recent = await (0, track_1.getRecentTracks)();
-            }
-            catch (_a) {
-                // 未登录或最近访问为空时忽略
+                catch (_a) {
+                    // 最近访问为空时忽略
+                }
             }
             if (recent.length === 0) {
                 const res = await (0, track_1.listTracks)({ pageSize: 3 });
@@ -67,7 +66,7 @@ Page({
         }
         wx.showLoading({ title: '加载中', mask: true });
         try {
-            const user = await (0, auth_1.ensureLogin)();
+            const user = await (0, auth_1.requireLogin)();
             (0, session_1.setSessionUser)(user);
             if (user.isOrganizer) {
                 wx.navigateTo({ url: '/pages/user/tracks' });
@@ -92,10 +91,5 @@ Page({
     },
     onAdminTap() {
         wx.navigateTo({ url: '/admin/pages/index/index' });
-    },
-    onTabItemTap(e) {
-        if (e.pagePath === 'pages/index/index')
-            return;
-        (0, nav_1.ensureLoginForTab)();
     },
 });

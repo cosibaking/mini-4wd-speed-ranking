@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const auth_1 = require("../../services/auth");
 const organizer_1 = require("../../services/organizer");
 const session_1 = require("../../stores/session");
+const nav_1 = require("../../utils/nav");
 const STATUS_MAP = {
     pending: '待审核',
     approved: '已通过',
@@ -15,7 +16,9 @@ Page({
         isOrganizer: false,
     },
     async onLoad() {
-        await (0, auth_1.ensureLogin)();
+        if (!(await (0, nav_1.guardLogin)()))
+            return;
+        await (0, auth_1.requireLogin)();
         await this.loadStatus();
     },
     async onShow() {

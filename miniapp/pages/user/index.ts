@@ -1,7 +1,7 @@
 import { getAdminDashboard } from '../../services/admin';
-import { ensureLogin, getUserProfile, refreshUser, updateMe } from '../../services/auth';
+import { login, refreshUser } from '../../services/auth';
 import { getUnreadNotificationCount } from '../../services/notification';
-import { getSessionUser, setSessionUser } from '../../stores/session';
+import { getSessionUser } from '../../stores/session';
 import type { UserProfile } from '../../types';
 
 const TAB_INDEX_USER = 3;
@@ -12,6 +12,7 @@ Page({
     loggedIn: false,
     unreadCount: 0,
     adminHasPending: false,
+    loggingIn: false,
   },
 
   onShow() {
@@ -63,40 +64,35 @@ Page({
         return;
       }
       const cached = getSessionUser();
-      if (cached) {
-        this.setData({ user: cached, loggedIn: true });
-        await Promise.all([this.refreshUnreadBadge(), this.refreshAdminBadge()]);
-        return;
-      }
-      const loggedInUser = await ensureLogin();
-      setSessionUser(loggedInUser);
-      this.setData({ user: loggedInUser, loggedIn: true });
-      await Promise.all([this.refreshUnreadBadge(), this.refreshAdminBadge()]);
+      this.setData({
+        user: cached,
+        loggedIn: false,
+        unreadCount: 0,
+        adminHasPending: false,
+      });
+      wx.removeTabBarBadge({ index: TAB_INDEX_USER });
     } catch {
       this.setData({ user: null, loggedIn: false, unreadCount: 0, adminHasPending: false });
       wx.removeTabBarBadge({ index: TAB_INDEX_USER });
     }
   },
 
+  /** 用户主动点击：微信原生 wx.login 登录 */
   async onLogin() {
+    if (this.data.loggingIn) return;
+    this.setData({ loggingIn: true });
+    wx.showLoading({ title: '登录中...', mask: true });
     try {
-      const user = await ensureLogin();
-      try {
-        const profile = await getUserProfile();
-        const updated = await updateMe({
-          nickName: profile.nickName,
-          avatarUrl: profile.avatarUrl,
-        });
-        setSessionUser(updated);
-        this.setData({ user: updated, loggedIn: true });
-        await Promise.all([this.refreshUnreadBadge(), this.refreshAdminBadge()]);
-      } catch {
-        setSessionUser(user);
-        this.setData({ user, loggedIn: true });
-        await Promise.all([this.refreshUnreadBadge(), this.refreshAdminBadge()]);
-      }
-    } catch {
-      wx.showToast({ title: '登录失败', icon: 'none' });
+      const result = await login();
+      this.setData({ user: result.user, loggedIn: true });
+      await Promise.all([this.refreshUnreadBadge(), this.refreshAdminBadge()]);
+      wx.showToast({ title: '登录成功', icon: 'success' });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : '登录失败';
+      wx.showToast({ title: msg, icon: 'none' });
+    } finally {
+      this.setData({ loggingIn: false });
+      wx.hideLoading();
     }
   },
 
@@ -108,8 +104,11 @@ Page({
   onNav(e: WechatMiniprogram.TouchEvent) {
     const url = e.currentTarget.dataset.url as string;
     if (!this.data.loggedIn) {
-      this.onLogin().then(() => {
-        if (this.data.loggedIn) wx.navigateTo({ url });
+      wx.showModal({
+        title: '需要登录',
+        content: '请先登录后再继续',
+        confirmText: '去登录',
+        cancelText: '取消',
       });
       return;
     }

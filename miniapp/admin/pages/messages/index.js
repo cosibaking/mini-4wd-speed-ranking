@@ -10,7 +10,10 @@ function filterUsersByKeyword(users, keyword) {
 }
 function buildDisplayUsers(users, keyword, selectedUserIds) {
     const selectedSet = new Set(selectedUserIds);
-    return filterUsersByKeyword(users, keyword).map((user) => (Object.assign(Object.assign({}, user), { selected: selectedSet.has(user.id) })));
+    return filterUsersByKeyword(users, keyword).map((user) => ({
+        ...user,
+        selected: selectedSet.has(user.id),
+    }));
 }
 Page({
     data: {
@@ -27,7 +30,7 @@ Page({
         submitting: false,
     },
     async onLoad(options) {
-        const user = await (0, auth_1.ensureLogin)();
+        const user = await (0, auth_1.requireLogin)();
         if (!user.isAdmin) {
             wx.showToast({ title: '无管理权限', icon: 'none' });
             setTimeout(() => wx.navigateBack(), 800);

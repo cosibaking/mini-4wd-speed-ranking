@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const auth_1 = require("../../services/auth");
 const record_1 = require("../../services/record");
+const nav_1 = require("../../utils/nav");
 const STATUS_LABEL = {
     pending: '审核中',
     approved: '已通过',
@@ -17,7 +18,9 @@ Page({
         statusLabel: STATUS_LABEL,
     },
     async onLoad(options) {
-        await (0, auth_1.ensureLogin)();
+        if (!(await (0, nav_1.guardLogin)()))
+            return;
+        await (0, auth_1.requireLogin)();
         if (!options.trackId) {
             wx.showToast({ title: '参数错误', icon: 'none' });
             return;

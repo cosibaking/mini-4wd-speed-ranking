@@ -1,9 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PENDING_LEADERBOARD_TRACK_KEY = void 0;
+exports.redirectToLogin = redirectToLogin;
+exports.guardLogin = guardLogin;
 exports.navigateWithLogin = navigateWithLogin;
 exports.switchToLeaderboard = switchToLeaderboard;
-exports.ensureLoginForTab = ensureLoginForTab;
 const auth_1 = require("../services/auth");
 const session_1 = require("../stores/session");
 function showLoginConfirm() {
@@ -11,7 +12,7 @@ function showLoginConfirm() {
         wx.showModal({
             title: '需要登录',
             content: '继续操作需使用当前微信账号登录',
-            confirmText: '微信登录',
+            confirmText: '去登录',
             cancelText: '取消',
             success: (res) => resolve(res.confirm),
             fail: () => resolve(false),
@@ -28,26 +29,56 @@ function switchTabAsync(url) {
         wx.switchTab({ url, success: () => resolve(), fail: reject });
     });
 }
-function showLoginError(message) {
+/** 未登录时引导用户前往「我的」页登录 */
+function redirectToLogin(message) {
     wx.showModal({
-        title: '登录失败',
-        content: message || '微信登录未成功，请检查网络后重试',
-        showCancel: false,
+        title: '需要登录',
+        content: message !== null && message !== void 0 ? message : '请先登录后再继续',
+        confirmText: '去登录',
+        cancelText: '返回',
+        success: (res) => {
+            if (res.confirm) {
+                wx.switchTab({ url: '/pages/user/index' });
+                return;
+            }
+            const pages = getCurrentPages();
+            if (pages.length > 1) {
+                wx.navigateBack();
+            }
+            else {
+                wx.switchTab({ url: '/pages/index/index' });
+            }
+        },
     });
 }
-/** 确保已登录后再跳转页面 */
+/** 页面进入前检查登录，未登录则弹窗引导 */
+async function guardLogin(message) {
+    if ((0, auth_1.isLoggedIn)()) {
+        try {
+            await (0, auth_1.requireLogin)();
+            return true;
+        }
+        catch (_a) {
+            // token 失效，继续走引导登录
+        }
+    }
+    redirectToLogin(message);
+    return false;
+}
+/** 已登录时跳转页面；未登录则引导至「我的」页登录 */
 async function navigateWithLogin(url, options) {
     var _a;
     const mode = (_a = options === null || options === void 0 ? void 0 : options.mode) !== null && _a !== void 0 ? _a : 'navigate';
-    const needLogin = !(0, auth_1.isLoggedIn)();
-    if (needLogin) {
+    if (!(0, auth_1.isLoggedIn)()) {
         const confirmed = await showLoginConfirm();
         if (!confirmed)
             return false;
+        wx.switchTab({ url: '/pages/user/index' });
+        return false;
     }
-    wx.showLoading({ title: '登录中...', mask: true });
+    wx.showLoading({ title: '加载中...', mask: true });
     try {
-        const user = await (0, auth_1.ensureLogin)();
+        const user = await (0, auth_1.requireLogin)();
         (0, session_1.setSessionUser)(user);
         if (mode === 'switchTab') {
             await switchTabAsync(url);
@@ -59,7 +90,7 @@ async function navigateWithLogin(url, options) {
     }
     catch (err) {
         const message = err instanceof Error ? err.message : undefined;
-        showLoginError(message);
+        redirectToLogin(message);
         return false;
     }
     finally {
@@ -71,22 +102,4 @@ exports.PENDING_LEADERBOARD_TRACK_KEY = 'pending_leaderboard_track_id';
 function switchToLeaderboard(trackId) {
     wx.setStorageSync(exports.PENDING_LEADERBOARD_TRACK_KEY, trackId);
     wx.switchTab({ url: '/pages/leaderboard/index' });
-}
-/** 底部 Tab 切换时确保已登录（Tab 会先切换，登录失败则返回首页） */
-function ensureLoginForTab() {
-    if (!(0, auth_1.isLoggedIn)()) {
-        wx.showLoading({ title: '登录中...', mask: true });
-    }
-    (0, auth_1.ensureLogin)()
-        .then((user) => {
-        (0, session_1.setSessionUser)(user);
-    })
-        .catch((err) => {
-        wx.switchTab({ url: '/pages/index/index' });
-        const message = err instanceof Error ? err.message : undefined;
-        showLoginError(message);
-    })
-        .finally(() => {
-        wx.hideLoading();
-    });
 }

@@ -1,8 +1,9 @@
 import { TENCENT_MAP_SUBKEY } from '../../config';
-import { ensureLogin } from '../../services/auth';
+import { requireLogin } from '../../services/auth';
 import { createTrack, getTrack, updateTrack } from '../../services/track';
 import { chooseAndUploadImage, chooseAndUploadVideo, UploadCancelledError } from '../../services/media';
 import { getSessionUser } from '../../stores/session';
+import { guardLogin } from '../../utils/nav';
 import {
   buildTrackMarker,
   DEFAULT_MAP_CENTER,
@@ -48,7 +49,8 @@ Page({
   },
 
   async onLoad(options: { id?: string }) {
-    const user = await ensureLogin();
+    if (!(await guardLogin())) return;
+    const user = await requireLogin();
     if (!user.isOrganizer) {
       wx.redirectTo({
         url: user.organizerApplication ? '/pages/organizer/status' : '/pages/organizer/apply',

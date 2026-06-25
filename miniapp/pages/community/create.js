@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const auth_1 = require("../../services/auth");
 const community_1 = require("../../services/community");
 const media_1 = require("../../services/media");
+const nav_1 = require("../../utils/nav");
 Page({
     data: {
         boards: [],
@@ -14,7 +15,9 @@ Page({
     },
     async onLoad() {
         var _a;
-        await (0, auth_1.ensureLogin)();
+        if (!(await (0, nav_1.guardLogin)('请先登录后再发帖')))
+            return;
+        await (0, auth_1.requireLogin)();
         const boards = await (0, community_1.listBoards)();
         this.setData({ boards, boardId: ((_a = boards[0]) === null || _a === void 0 ? void 0 : _a.id) || '' });
     },

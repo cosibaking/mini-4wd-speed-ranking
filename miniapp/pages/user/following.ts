@@ -1,5 +1,6 @@
-import { ensureLogin } from '../../services/auth';
+import { requireLogin } from '../../services/auth';
 import { listFollowing } from '../../services/community';
+import { guardLogin } from '../../utils/nav';
 import type { PublicUser } from '../../types';
 
 Page({
@@ -9,7 +10,8 @@ Page({
   },
 
   async onLoad() {
-    await ensureLogin();
+    if (!(await guardLogin())) return;
+    await requireLogin();
     this.loadFollowing();
   },
 

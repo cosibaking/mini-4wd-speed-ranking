@@ -1,17 +1,11 @@
-import { getMe } from './services/auth';
+import { refreshUser } from './services/auth';
 import { API_BASE } from './config';
-import { setSessionUser } from './stores/session';
 import type { IAppOption } from './stores/session';
 
 type PrivacyResolve = (result: { buttonId?: string; event: 'agree' | 'disagree' }) => void;
 
 async function restoreSession() {
-  try {
-    const user = await getMe();
-    setSessionUser(user);
-  } catch {
-    setSessionUser(null);
-  }
+  await refreshUser();
 }
 
 function initPrivacyAuthorization(app: IAppOption & { globalData: IAppOption['globalData'] }) {
