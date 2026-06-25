@@ -43,4 +43,8 @@ Page({
   onUsers() {
     wx.navigateTo({ url: '/admin/pages/users/index' });
   },
+
+  onMessages() {
+    wx.navigateTo({ url: '/admin/pages/messages/index' });
+  },
 });

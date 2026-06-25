@@ -1,0 +1,15 @@
+<nav-bar title="消息详情" />
+<view class="container message-detail" wx:if="{{message}}">
+  <view class="card message-detail__card">
+    <view class="message-detail__header">
+      <text class="message-detail__type">{{message.typeLabel}}</text>
+      <text class="message-detail__time text-secondary">{{message.timeLabel}}</text>
+    </view>
+    <text class="message-detail__title">{{message.title}}</text>
+    <text class="message-detail__content">{{message.content}}</text>
+  </view>
+</view>
+
+<view class="container message-detail" wx:elif="{{loading}}">
+  <view class="loading-tip">加载中…</view>
+</view>

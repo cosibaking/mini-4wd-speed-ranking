@@ -1,0 +1,82 @@
+<nav-bar title="发送站内信" background="#1a1208" />
+<view class="container admin-messages">
+  <view class="tab-bar card">
+    <view
+      class="tab-bar__item {{mode === 'single' ? 'tab-bar__item--active' : ''}}"
+      data-mode="single"
+      bindtap="onModeChange"
+    >单发</view>
+    <view
+      class="tab-bar__item {{mode === 'broadcast' ? 'tab-bar__item--active' : ''}}"
+      data-mode="broadcast"
+      bindtap="onModeChange"
+    >群发</view>
+  </view>
+
+  <view class="card" wx:if="{{mode === 'single'}}">
+    <view class="form-item">
+      <view class="form-label-row">
+        <text class="form-label">接收用户 *</text>
+        <text class="form-label-hint" wx:if="{{selectedCount > 0}}">已选 {{selectedCount}} 人</text>
+      </view>
+      <view class="user-search">
+        <input
+          class="user-search__input"
+          placeholder="搜索用户名"
+          value="{{userSearch}}"
+          bindinput="onUserSearchInput"
+        />
+        <text class="user-search__clear" wx:if="{{userSearch}}" bindtap="onClearUserSearch">清除</text>
+      </view>
+      <view class="user-list">
+        <view
+          class="user-list__item {{item.selected ? 'user-list__item--selected' : ''}}"
+          wx:for="{{displayUsers}}"
+          wx:key="id"
+          data-id="{{item.id}}"
+          bindtap="onToggleUser"
+        >
+          <view class="user-list__check {{item.selected ? 'user-list__check--checked' : ''}}">
+            <text wx:if="{{item.selected}}" class="user-list__check-icon">✓</text>
+          </view>
+          <image class="user-list__avatar" src="{{item.avatarUrl || '/assets/default-avatar.png'}}" mode="aspectFill" />
+          <text class="user-list__name">{{item.nickName || '微信用户'}}</text>
+        </view>
+        <empty-state wx:if="{{!loadingUsers && displayUsers.length === 0}}" title="{{userSearch ? '未找到匹配用户' : '暂无用户'}}" />
+      </view>
+    </view>
+  </view>
+
+  <view class="card broadcast-tip" wx:if="{{mode === 'broadcast'}}">
+    <text class="broadcast-tip__text">将发送给全部 {{userCount}} 位用户，请谨慎确认内容。</text>
+  </view>
+
+  <view class="card">
+    <view class="form-item">
+      <text class="form-label">标题 *</text>
+      <input
+        class="form-input"
+        placeholder="不超过 100 字"
+        value="{{title}}"
+        bindinput="onTitleInput"
+        maxlength="100"
+      />
+    </view>
+    <view class="form-item">
+      <text class="form-label">内容 *</text>
+      <textarea
+        class="form-textarea"
+        placeholder="不超过 500 字"
+        value="{{content}}"
+        bindinput="onContentInput"
+        maxlength="500"
+        auto-height
+      />
+      <text class="form-counter text-secondary">{{content.length}}/500</text>
+    </view>
+  </view>
+
+  <button class="btn-primary send-btn" bindtap="onSubmit" loading="{{submitting}}" disabled="{{submitting}}">
+    {{mode === 'broadcast' ? '群发站内信' : '发送站内信'}}
+  </button>
+</view>

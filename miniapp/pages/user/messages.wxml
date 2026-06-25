@@ -18,8 +18,8 @@
       <text class="message-item__type">{{item.typeLabel}}</text>
       <text class="message-item__time text-secondary">{{item.timeLabel}}</text>
     </view>
-    <text class="message-item__title">{{item.title}}</text>
-    <text class="message-item__content text-secondary">{{item.content}}</text>
+    <view class="message-item__title">{{item.title}}</view>
+    <view class="message-item__content text-secondary">{{item.content}}</view>
     <view class="message-item__dot" wx:if="{{!item.isRead}}"></view>
   </view>
 

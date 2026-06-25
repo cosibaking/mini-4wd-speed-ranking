@@ -151,6 +151,11 @@ export class UserRepository {
     return Number(row?.count ?? 0);
   }
 
+  async listAllIds(): Promise<string[]> {
+    const rows = await query<RowDataPacket & { id: string }>('SELECT id FROM users', []);
+    return rows.map((row) => row.id);
+  }
+
   async listForAdmin(skip: number, pageSize: number) {
     const rows = await query<UserRow>(
       `SELECT id, open_id, nick_name, avatar_url, is_organizer_certified, admin_role, created_at

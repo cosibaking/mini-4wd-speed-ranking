@@ -66,6 +66,45 @@ export class NotificationRepository {
     return id;
   }
 
+  async createMany(
+    items: Array<{
+      userId: string;
+      type: NotificationType;
+      title: string;
+      content: string;
+      payload?: NotificationPayload;
+    }>,
+  ): Promise<number> {
+    if (items.length === 0) {
+      return 0;
+    }
+
+    const batchSize = 200;
+    let inserted = 0;
+
+    for (let offset = 0; offset < items.length; offset += batchSize) {
+      const chunk = items.slice(offset, offset + batchSize);
+      const placeholders = chunk.map(() => '(?, ?, ?, ?, ?, ?, 0, NOW(3))').join(', ');
+      const params = chunk.flatMap((item) => [
+        randomUUID(),
+        item.userId,
+        item.type,
+        item.title,
+        item.content,
+        item.payload ? JSON.stringify(item.payload) : null,
+      ]);
+
+      await execute(
+        `INSERT INTO notifications (id, user_id, type, title, content, payload, is_read, created_at)
+         VALUES ${placeholders}`,
+        params,
+      );
+      inserted += chunk.length;
+    }
+
+    return inserted;
+  }
+
   async listByUser(userId: string, queryParams: NotificationListQuery) {
     const skip = (queryParams.page - 1) * queryParams.pageSize;
     const unreadFilter = queryParams.unreadOnly ? 'AND is_read = 0' : '';

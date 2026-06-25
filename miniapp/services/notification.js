@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.NOTIFICATION_TYPE_LABEL = void 0;
 exports.getNotifications = getNotifications;
+exports.getNotification = getNotification;
 exports.getUnreadNotificationCount = getUnreadNotificationCount;
 exports.markNotificationRead = markNotificationRead;
 exports.markAllNotificationsRead = markAllNotificationsRead;
@@ -20,6 +21,9 @@ function getNotifications(query = {}) {
             .join('&')}`
         : '';
     return (0, http_1.request)(`/notifications${qs}`);
+}
+function getNotification(id) {
+    return (0, http_1.request)(`/notifications/${id}`);
 }
 function getUnreadNotificationCount() {
     return (0, http_1.request)('/notifications/unread-count');

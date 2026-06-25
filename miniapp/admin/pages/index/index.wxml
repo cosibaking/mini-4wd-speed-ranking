@@ -32,5 +32,10 @@
       <text class="admin-menu__desc">授予或撤销主理人认证</text>
       <text class="admin-menu__chevron">›</text>
     </view>
+    <view class="admin-menu__item" bindtap="onMessages">
+      <text class="admin-menu__title">发送站内信</text>
+      <text class="admin-menu__desc">单发或群发给用户</text>
+      <text class="admin-menu__chevron">›</text>
+    </view>
   </view>
 </view>

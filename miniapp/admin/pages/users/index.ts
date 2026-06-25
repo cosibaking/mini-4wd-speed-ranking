@@ -7,9 +7,20 @@ import {
 } from '../../../services/admin';
 import type { AdminUserItem } from '../../../services/admin';
 
+function filterUsers(list: AdminUserItem[], keyword: string): AdminUserItem[] {
+  const q = keyword.trim().toLowerCase();
+  if (!q) return list;
+  return list.filter((user) => {
+    const name = (user.nickName || '微信用户').toLowerCase();
+    return name.includes(q);
+  });
+}
+
 Page({
   data: {
+    allList: [] as AdminUserItem[],
     list: [] as AdminUserItem[],
+    keyword: '',
     loading: true,
   },
 
@@ -17,14 +28,41 @@ Page({
     this.loadList();
   },
 
+  onSendMessage(e: WechatMiniprogram.TouchEvent) {
+    const { id, name, avatar } = e.currentTarget.dataset as {
+      id: string;
+      name?: string;
+      avatar?: string;
+    };
+    const query = [
+      `userId=${encodeURIComponent(id)}`,
+      `nickName=${encodeURIComponent(name || '微信用户')}`,
+      `avatarUrl=${encodeURIComponent(avatar || '')}`,
+    ].join('&');
+    wx.navigateTo({ url: `/admin/pages/messages/index?${query}` });
+  },
+
   async loadList() {
     try {
       const res = await listAdminUsers({ pageSize: 100 });
-      this.setData({ list: res.list, loading: false });
+      const allList = res.list;
+      this.setData({
+        allList,
+        list: filterUsers(allList, this.data.keyword),
+        loading: false,
+      });
     } catch {
       this.setData({ loading: false });
       wx.showToast({ title: '加载失败', icon: 'none' });
     }
+  },
+
+  onSearchInput(e: WechatMiniprogram.Input) {
+    const keyword = e.detail.value;
+    this.setData({
+      keyword,
+      list: filterUsers(this.data.allList, keyword),
+    });
   },
 
   onGrant(e: WechatMiniprogram.TouchEvent) {

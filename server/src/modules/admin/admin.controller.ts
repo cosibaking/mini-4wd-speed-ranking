@@ -4,6 +4,8 @@ import { UnauthorizedError } from '../../shared/errors.js';
 import { parsePagination } from '../../shared/pagination.js';
 import { success } from '../../shared/response.js';
 import { adminService } from './admin.service.js';
+import { validateSendAdminNotification } from './dto/send-notification.validator.js';
+import { notificationService } from '../notification/notification.service.js';
 import { organizerService } from '../organizer/organizer.service.js';
 import { userRepository } from '../auth/user.repository.js';
 import type { OrganizerApplicationStatus } from '../../shared/types.js';
@@ -112,5 +114,12 @@ export async function revokeAdmin(ctx: HttpContext): Promise<void> {
   await assertAdmin(ctx);
   const { userId } = ctx.params as { userId: string };
   const result = await adminService.revokeAdmin(userId);
+  ctx.body = success(result);
+}
+
+export async function sendNotification(ctx: HttpContext): Promise<void> {
+  await assertAdmin(ctx);
+  const input = validateSendAdminNotification(ctx.request.body);
+  const result = await notificationService.sendAdminMessage(input);
   ctx.body = success(result);
 }

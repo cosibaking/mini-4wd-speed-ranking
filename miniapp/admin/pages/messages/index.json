@@ -1,0 +1,9 @@
+{
+  "navigationStyle": "custom",
+  "navigationBarTitleText": "发送站内信",
+  "navigationBarBackgroundColor": "#1a1208",
+  "usingComponents": {
+    "nav-bar": "/components/NavBar/nav-bar",
+    "empty-state": "/components/EmptyState/empty-state"
+  }
+}

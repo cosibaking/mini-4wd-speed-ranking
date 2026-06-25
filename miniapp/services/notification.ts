@@ -18,6 +18,10 @@ export function getNotifications(
   return request<PaginationResult<NotificationItem>>(`/notifications${qs}`);
 }
 
+export function getNotification(id: string): Promise<NotificationItem> {
+  return request<NotificationItem>(`/notifications/${id}`);
+}
+
 export function getUnreadNotificationCount(): Promise<{ count: number }> {
   return request<{ count: number }>('/notifications/unread-count');
 }

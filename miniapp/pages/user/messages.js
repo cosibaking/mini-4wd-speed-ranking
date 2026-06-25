@@ -98,5 +98,8 @@ Page({
         if (linkPath) {
             wx.navigateTo({ url: linkPath });
         }
+        else {
+            wx.navigateTo({ url: `/pages/user/message-detail?id=${id}` });
+        }
     },
 });

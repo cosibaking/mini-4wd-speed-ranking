@@ -14,6 +14,9 @@
 .message-item {
   position: relative;
   padding-right: 48rpx;
+  height: 240rpx;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .message-item--unread {
@@ -29,6 +32,7 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 12rpx;
+  flex-shrink: 0;
 }
 
 .message-item__type {
@@ -41,14 +45,26 @@
 }
 
 .message-item__title {
-  display: block;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-all;
   font-size: 30rpx;
   font-weight: 600;
+  line-height: 1.4;
   margin-bottom: 8rpx;
 }
 
 .message-item__content {
-  display: block;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-all;
+  font-size: 26rpx;
   line-height: 1.6;
 }
 

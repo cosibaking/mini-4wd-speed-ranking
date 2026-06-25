@@ -111,3 +111,20 @@ export function grantAdmin(userId: string): Promise<{ success: boolean }> {
 export function revokeAdmin(userId: string): Promise<{ success: boolean }> {
   return request(`/admin/users/${userId}/revoke-admin`, { method: 'POST' });
 }
+
+export interface SendAdminNotificationResult {
+  sent: number;
+  mode: 'single' | 'broadcast';
+}
+
+export function sendAdminNotification(params: {
+  title: string;
+  content: string;
+  userId?: string;
+  userIds?: string[];
+}): Promise<SendAdminNotificationResult> {
+  return request('/admin/notifications/send', {
+    method: 'POST',
+    data: params,
+  });
+}

@@ -11,6 +11,7 @@ exports.grantOrganizer = grantOrganizer;
 exports.revokeOrganizer = revokeOrganizer;
 exports.grantAdmin = grantAdmin;
 exports.revokeAdmin = revokeAdmin;
+exports.sendAdminNotification = sendAdminNotification;
 const http_1 = require("./http");
 function getAdminMe() {
     return (0, http_1.request)('/admin/me');
@@ -50,4 +51,10 @@ function grantAdmin(userId) {
 }
 function revokeAdmin(userId) {
     return (0, http_1.request)(`/admin/users/${userId}/revoke-admin`, { method: 'POST' });
+}
+function sendAdminNotification(params) {
+    return (0, http_1.request)('/admin/notifications/send', {
+        method: 'POST',
+        data: params,
+    });
 }

@@ -19,6 +19,7 @@
     "pages/user/records",
     "pages/user/following",
     "pages/user/messages",
+    "pages/user/message-detail",
     "pages/organizer/apply",
     "pages/organizer/status",
     "pages/organizer/records",
@@ -31,7 +32,8 @@
         "pages/index/index",
         "pages/applications/index",
         "pages/tracks/index",
-        "pages/users/index"
+        "pages/users/index",
+        "pages/messages/index"
       ]
     }
   ],

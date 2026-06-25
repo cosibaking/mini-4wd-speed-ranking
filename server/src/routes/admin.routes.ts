@@ -43,5 +43,10 @@ router.post(
   authMiddleware({ required: true }),
   adminController.revokeAdmin,
 );
+router.post(
+  '/admin/notifications/send',
+  authMiddleware({ required: true }),
+  adminController.sendNotification,
+);
 
 export default router;

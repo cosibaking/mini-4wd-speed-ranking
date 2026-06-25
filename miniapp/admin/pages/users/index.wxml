@@ -1,5 +1,15 @@
 <nav-bar title="用户管理" />
 <view class="container">
+  <view class="search-bar">
+    <text class="search-bar__icon">🔍</text>
+    <input
+      class="search-bar__input"
+      placeholder="搜索用户昵称"
+      value="{{keyword}}"
+      bindinput="onSearchInput"
+      confirm-type="search"
+    />
+  </view>
   <view wx:for="{{list}}" wx:key="id" class="card user-item">
     <view class="user-item__head">
       <image class="user-item__avatar" src="{{item.avatarUrl || '/assets/default-avatar.png'}}" mode="aspectFill" />
@@ -10,6 +20,14 @@
       </view>
     </view>
     <view class="user-item__actions">
+      <button
+        class="btn-secondary"
+        size="mini"
+        data-id="{{item.id}}"
+        data-name="{{item.nickName}}"
+        data-avatar="{{item.avatarUrl}}"
+        bindtap="onSendMessage"
+      >发站内信</button>
       <button
         wx:if="{{!item.adminRole}}"
         class="btn-primary"
@@ -40,5 +58,8 @@
       >撤销主理人</button>
     </view>
   </view>
-  <empty-state wx:if="{{!loading && list.length === 0}}" title="暂无用户" />
+  <empty-state
+    wx:if="{{!loading && list.length === 0}}"
+    title="{{keyword ? '未找到匹配用户' : '暂无用户'}}"
+  />
 </view>

@@ -1,5 +1,7 @@
+import { NotFoundError, ValidationError } from '../../shared/errors.js';
 import { buildPaginationResult } from '../../shared/pagination.js';
 import type { PaginationResult } from '../../shared/types.js';
+import { userRepository } from '../auth/user.repository.js';
 import type {
   NotificationItem,
   NotificationListQuery,
@@ -248,6 +250,58 @@ export class NotificationService {
     });
   }
 
+  async sendAdminMessage(params: {
+    title: string;
+    content: string;
+    userId?: string;
+    userIds?: string[];
+  }): Promise<{ sent: number; mode: 'single' | 'broadcast' }> {
+    if (params.userIds && params.userIds.length > 0) {
+      const users = await userRepository.findManyByIds(params.userIds);
+      if (users.length !== params.userIds.length) {
+        throw new NotFoundError('部分用户不存在');
+      }
+      const sent = await notificationRepository.createMany(
+        params.userIds.map((userId) => ({
+          userId,
+          type: 'system' as const,
+          title: params.title,
+          content: params.content,
+        })),
+      );
+      return { sent, mode: 'single' };
+    }
+
+    if (params.userId) {
+      const user = await userRepository.findById(params.userId);
+      if (!user) {
+        throw new NotFoundError('用户不存在');
+      }
+      await this.notifySystem({
+        userId: params.userId,
+        title: params.title,
+        content: params.content,
+      });
+      return { sent: 1, mode: 'single' };
+    }
+
+    const userIds = await userRepository.listAllIds();
+    if (userIds.length === 0) {
+      throw new ValidationError('暂无用户可发送');
+    }
+
+    const sent = await notificationRepository.createMany(
+      userIds.map((userId) => ({
+        userId,
+        type: 'system' as const,
+        title: params.title,
+        content: params.content,
+      })),
+    );
+
+    return { sent, mode: 'broadcast' };
+  }
+
   async list(
     userId: string,
     query: NotificationListQuery,
@@ -260,6 +314,14 @@ export class NotificationService {
   async getUnreadCount(userId: string): Promise<{ count: number }> {
     const count = await notificationRepository.countUnread(userId);
     return { count };
+  }
+
+  async getById(userId: string, notificationId: string): Promise<NotificationItem> {
+    const row = await notificationRepository.findByIdForUser(notificationId, userId);
+    if (!row) {
+      throw notificationNotFoundError();
+    }
+    return toItem(row);
   }
 
   async markRead(userId: string, notificationId: string): Promise<{ success: true }> {

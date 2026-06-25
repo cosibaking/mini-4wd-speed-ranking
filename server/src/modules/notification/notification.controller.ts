@@ -17,6 +17,13 @@ export async function listNotifications(ctx: HttpContext): Promise<void> {
   ctx.body = success(data);
 }
 
+export async function getNotification(ctx: HttpContext): Promise<void> {
+  const userId = ctx.state.auth!.userId;
+  const { id } = ctx.params as { id: string };
+  const data = await notificationService.getById(userId, id);
+  ctx.body = success(data);
+}
+
 export async function getUnreadCount(ctx: HttpContext): Promise<void> {
   const userId = ctx.state.auth!.userId;
   const data = await notificationService.getUnreadCount(userId);
