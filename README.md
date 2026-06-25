@@ -107,9 +107,21 @@ npm run db:seed         # 写入 boards 种子数据
 | Agent 4 | M04 社区 | `server/src/modules/community`, `routes/community.routes.ts` |
 | Agent 5 | M05 媒体 | `server/src/modules/media`, `routes/media.routes.ts` |
 
+## 上线配置
+
+生产环境请使用配置模板并按说明填写：
+
+```bash
+cp server/.env.production.example server/.env   # 服务端
+# 小程序：复制 miniapp/config.production.example.ts → miniapp/config.ts
+```
+
+详细步骤见 [生产配置使用说明](docs/生产配置使用说明.md)。
+
 ## 文档
 
 - [产品设计文档](docs/产品设计文档.md)
+- [生产配置使用说明](docs/生产配置使用说明.md)
 - [架构设计](docs/tech/架构设计.md)
 - [数据库设计](docs/tech/数据库设计.md)
 - [API 接口总览](docs/tech/API接口总览.md)
