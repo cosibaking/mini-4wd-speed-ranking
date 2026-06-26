@@ -8,7 +8,8 @@ exports.TENCENT_MAP_SUBKEY = exports.MOCK_REALNAME_VERIFY = exports.MOCK_LOGIN_C
  * 上线前改为已在微信公众平台配置的 HTTPS 域名。
  */
 // export const API_BASE = 'http://127.0.0.1:3000/api/v1';
-exports.API_BASE = 'http://192.168.10.27:3000/api/v1';
+// export const API_BASE = 'http://192.168.10.27:3000/api/v1';
+exports.API_BASE = 'http://82.156.54.232:3001/api/v1';
 /** 开发模式：API 失败时回退 mock 数据 */
 exports.USE_MOCK_FALLBACK = true;
 /** @deprecated 已废弃，登录始终走 wx.login */
