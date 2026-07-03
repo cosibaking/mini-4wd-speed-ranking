@@ -118,6 +118,7 @@ Page({
   },
 
   onLogout() {
+    // confirmColor 微信真机支持，但类型定义未收录，故做类型扩展
     wx.showModal({
       title: '退出登录',
       content: '确定要退出当前账号吗？',
@@ -130,7 +131,7 @@ Page({
         wx.removeTabBarBadge({ index: TAB_INDEX_USER });
         wx.showToast({ title: '已退出登录', icon: 'none' });
       },
-    });
+    } as Parameters<typeof wx.showModal>[0] & { confirmColor?: string });
   },
 
   onEditProfile() {

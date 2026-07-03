@@ -5,9 +5,9 @@
     <text wx:elif="{{entry.rank === 2}}">🥈</text>
     <text wx:elif="{{entry.rank === 3}}">🥉</text>
   </view>
-  <image class="record-row__avatar" src="{{entry.user.avatarUrl || '/assets/default-avatar.png'}}" mode="aspectFill" />
+  <image class="record-row__avatar" src="{{entry.avatarUrl || '/assets/default-avatar.png'}}" mode="aspectFill" />
   <view class="record-row__info">
-    <text class="record-row__name">{{entry.user.nickName}}</text>
+    <text class="record-row__name">{{entry.nickName || '匿名车手'}}</text>
   </view>
   <text class="record-row__time lap-time">{{entry.lapTimeDisplay}}</text>
   <text class="record-row__arrow">›</text>

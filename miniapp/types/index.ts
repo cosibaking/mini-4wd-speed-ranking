@@ -133,7 +133,9 @@ export interface RecordDetail {
 export interface LeaderboardEntry {
   rank: number;
   recordId: string;
-  user: PublicUser;
+  userId: string;
+  nickName: string;
+  avatarUrl: string;
   lapTimeDisplay: string;
 }
 

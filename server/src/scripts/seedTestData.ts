@@ -56,6 +56,12 @@ function makeNick(seed: number): string {
   return `${pick(ADJS)}${pick(NOUNS)}${seed}`;
 }
 
+/** 生成可加载的头像 URL（DiceBear，https，小程序 image 组件无需配置合法域名） */
+function avatarFor(seed: string): string {
+  const bg = 'ffd5dc,ffdfbf,d1d4f9,c0aede,b6e3f4,ffe0b2';
+  return `https://api.dicebear.com/7.x/adventurer/png?seed=${encodeURIComponent(seed)}&backgroundColor=${bg}`;
+}
+
 const TRACK_SEEDS = [
   { name: '朝阳公园北广场赛道', lat: 39.9321, lng: 116.4547, address: '北京市朝阳区朝阳公园北路' },
   { name: '奥森南园迷你赛道', lat: 40.0089, lng: 116.3974, address: '北京市朝阳区奥林匹克森林公园' },
@@ -201,11 +207,12 @@ async function main(): Promise<void> {
     const id = randomUUID();
     organizerIds.push(id);
     const createdAt = randomPastDate(120);
+    const openId = `${SEED_PREFIX}org-${String(i + 1).padStart(2, '0')}`;
     userRows.push([
       id,
-      `${SEED_PREFIX}org-${String(i + 1).padStart(2, '0')}`,
+      openId,
       `主理人·${makeNick(i + 1)}`,
-      '',
+      avatarFor(openId),
       1,
       createdAt,
       createdAt,
@@ -215,11 +222,12 @@ async function main(): Promise<void> {
     const id = randomUUID();
     driverIds.push(id);
     const createdAt = randomPastDate(120);
+    const openId = `${SEED_PREFIX}drv-${String(i + 1).padStart(3, '0')}`;
     userRows.push([
       id,
-      `${SEED_PREFIX}drv-${String(i + 1).padStart(3, '0')}`,
+      openId,
       makeNick(i + 1),
-      '',
+      avatarFor(openId),
       0,
       createdAt,
       createdAt,
