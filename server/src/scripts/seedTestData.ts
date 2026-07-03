@@ -56,10 +56,20 @@ function makeNick(seed: number): string {
   return `${pick(ADJS)}${pick(NOUNS)}${seed}`;
 }
 
-/** 生成可加载的头像 URL（DiceBear，https，小程序 image 组件无需配置合法域名） */
-function avatarFor(seed: string): string {
+/**
+ * 生成头像 URL。使用固定的小头像池（而非每人唯一 seed），
+ * 让不同用户复用同一批 URL：既有视觉多样性，又能被客户端缓存，
+ * 避免大量唯一请求触发公共头像服务（DiceBear）的 429 限流。
+ */
+const AVATAR_SEEDS = [
+  'Felix', 'Aneka', 'Milo', 'Zoe', 'Max', 'Luna',
+  'Leo', 'Nova', 'Kai', 'Mia', 'Rex', 'Ivy',
+] as const;
+
+function avatarFor(index: number): string {
+  const seed = AVATAR_SEEDS[index % AVATAR_SEEDS.length];
   const bg = 'ffd5dc,ffdfbf,d1d4f9,c0aede,b6e3f4,ffe0b2';
-  return `https://api.dicebear.com/7.x/adventurer/png?seed=${encodeURIComponent(seed)}&backgroundColor=${bg}`;
+  return `https://api.dicebear.com/7.x/adventurer/png?seed=${seed}&backgroundColor=${bg}`;
 }
 
 const TRACK_SEEDS = [
@@ -212,7 +222,7 @@ async function main(): Promise<void> {
       id,
       openId,
       `主理人·${makeNick(i + 1)}`,
-      avatarFor(openId),
+      avatarFor(i),
       1,
       createdAt,
       createdAt,
@@ -227,7 +237,7 @@ async function main(): Promise<void> {
       id,
       openId,
       makeNick(i + 1),
-      avatarFor(openId),
+      avatarFor(i),
       0,
       createdAt,
       createdAt,
