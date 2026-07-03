@@ -1,4 +1,8 @@
 "use strict";
+/**
+ * 中国大陆二代居民身份证（18 位）校验。
+ * 微信无法向小程序提供实名姓名/身份证号，故此处按国标规则做格式与校验码校验。
+ */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.isValidIdCard = isValidIdCard;
 exports.isValidPhone = isValidPhone;
@@ -11,6 +15,7 @@ function isValidIdCard(raw) {
     if (!FORMAT_RE.test(id)) {
         return false;
     }
+    // 出生日期真实性校验
     const year = Number(id.slice(6, 10));
     const month = Number(id.slice(10, 12));
     const day = Number(id.slice(12, 14));
@@ -22,6 +27,7 @@ function isValidIdCard(raw) {
         birth.getTime() > now.getTime()) {
         return false;
     }
+    // 校验码（GB 11643-1999）
     let sum = 0;
     for (let i = 0; i < 17; i += 1) {
         sum += Number(id[i]) * WEIGHTS[i];

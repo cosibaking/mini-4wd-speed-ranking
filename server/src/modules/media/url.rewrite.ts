@@ -7,6 +7,11 @@ export function rewriteMockMediaUrl(url: string, origin: string): string {
   }
 
   const normalizedOrigin = origin.replace(/\/$/, '');
+
+  if (url.startsWith('/mock-media/')) {
+    return `${normalizedOrigin}${url}`;
+  }
+
   return url.replace(/^https?:\/\/[^/]+/, normalizedOrigin);
 }
 

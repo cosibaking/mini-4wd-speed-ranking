@@ -21,6 +21,7 @@ class NeedLoginError extends Error {
     }
 }
 exports.NeedLoginError = NeedLoginError;
+/** 用户主动触发：微信原生 wx.login 登录 */
 async function login() {
     const code = await (0, loginCode_1.resolveLoginCode)();
     const result = await (0, http_1.request)('/auth/login', {
@@ -41,16 +42,19 @@ function getUser(id) {
 function updateMe(data) {
     return (0, http_1.request)('/users/me/update', { method: 'POST', data });
 }
+/** 用小程序 getPhoneNumber 按钮返回的 code 换取微信绑定手机号 */
 function getWechatPhoneNumber(code) {
     return (0, http_1.request)('/auth/phone', { method: 'POST', data: { code } });
 }
 function isLoggedIn() {
     return !!(0, http_1.getToken)();
 }
+/** 退出登录：清除本地 token 与会话 */
 function logout() {
     (0, http_1.clearToken)();
     (0, session_1.setSessionUser)(null);
 }
+/** 要求已登录，未登录则抛出 NeedLoginError */
 async function requireLogin() {
     if (!isLoggedIn()) {
         throw new NeedLoginError();
@@ -59,7 +63,9 @@ async function requireLogin() {
     (0, session_1.setSessionUser)(user);
     return user;
 }
+/** @deprecated 请使用 requireLogin() 或 login() */
 exports.ensureLogin = requireLogin;
+/** 刷新当前用户资料（如管理权限变更后） */
 async function refreshUser() {
     if (!isLoggedIn()) {
         (0, session_1.setSessionUser)(null);
@@ -76,6 +82,7 @@ async function refreshUser() {
         return null;
     }
 }
+/** 获取用户昵称头像（需用户主动授权） */
 function getUserProfile() {
     return new Promise((resolve, reject) => {
         wx.getUserProfile({

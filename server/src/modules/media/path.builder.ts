@@ -32,11 +32,10 @@ function getMockMediaHost(): string {
   return process.env.MOCK_MEDIA_HOST ?? '127.0.0.1';
 }
 
+/** 写入数据库 / 业务字段的媒体地址：COS 为 CDN HTTPS；mock 为相对路径 */
 export function buildPublicUrl(objectKey: string, mediaHost?: string): string {
   if (isMockMediaEnabled()) {
-    const port = config.port;
-    const host = mediaHost ?? getMockMediaHost();
-    return `http://${host}:${port}/mock-media/${objectKey}`;
+    return `/mock-media/${objectKey}`;
   }
 
   const cdnBase = process.env.CDN_BASE_URL ?? '';
@@ -44,14 +43,35 @@ export function buildPublicUrl(objectKey: string, mediaHost?: string): string {
 }
 
 const HTTPS_URL_RE = /^https:\/\/.+/;
-const MOCK_MEDIA_URL_RE = /^https?:\/\/[^/]+\/mock-media\/.+/;
+const MOCK_MEDIA_RELATIVE_RE = /^\/mock-media\/.+/;
+const MOCK_MEDIA_ABSOLUTE_RE = /^https?:\/\/[^/]+\/mock-media\/(.+)$/;
 
-/** 生产/CDN 须 HTTPS；本地 mock 媒体允许 http://…/mock-media/… */
+/** 将 mock 媒体的绝对 HTTP 地址规范为相对路径后再入库 */
+export function normalizeMediaUrlForStorage(url: string): string {
+  const trimmed = url.trim();
+  if (!isMockMediaEnabled()) {
+    return trimmed;
+  }
+
+  const absoluteMatch = trimmed.match(MOCK_MEDIA_ABSOLUTE_RE);
+  if (absoluteMatch) {
+    return `/mock-media/${absoluteMatch[1]}`;
+  }
+
+  return trimmed;
+}
+
+/** 生产/CDN 须 HTTPS；本地 mock 媒体允许 /mock-media/… 或兼容旧的 http://…/mock-media/… */
 export function isValidMediaUrl(url: string): boolean {
   if (HTTPS_URL_RE.test(url)) {
     return true;
   }
-  return isMockMediaEnabled() && MOCK_MEDIA_URL_RE.test(url);
+
+  if (!isMockMediaEnabled()) {
+    return false;
+  }
+
+  return MOCK_MEDIA_RELATIVE_RE.test(url) || MOCK_MEDIA_ABSOLUTE_RE.test(url);
 }
 
 export function isMockMediaEnabled(): boolean {

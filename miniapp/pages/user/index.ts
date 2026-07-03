@@ -1,5 +1,5 @@
 import { getAdminDashboard } from '../../services/admin';
-import { getUserProfile, login, logout, refreshUser, updateMe } from '../../services/auth';
+import { login, logout, refreshUser } from '../../services/auth';
 import { getUnreadNotificationCount } from '../../services/notification';
 import { getSessionUser, setSessionUser } from '../../stores/session';
 import type { UserProfile } from '../../types';
@@ -77,35 +77,16 @@ Page({
     }
   },
 
-  /** 用户主动点击：微信授权 + wx.login 登录 */
+  /** 用户主动点击：wx.login 登录，资料以服务端已保存为准 */
   async onLogin() {
     if (this.data.loggingIn) return;
-
-    // 必须在点击手势中「同步」调起微信授权，await 之后再调用会丢失手势导致弹窗失败
-    let profile: WechatMiniprogram.UserInfo | null = null;
-    try {
-      profile = await getUserProfile();
-    } catch {
-      profile = null;
-    }
 
     this.setData({ loggingIn: true });
     wx.showLoading({ title: '登录中...', mask: true });
     try {
       const result = await login();
-      let user = result.user;
-      if (profile) {
-        try {
-          user = await updateMe({
-            nickName: profile.nickName,
-            avatarUrl: profile.avatarUrl,
-          });
-        } catch {
-          // 保留 login 返回的用户资料
-        }
-      }
-      setSessionUser(user);
-      this.setData({ user, loggedIn: true });
+      setSessionUser(result.user);
+      this.setData({ user: result.user, loggedIn: true });
       await Promise.all([this.refreshUnreadBadge(), this.refreshAdminBadge()]);
       wx.showToast({ title: '登录成功', icon: 'success' });
     } catch (err) {

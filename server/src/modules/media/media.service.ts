@@ -32,6 +32,10 @@ export class MediaService {
     const publicUrl = buildPublicUrl(objectKey, mediaHost);
     const presigned = await createPresignedPut(objectKey, req.fileExt, req.fileSize, mediaHost);
 
+    console.log(
+      `[media] upload credential userId=${userId} purpose=${req.purpose} objectKey=${objectKey} publicUrl=${publicUrl}`,
+    );
+
     await mediaRepository.insertPending({
       objectKey,
       userId,
@@ -73,10 +77,15 @@ export class MediaService {
 
     const exists = await verifyObjectExists(objectKey);
     if (!exists) {
+      console.log(`[media] confirm failed object not in storage objectKey=${objectKey} userId=${userId}`);
       throw cloudFileNotFoundError();
     }
 
     const confirmed = await mediaRepository.confirm(objectKey);
+
+    console.log(
+      `[media] confirm ok userId=${userId} objectKey=${objectKey} publicUrl=${confirmed.publicUrl}`,
+    );
 
     return {
       objectKey: confirmed.objectKey,

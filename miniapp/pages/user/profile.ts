@@ -1,5 +1,5 @@
-import { getUserProfile, requireLogin, updateMe } from '../../services/auth';
-import { chooseAndUploadImage } from '../../services/media';
+import { requireLogin, updateMe } from '../../services/auth';
+import { uploadLocalImage } from '../../services/media';
 import { setSessionUser } from '../../stores/session';
 import { guardLogin } from '../../utils/nav';
 import type { UserProfile } from '../../types';
@@ -29,37 +29,24 @@ Page({
     });
   },
 
-  onEditAvatar() {
-    wx.showModal({
-      title: '修改头像',
-      content: '是否使用微信头像？',
-      confirmText: '使用',
-      cancelText: '自定义',
-      success: (res) => {
-        if (res.confirm) {
-          this.useWeChatAvatar();
-        } else if (res.cancel) {
-          this.chooseCustomAvatar();
-        }
-      },
-    });
-  },
+  async onChooseWeChatAvatar(e: WechatMiniprogram.CustomEvent<{ avatarUrl: string }>) {
+    const tempPath = e.detail.avatarUrl;
+    if (!tempPath) return;
 
-  async useWeChatAvatar() {
-    try {
-      const profile = await getUserProfile();
-      await this.saveProfile({ avatarUrl: profile.avatarUrl });
-    } catch {
-      wx.showToast({ title: '获取微信头像失败', icon: 'none' });
-    }
-  },
+    const previousAvatar = this.data.avatarUrl;
+    this.setData({ avatarUrl: tempPath });
 
-  async chooseCustomAvatar() {
     try {
-      const [url] = await chooseAndUploadImage('post_image', 1);
+      wx.showLoading({ title: '上传中...', mask: true });
+      const url = await uploadLocalImage(tempPath, 'post_image');
       await this.saveProfile({ avatarUrl: url });
-    } catch {
-      // 用户取消选择时不提示
+    } catch (err) {
+      console.error('[profile] avatar upload failed', err);
+      this.setData({ avatarUrl: previousAvatar });
+      const msg = err instanceof Error ? err.message : '头像上传失败';
+      wx.showToast({ title: msg.length > 20 ? '头像上传失败' : msg, icon: 'none' });
+    } finally {
+      wx.hideLoading();
     }
   },
 

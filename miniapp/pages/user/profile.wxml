@@ -1,11 +1,18 @@
 <nav-bar title="修改资料" />
 <view class="container profile-page">
-  <view class="profile-avatar card" bindtap="onEditAvatar">
-    <image
-      class="profile-avatar__img"
-      src="{{avatarUrl || '/assets/default-avatar.png'}}"
-      mode="aspectFill"
-    />
+  <view class="profile-avatar card">
+    <button
+      class="profile-avatar__btn"
+      open-type="chooseAvatar"
+      bindchooseavatar="onChooseWeChatAvatar"
+      hover-class="none"
+    >
+      <image
+        class="profile-avatar__img"
+        src="{{avatarUrl || '/assets/default-avatar.png'}}"
+        mode="aspectFill"
+      />
+    </button>
     <text class="profile-avatar__hint text-secondary">点击修改头像</text>
   </view>
 

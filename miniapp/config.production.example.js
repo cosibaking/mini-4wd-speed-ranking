@@ -2,7 +2,7 @@
 /**
  * 小程序生产环境配置模板
  *
- * 用法：上线前将本文件内容复制到 config.ts，并执行 npm run compile:miniapp
+ * 用法：上线前将本文件内容复制到 config.ts，并执行 npm run compile
  * 或在构建脚本中按环境替换 config.ts。
  *
  * 微信公众平台需同步配置：
@@ -11,14 +11,17 @@
  * - 腾讯位置服务 subkey → 绑定当前小程序 AppID
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TENCENT_MAP_SUBKEY = exports.MOCK_REALNAME_VERIFY = exports.MOCK_LOGIN_CODE = exports.USE_MOCK_FALLBACK = exports.API_BASE = void 0;
-/** 已在微信公众平台配置的 HTTPS API 域名 */
-exports.API_BASE = 'https://api.example.com/api/v1';
-/** 生产环境关闭 mock 回退 */
+exports.TENCENT_MAP_SUBKEY = exports.MOCK_REALNAME_VERIFY = exports.MOCK_LOGIN_CODE = exports.USE_MOCK_FALLBACK = exports.CLOUD_PATH_PREFIX = exports.CLOUD_SERVICE = exports.CLOUD_ENV = exports.USE_CLOUD_CONTAINER = exports.API_BASE = exports.API_MODE = void 0;
+/** 体验版/正式版走云托管 */
+exports.API_MODE = 'cloud';
+const LOCAL_API_BASE = 'http://127.0.0.1:3000/api/v1';
+exports.API_BASE = LOCAL_API_BASE;
+exports.USE_CLOUD_CONTAINER = exports.API_MODE === 'cloud';
+exports.CLOUD_ENV = 'prod-d8g2d9yf964787d1c';
+exports.CLOUD_SERVICE = 'mini4wd-api';
+exports.CLOUD_PATH_PREFIX = '/api/v1';
 exports.USE_MOCK_FALLBACK = false;
-/** 生产环境留空，走真实 wx.login */
 exports.MOCK_LOGIN_CODE = '';
-/** 生产环境关闭，走微信城市服务实名校验 */
 exports.MOCK_REALNAME_VERIFY = false;
 /**
  * 腾讯位置服务 Key（map 组件 subkey）

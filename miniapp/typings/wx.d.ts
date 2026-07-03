@@ -96,6 +96,26 @@ interface WxChooseMediaOption {
   fail?: (err: { errMsg: string }) => void;
 }
 
+interface WxCloudInitOption {
+  env?: string;
+  traceUser?: boolean;
+}
+
+interface WxCloudCallContainerOption {
+  config: { env: string };
+  path: string;
+  method?: string;
+  header?: Record<string, string>;
+  data?: Record<string, unknown>;
+  success?: (res: { data: unknown }) => void;
+  fail?: (err: unknown) => void;
+}
+
+interface WxCloud {
+  init(option: WxCloudInitOption): void;
+  callContainer(option: WxCloudCallContainerOption): void;
+}
+
 declare const wx: {
   request(option: WxRequestOption): void;
   uploadFile(option: WxUploadFileOption): void;
@@ -243,6 +263,7 @@ declare const wx: {
     fail?: (err: { errMsg: string; errno?: number }) => void;
     complete?: () => void;
   }): void;
+  cloud: WxCloud;
 };
 
 interface MapContext {

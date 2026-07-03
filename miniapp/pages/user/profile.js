@@ -28,38 +28,25 @@ Page({
             bio: user.bio || '',
         });
     },
-    onEditAvatar() {
-        wx.showModal({
-            title: '修改头像',
-            content: '是否使用微信头像？',
-            confirmText: '使用',
-            cancelText: '自定义',
-            success: (res) => {
-                if (res.confirm) {
-                    this.useWeChatAvatar();
-                }
-                else if (res.cancel) {
-                    this.chooseCustomAvatar();
-                }
-            },
-        });
-    },
-    async useWeChatAvatar() {
+    async onChooseWeChatAvatar(e) {
+        const tempPath = e.detail.avatarUrl;
+        if (!tempPath)
+            return;
+        const previousAvatar = this.data.avatarUrl;
+        this.setData({ avatarUrl: tempPath });
         try {
-            const profile = await (0, auth_1.getUserProfile)();
-            await this.saveProfile({ avatarUrl: profile.avatarUrl });
-        }
-        catch (_a) {
-            wx.showToast({ title: '获取微信头像失败', icon: 'none' });
-        }
-    },
-    async chooseCustomAvatar() {
-        try {
-            const [url] = await (0, media_1.chooseAndUploadImage)('post_image', 1);
+            wx.showLoading({ title: '上传中...', mask: true });
+            const url = await (0, media_1.uploadLocalImage)(tempPath, 'post_image');
             await this.saveProfile({ avatarUrl: url });
         }
-        catch (_a) {
-            // 用户取消选择时不提示
+        catch (err) {
+            console.error('[profile] avatar upload failed', err);
+            this.setData({ avatarUrl: previousAvatar });
+            const msg = err instanceof Error ? err.message : '头像上传失败';
+            wx.showToast({ title: msg.length > 20 ? '头像上传失败' : msg, icon: 'none' });
+        }
+        finally {
+            wx.hideLoading();
         }
     },
     onEditNickname() {

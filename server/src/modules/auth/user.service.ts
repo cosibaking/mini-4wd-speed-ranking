@@ -1,5 +1,6 @@
 import { UnauthorizedError, ValidationError } from '../../shared/errors.js';
 import type { PublicUser, UserProfile } from '../../shared/types.js';
+import { isValidMediaUrl, normalizeMediaUrlForStorage } from '../media/path.builder.js';
 import { authService } from './auth.service.js';
 import { userRepository } from './user.repository.js';
 
@@ -27,10 +28,10 @@ export class UserService {
 
     if (dto.avatarUrl !== undefined) {
       const avatarUrl = dto.avatarUrl.trim();
-      if (!avatarUrl.startsWith('https://')) {
-        throw new ValidationError('头像地址必须是 HTTPS 链接');
+      if (!isValidMediaUrl(avatarUrl)) {
+        throw new ValidationError('头像地址须为 HTTPS URL');
       }
-      data.avatarUrl = avatarUrl;
+      data.avatarUrl = normalizeMediaUrlForStorage(avatarUrl);
     }
 
     if (dto.bio !== undefined) {
@@ -45,7 +46,13 @@ export class UserService {
       throw new ValidationError('请提供需要更新的字段');
     }
 
+    console.log(
+      `[user] update profile userId=${userId} fields=${Object.keys(data).join(',')}${data.avatarUrl ? ` avatarUrl=${data.avatarUrl}` : ''}`,
+    );
+
     const user = await userRepository.update(userId, data);
+
+    console.log(`[user] update profile ok userId=${userId} avatarUrl=${user.avatarUrl ?? ''}`);
 
     return authService.buildUserProfile(user);
   }

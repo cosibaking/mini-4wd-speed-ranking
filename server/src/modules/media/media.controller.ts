@@ -57,7 +57,9 @@ async function handleMultipartUpload(ctx: HttpContext): Promise<void> {
 
   const fileExt = inferFileExt(objectKey);
   const mimeType = getContentType(fileExt);
+  console.log(`[media] proxy upload start userId=${userId} objectKey=${objectKey} size=${file.length}`);
   await uploadObject(objectKey, file, mimeType);
+  console.log(`[media] proxy upload ok userId=${userId} objectKey=${objectKey}`);
 }
 
 export async function proxyUpload(ctx: HttpContext): Promise<void> {

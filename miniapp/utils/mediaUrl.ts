@@ -1,8 +1,17 @@
 import { API_BASE } from '../config';
 
-/** 本地 mock 媒体 URL 中的 127.0.0.1/localhost 在真机上不可达，需替换为 API 同源地址 */
+/** 将相对 mock 路径或旧版绝对 mock URL 解析为可请求的完整地址 */
 export function resolveMediaUrl(url: string): string {
-  if (!url || typeof url !== 'string' || !url.includes('/mock-media/')) {
+  if (!url || typeof url !== 'string') {
+    return url;
+  }
+
+  if (url.startsWith('/mock-media/')) {
+    const originMatch = API_BASE.match(/^(https?:\/\/[^/]+)/);
+    return originMatch ? `${originMatch[1]}${url}` : url;
+  }
+
+  if (!url.includes('/mock-media/')) {
     return url;
   }
 

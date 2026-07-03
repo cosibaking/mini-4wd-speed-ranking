@@ -6,6 +6,28 @@
   background: linear-gradient(135deg, #fff 0%, var(--color-primary-bg) 100%);
 }
 
+.profile-avatar__btn {
+  padding: 0;
+  margin: 0 0 16rpx;
+  background: transparent;
+  border: none;
+  line-height: normal;
+  overflow: visible;
+  width: 160rpx;
+  min-width: 160rpx;
+  max-width: 160rpx;
+  height: 160rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  align-self: center;
+}
+
+.profile-avatar__btn::after {
+  border: none;
+}
+
 .profile-avatar__img {
   width: 160rpx;
   height: 160rpx;
@@ -13,7 +35,7 @@
   background: var(--color-border);
   border: 4rpx solid #fff;
   box-shadow: var(--shadow-card);
-  margin-bottom: 16rpx;
+  display: block;
 }
 
 .profile-avatar__hint {

@@ -44,8 +44,10 @@ function handleBody(raw, resolve, reject) {
     }
     reject(new Error(body.message || '请求失败'));
 }
+// 微信云托管调用：绕过 request 合法域名校验（免备案）。
 function sendViaContainer(path, data, header) {
     return new Promise((resolve, reject) => {
+        // callContainer 在部分类型定义中缺失，做一次断言。
         const cloud = wx.cloud;
         cloud.callContainer({
             config: { env: config_1.CLOUD_ENV },
@@ -58,6 +60,7 @@ function sendViaContainer(path, data, header) {
         });
     });
 }
+// 传统 HTTP 调用：本地开发（需在开发者工具勾选“不校验合法域名”）。
 function sendViaRequest(url, data, header) {
     return new Promise((resolve, reject) => {
         wx.request({
@@ -73,6 +76,7 @@ function sendViaRequest(url, data, header) {
 function rawRequest(options) {
     const { path, data, skipAuth } = options;
     const header = buildHeader(skipAuth);
+    // 「接口一律 POST」：统一以 POST 发送，参数走 JSON body。
     if (config_1.USE_CLOUD_CONTAINER && !path.startsWith('http')) {
         return sendViaContainer(path, data, header);
     }
