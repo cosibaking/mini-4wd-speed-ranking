@@ -1,5 +1,5 @@
 <nav-bar title="编辑赛道" />
-<view class="container edit-page">
+<view class="container container--action-bar edit-page">
   <view class="edit-steps">
     <view class="edit-step {{step >= 1 ? 'edit-step--active' : ''}}">1 基本信息</view>
     <view class="edit-step {{step >= 2 ? 'edit-step--active' : ''}}">2 赛道详情</view>
@@ -73,9 +73,10 @@
     </view>
   </view>
 
-  <view class="edit-actions">
-    <button wx:if="{{step > 1}}" class="btn-secondary edit-actions__btn" bindtap="onPrev">上一步</button>
-    <button wx:if="{{step < 3}}" class="btn-primary edit-actions__btn" bindtap="onNext">下一步</button>
-    <button wx:if="{{step === 3}}" class="btn-primary edit-actions__btn" bindtap="onSubmit" loading="{{submitting}}" disabled="{{submitting}}">提交</button>
-  </view>
+</view>
+
+<view class="action-bar">
+  <button wx:if="{{step > 1}}" class="btn-secondary action-bar__btn" bindtap="onPrev">上一步</button>
+  <button wx:if="{{step < 3}}" class="btn-primary action-bar__btn" bindtap="onNext">下一步</button>
+  <button wx:if="{{step === 3}}" class="btn-primary action-bar__btn" bindtap="onSubmit" loading="{{submitting}}" disabled="{{submitting}}">提交</button>
 </view>

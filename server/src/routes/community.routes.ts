@@ -10,10 +10,11 @@ router.get('/boards', boardController.listBoards);
 
 router.get('/posts/following', authMiddleware({ required: true }), postController.listFollowingPosts);
 router.get('/posts', authMiddleware(), postController.listPosts);
-router.post('/posts', authMiddleware({ required: true }), postController.createPost);
+// 「接口一律 POST」：创建与列表同路径会冲突，改用带动作后缀的独立路径。
+router.post('/posts/create', authMiddleware({ required: true }), postController.createPost);
 router.get('/posts/:id', authMiddleware(), postController.getPost);
 router.get('/posts/:id/comments', authMiddleware(), postController.listComments);
-router.post('/posts/:id/comments', authMiddleware({ required: true }), postController.createComment);
+router.post('/posts/:id/comments/create', authMiddleware({ required: true }), postController.createComment);
 
 router.post('/social/like', authMiddleware({ required: true }), socialController.toggleLike);
 router.post('/social/follow', authMiddleware({ required: true }), socialController.toggleFollow);

@@ -144,7 +144,7 @@ async function getPost(id) {
 function createPost(data) {
     var _a;
     const { images, imageUrls, ...rest } = data;
-    return (0, http_1.request)('/posts', {
+    return (0, http_1.request)('/posts/create', {
         method: 'POST',
         data: { ...rest, imageUrls: (_a = imageUrls !== null && imageUrls !== void 0 ? imageUrls : images) !== null && _a !== void 0 ? _a : [] },
     }).then(normalizePostDetail);
@@ -185,7 +185,7 @@ async function listComments(postId, query = { page: 1, pageSize: 100 }) {
 }
 function createComment(postId, data) {
     var _a;
-    return (0, http_1.request)(`/posts/${postId}/comments`, {
+    return (0, http_1.request)(`/posts/${postId}/comments/create`, {
         method: 'POST',
         data: {
             content: data.content,

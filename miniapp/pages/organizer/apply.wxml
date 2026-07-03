@@ -1,11 +1,10 @@
 <nav-bar title="申请赛道主理人" />
-<view class="container apply-page">
+<view class="container container--action-bar apply-page">
   <view class="card apply-intro">
     <text class="apply-intro__title">成为赛道主理人</text>
     <text class="apply-intro__desc">
-      请填写真实信息并完成微信实名校验。提交后管理员将线下联系核实，认证通过后方可创建赛道。
+      请填写真实信息并提交申请。提交后管理员将线下联系核实，认证通过后方可创建赛道。
     </text>
-    <text class="apply-intro__mock" wx:if="{{realNameMock}}">开发模式：已启用实名校验 Mock，无需跳转微信授权页。</text>
   </view>
 
   <view class="card">
@@ -27,24 +26,15 @@
     </view>
   </view>
 
-  <view class="apply-actions">
-    <button class="btn-secondary apply-actions__btn" bindtap="onLaunchRealNameAuth" loading="{{launchingAuth}}">
-      {{realNameMock ? '模拟实名校验（开发）' : '微信实名校验'}}
-    </button>
-    <button
-      class="btn-primary apply-actions__btn"
-      bindtap="onSubmit"
-      loading="{{submitting}}"
-      disabled="{{submitting || !realNameCode}}"
-    >
-      提交申请
-    </button>
-  </view>
+</view>
 
-  <view class="apply-tip" wx:if="{{realNameCode}}">
-    <text class="apply-tip__ok">✓ 实名校验已通过，可提交申请</text>
-  </view>
-  <view class="apply-tip" wx:else>
-    <text class="apply-tip__hint">{{realNameMock ? '请先点击上方按钮完成模拟校验' : '请先完成微信实名校验后再提交'}}</text>
-  </view>
+<view class="action-bar">
+  <button
+    class="btn-primary action-bar__btn"
+    bindtap="onSubmit"
+    loading="{{submitting}}"
+    disabled="{{submitting}}"
+  >
+    提交申请
+  </button>
 </view>

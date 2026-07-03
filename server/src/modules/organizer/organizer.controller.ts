@@ -44,7 +44,6 @@ export async function submitApplication(ctx: HttpContext): Promise<void> {
     idCardNumber?: string;
     phone?: string;
     wechat?: string;
-    code?: string;
   };
 
   const application = await organizerService.submitApplication({
@@ -54,7 +53,6 @@ export async function submitApplication(ctx: HttpContext): Promise<void> {
     idCardNumber: body?.idCardNumber ?? '',
     phone: body?.phone ?? '',
     wechat: body?.wechat,
-    code: body?.code ?? '',
   });
 
   ctx.body = success(application);

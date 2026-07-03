@@ -12,12 +12,8 @@
   </view>
 
   <view class="user-header card user-header--guest" wx:else>
-    <image class="user-header__avatar user-header__avatar--guest" src="/assets/default-avatar.png" mode="aspectFill" />
-    <view class="user-header__info">
-      <text class="user-header__name">未登录</text>
-      <text class="user-header__hint text-secondary">登录后可上传成绩、发帖互动</text>
-    </view>
     <button class="btn-primary user-header__login" bindtap="onLogin">微信登录</button>
+    <text class="user-header__guest-hint text-secondary">登录后可上传成绩、发帖互动等</text>
   </view>
 
   <view class="menu card">
@@ -71,6 +67,15 @@
         <text>新建赛道</text>
       </view>
       <text class="menu-item__arrow">›</text>
+    </view>
+  </view>
+
+  <view class="menu card" wx:if="{{loggedIn}}">
+    <view class="menu-item menu-item--logout" bindtap="onLogout">
+      <view class="menu-item__left">
+        <text class="icon-badge icon-badge--logout">⏻</text>
+        <text class="menu-item__logout-text">退出登录</text>
+      </view>
     </view>
   </view>
 </view>

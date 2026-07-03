@@ -117,12 +117,3 @@
   box-sizing: border-box;
 }
 
-.edit-actions {
-  display: flex;
-  gap: 16rpx;
-  padding: 24rpx 0 48rpx;
-}
-
-.edit-actions__btn {
-  flex: 1;
-}

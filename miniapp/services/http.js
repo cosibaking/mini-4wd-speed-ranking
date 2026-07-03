@@ -18,7 +18,7 @@ function clearToken() {
     wx.removeStorageSync(TOKEN_KEY);
 }
 function rawRequest(options) {
-    const { url, method = 'GET', data, skipAuth } = options;
+    const { url, data, skipAuth } = options;
     const header = {
         'Content-Type': 'application/json',
     };
@@ -30,7 +30,7 @@ function rawRequest(options) {
     return new Promise((resolve, reject) => {
         wx.request({
             url,
-            method: method,
+            method: 'POST',
             data,
             header,
             success: (res) => {

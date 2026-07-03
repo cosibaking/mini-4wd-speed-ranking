@@ -139,11 +139,11 @@ export function getMyTracks(query: PaginationQuery = {}): Promise<PaginationResu
 }
 
 export function createTrack(data: Record<string, unknown>): Promise<TrackDetail> {
-  return request<TrackDetail>('/tracks', { method: 'POST', data });
+  return request<TrackDetail>('/tracks/create', { method: 'POST', data });
 }
 
 export function updateTrack(id: string, data: Record<string, unknown>): Promise<TrackDetail> {
-  return request<TrackDetail>(`/tracks/${id}`, { method: 'PATCH', data });
+  return request<TrackDetail>(`/tracks/${id}/update`, { method: 'POST', data });
 }
 
 export function touchRecentVisit(trackId: string): Promise<void> {

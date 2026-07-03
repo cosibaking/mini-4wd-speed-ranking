@@ -29,6 +29,16 @@ interface CheckRealNameResponse {
   verify_real_name?: string;
 }
 
+interface GetPhoneNumberResponse {
+  errcode?: number;
+  errmsg?: string;
+  phone_info?: {
+    phoneNumber?: string;
+    purePhoneNumber?: string;
+    countryCode?: string;
+  };
+}
+
 let cachedAccessToken: { token: string; expiresAt: number } | null = null;
 
 export class WechatClient {
@@ -117,6 +127,42 @@ export class WechatClient {
     };
 
     return payload.access_token;
+  }
+
+  /**
+   * 用小程序 getPhoneNumber 按钮返回的 code 换取用户手机号。
+   * mock 模式下返回固定测试号码，便于开发调试。
+   */
+  async getPhoneNumber(code: string): Promise<string> {
+    if (!code || code.trim() === '') {
+      throw new ValidationError('手机号凭证无效，请重试');
+    }
+
+    if (config.wechat.mock || config.wechat.realNameMock) {
+      return '13800000000';
+    }
+
+    const accessToken = await this.getAccessToken();
+    const url = `https://api.weixin.qq.com/wxa/business/getuserphonenumber?access_token=${accessToken}`;
+
+    let payload: GetPhoneNumberResponse;
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: code.trim() }),
+      });
+      payload = (await response.json()) as GetPhoneNumberResponse;
+    } catch {
+      throw new InternalError('微信手机号服务暂不可用');
+    }
+
+    const phone = payload.phone_info?.purePhoneNumber ?? payload.phone_info?.phoneNumber;
+    if (payload.errcode || !phone) {
+      throw new ValidationError(payload.errmsg ?? '获取微信手机号失败');
+    }
+
+    return phone;
   }
 
   async checkRealNameInfo(params: {

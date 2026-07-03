@@ -14,6 +14,50 @@ page {
   box-sizing: border-box;
 }
 
+/* 内容区预留底部空间，避免被固定操作栏遮挡 */
+.container--action-bar {
+  padding-bottom: calc(160rpx + env(safe-area-inset-bottom));
+}
+
+.container--action-bar-lg {
+  padding-bottom: calc(240rpx + env(safe-area-inset-bottom));
+}
+
+/* 底部固定操作栏：按钮常驻屏幕底部，短页面不再大片留白 */
+.action-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+  display: flex;
+  gap: 16rpx;
+  padding: 16rpx var(--spacing-page);
+  padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
+  background: var(--color-card);
+  box-shadow: 0 -2rpx 16rpx rgba(0, 0, 0, 0.06);
+}
+
+.action-bar--column {
+  flex-direction: column;
+}
+
+.action-bar__btn {
+  flex: 1;
+  margin: 0;
+}
+
+.action-bar__row {
+  display: flex;
+  gap: 16rpx;
+}
+
+.action-bar__hint {
+  text-align: center;
+  font-size: 22rpx;
+  color: var(--color-text-secondary);
+}
+
 .card {
   background: var(--color-card);
   border-radius: var(--radius-card);

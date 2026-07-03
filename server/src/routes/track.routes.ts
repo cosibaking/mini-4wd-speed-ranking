@@ -24,7 +24,8 @@ router.post(
   trackController.touchRecentVisit,
 );
 router.get('/tracks/:id', authMiddleware(), trackController.getTrackById);
-router.post('/tracks', authMiddleware({ required: true }), trackController.createTrack);
-router.patch('/tracks/:id', authMiddleware({ required: true }), trackController.updateTrack);
+// 「接口一律 POST」：创建/更新与列表、详情同路径会冲突，改用带动作后缀的独立路径。
+router.post('/tracks/create', authMiddleware({ required: true }), trackController.createTrack);
+router.post('/tracks/:id/update', authMiddleware({ required: true }), trackController.updateTrack);
 
 export default router;

@@ -54,7 +54,3 @@
   color: var(--color-text-placeholder);
 }
 
-.submit-btn {
-  margin: 24rpx 0 48rpx;
-  width: 100%;
-}

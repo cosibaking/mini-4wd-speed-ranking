@@ -24,7 +24,7 @@ interface RawRequestOptions {
 }
 
 function rawRequest<T>(options: RawRequestOptions): Promise<T> {
-  const { url, method = 'GET', data, skipAuth } = options;
+  const { url, data, skipAuth } = options;
   const header: Record<string, string> = {
     'Content-Type': 'application/json',
   };
@@ -34,10 +34,12 @@ function rawRequest<T>(options: RawRequestOptions): Promise<T> {
     if (token) header['Authorization'] = `Bearer ${token}`;
   }
 
+  // 「接口一律 POST」：忽略调用方传入的 method，统一以 POST 发送，
+  // 参数一律走 JSON body（服务端会把标量字段合并进 query 以兼容原有读取方式）。
   return new Promise((resolve, reject) => {
     wx.request({
       url,
-      method: method as WechatMiniprogram.RequestOption['method'],
+      method: 'POST',
       data,
       header,
       success: (res) => {

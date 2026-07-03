@@ -1,5 +1,5 @@
 <nav-bar title="赛道详情" />
-<view class="container" wx:if="{{track}}">
+<view class="container container--action-bar-lg" wx:if="{{track}}">
   <view class="card detail-card">
     <view class="detail-card__header" bindtap="onToggleDetail">
       <view class="detail-card__header-row">
@@ -81,10 +81,13 @@
     </view>
   </view>
 
-  <view class="detail-actions">
-    <button class="btn-primary detail-actions__btn" bindtap="onViewLeaderboard">查看圈速榜</button>
-    <button class="btn-secondary detail-actions__btn" bindtap="onSubmitRecord">上传我的成绩</button>
-    <text class="detail-actions__hint text-secondary">请按认定说明拍摄完整一圈视频</text>
+</view>
+
+<view class="action-bar action-bar--column" wx:if="{{track}}">
+  <text class="action-bar__hint">请按认定说明拍摄完整一圈视频</text>
+  <view class="action-bar__row">
+    <button class="btn-secondary action-bar__btn" bindtap="onSubmitRecord">上传我的成绩</button>
+    <button class="btn-primary action-bar__btn" bindtap="onViewLeaderboard">查看圈速榜</button>
   </view>
 </view>
 

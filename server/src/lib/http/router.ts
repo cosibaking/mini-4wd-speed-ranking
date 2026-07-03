@@ -50,9 +50,20 @@ function matchPath(pattern: string, path: string): Record<string, string> | null
   return params;
 }
 
+/**
+ * 统计 pattern 中的静态段数量（非 :param 段）。
+ * 用于「一律 POST」归一后，同 path 命中多条路由时，优先选择静态段更多的路由，
+ * 例如 `/tracks/create` 优先于 `/tracks/:id`，`/users/me` 优先于 `/users/:id`。
+ */
+function staticSegmentScore(pattern: string): number {
+  return pattern
+    .split('/')
+    .filter((part) => part && !part.startsWith(':')).length;
+}
+
 async function readJsonBody(req: IncomingMessage): Promise<unknown> {
   const method = req.method?.toUpperCase() ?? 'GET';
-  if (method === 'GET' || method === 'HEAD' || method === 'DELETE') {
+  if (method === 'GET' || method === 'HEAD') {
     return undefined;
   }
 
@@ -163,18 +174,30 @@ export class Router {
 
   handler(): HttpHandler {
     return async (ctx) => {
-      for (const route of this.routes) {
-        if (route.method !== ctx.method) {
-          continue;
-        }
+      // 「接口一律 POST」归一：路由匹配忽略 HTTP method，仅按路径匹配。
+      // 同一路径可能命中多条路由（如原 GET/POST/PATCH），此时选择静态段最多的一条，
+      // 保证 `/tracks/create`、`/users/me` 等静态路径优先于 `/tracks/:id`、`/users/:id`。
+      let matched: RouteRecord | null = null;
+      let matchedParams: Record<string, string> | null = null;
+      let bestScore = -1;
 
+      for (const route of this.routes) {
         const params = matchPath(route.pattern, ctx.path);
         if (!params) {
           continue;
         }
 
-        ctx.params = params;
-        const wrapped = compose(route.middlewares, route.handler);
+        const score = staticSegmentScore(route.pattern);
+        if (score > bestScore) {
+          matched = route;
+          matchedParams = params;
+          bestScore = score;
+        }
+      }
+
+      if (matched && matchedParams) {
+        ctx.params = matchedParams;
+        const wrapped = compose(matched.middlewares, matched.handler);
         await wrapped(ctx);
         return;
       }
@@ -191,13 +214,29 @@ export async function createContext(
 ): Promise<HttpContext> {
   const url = new URL(req.url ?? '/', 'http://localhost');
   const body = await readJsonBody(req);
+  const query = parseQuery(url.search);
+
+  // 「接口一律 POST」归一：原本走 GET query 的接口，前端现改为 POST 并把参数放入 body。
+  // 这里把 body 中的标量字段（string/number/boolean）补充进 query（不覆盖 URL 上已有的），
+  // 使读取 ctx.query 的 controller 无需改动即可继续工作；数组/对象字段保留在 body 里，
+  // 供原 POST 接口（读 ctx.request.body）使用，互不干扰。
+  if (body && typeof body === 'object' && !Array.isArray(body)) {
+    for (const [key, value] of Object.entries(body as Record<string, unknown>)) {
+      if (
+        query[key] === undefined &&
+        (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean')
+      ) {
+        query[key] = String(value);
+      }
+    }
+  }
 
   return {
     method: (req.method ?? 'GET').toUpperCase(),
     path: url.pathname,
     url: req.url ?? '/',
     params: {},
-    query: parseQuery(url.search),
+    query,
     headers: req.headers,
     request: { body },
     rawRequest: req,

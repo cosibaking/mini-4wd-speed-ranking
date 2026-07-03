@@ -27,7 +27,6 @@ Page({
             this.setData({ adminHasPending: stats.pendingApplications > 0 });
         }
         catch (_a) {
-            // ignore badge errors
         }
     },
     async refreshUnreadBadge() {
@@ -50,7 +49,6 @@ Page({
             }
         }
         catch (_a) {
-            // ignore badge errors
         }
     },
     async loadUser() {
@@ -75,15 +73,33 @@ Page({
             wx.removeTabBarBadge({ index: TAB_INDEX_USER });
         }
     },
-    /** 用户主动点击：微信原生 wx.login 登录 */
     async onLogin() {
         if (this.data.loggingIn)
             return;
+        let profile = null;
+        try {
+            profile = await (0, auth_1.getUserProfile)();
+        }
+        catch (_a) {
+            profile = null;
+        }
         this.setData({ loggingIn: true });
         wx.showLoading({ title: '登录中...', mask: true });
         try {
             const result = await (0, auth_1.login)();
-            this.setData({ user: result.user, loggedIn: true });
+            let user = result.user;
+            if (profile) {
+                try {
+                    user = await (0, auth_1.updateMe)({
+                        nickName: profile.nickName,
+                        avatarUrl: profile.avatarUrl,
+                    });
+                }
+                catch (_b) {
+                }
+            }
+            (0, session_1.setSessionUser)(user);
+            this.setData({ user, loggedIn: true });
             await Promise.all([this.refreshUnreadBadge(), this.refreshAdminBadge()]);
             wx.showToast({ title: '登录成功', icon: 'success' });
         }
@@ -95,6 +111,22 @@ Page({
             this.setData({ loggingIn: false });
             wx.hideLoading();
         }
+    },
+    onLogout() {
+        wx.showModal({
+            title: '退出登录',
+            content: '确定要退出当前账号吗？',
+            confirmText: '退出',
+            confirmColor: '#e64340',
+            success: (res) => {
+                if (!res.confirm)
+                    return;
+                (0, auth_1.logout)();
+                this.setData({ user: null, loggedIn: false, unreadCount: 0, adminHasPending: false });
+                wx.removeTabBarBadge({ index: TAB_INDEX_USER });
+                wx.showToast({ title: '已退出登录', icon: 'none' });
+            },
+        });
     },
     onEditProfile() {
         if (!this.data.loggedIn)

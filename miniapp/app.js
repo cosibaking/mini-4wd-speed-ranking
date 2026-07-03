@@ -15,7 +15,6 @@ function initPrivacyAuthorization(app) {
             popup.show();
             return;
         }
-        // 组件尚未挂载时，微信会降级展示官方隐私弹窗
     });
 }
 App({

@@ -1,5 +1,5 @@
 <nav-bar title="上传成绩" />
-<view class="container">
+<view class="container container--action-bar">
   <view class="card" wx:if="{{track}}">
     <text class="section-title">{{track.name}}</text>
     <text class="text-secondary">请按主理人示例拍摄完整一圈，确保起终点清晰。</text>
@@ -42,5 +42,8 @@
     <input class="form-input" placeholder="不超过100字" value="{{note}}" bindinput="onNoteInput" maxlength="100" />
   </view>
 
-  <button class="btn-primary submit-btn" bindtap="onSubmit" loading="{{submitting}}" disabled="{{submitting}}">确认提交</button>
+</view>
+
+<view class="action-bar">
+  <button class="btn-primary action-bar__btn" bindtap="onSubmit" loading="{{submitting}}" disabled="{{submitting}}">确认提交</button>
 </view>

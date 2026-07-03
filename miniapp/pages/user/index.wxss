@@ -7,7 +7,11 @@
 }
 
 .user-header--guest {
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48rpx 32rpx 40rpx;
+  text-align: center;
 }
 
 .user-header--clickable:active {
@@ -30,20 +34,16 @@
   flex-shrink: 0;
 }
 
-.user-header__avatar--guest {
-  opacity: 0.7;
-}
-
 .user-header__info {
   flex: 1;
   min-width: 0;
 }
 
 .user-header__name {
-  font-size: 36rpx;
+  font-size: 34rpx;
   font-weight: 700;
   display: block;
-  margin-bottom: 8rpx;
+  margin-bottom: 6rpx;
 }
 
 .user-header__badge {
@@ -59,11 +59,28 @@
 .user-header__hint {
   display: block;
   font-size: 24rpx;
+  line-height: 1.4;
+}
+
+.user-header__guest-hint {
+  display: block;
+  margin-top: 20rpx;
+  font-size: 24rpx;
+  line-height: 1.5;
+  color: var(--color-text-placeholder);
 }
 
 .user-header__login {
   width: 100%;
-  margin-top: 16rpx;
+  max-width: 480rpx;
+  margin: 0;
+  padding: 0 32rpx;
+  height: 88rpx;
+  line-height: 88rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+  border-radius: 999rpx;
+  box-shadow: 0 8rpx 20rpx rgba(232, 93, 4, 0.28);
 }
 
 .menu {
@@ -90,6 +107,23 @@
 
 .menu-item--admin {
   background: rgba(26, 18, 8, 0.06);
+}
+
+.menu-item--logout {
+  justify-content: center;
+}
+
+.menu-item--logout .menu-item__left {
+  gap: 8rpx;
+}
+
+.menu-item__logout-text {
+  color: #e64340;
+  font-weight: 600;
+}
+
+.icon-badge--logout {
+  color: #e64340;
 }
 
 .menu-item__left {

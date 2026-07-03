@@ -95,7 +95,6 @@ export class OrganizerService {
     idCardNumber: string;
     phone: string;
     wechat?: string;
-    code: string;
   }) {
     const user = await userRepository.findById(params.userId);
     if (!user) {
@@ -115,20 +114,18 @@ export class OrganizerService {
     const phone = params.phone.trim();
     const wechat = params.wechat?.trim();
 
+    if (realName.length < 2 || realName.length > 64) {
+      throw new ValidationError('姓名格式不正确');
+    }
+    if (!ID_CARD_PATTERN.test(idCardNumber)) {
+      throw new ValidationError('身份证号格式不正确');
+    }
     if (!PHONE_PATTERN.test(phone)) {
       throw new ValidationError('请填写有效的手机号');
     }
     if (wechat && wechat.length > 64) {
       throw new ValidationError('微信号过长');
     }
-
-    await this.verifyRealName({
-      userId: params.userId,
-      openId: params.openId,
-      realName,
-      idCardNumber,
-      code: params.code,
-    });
 
     const row = await organizerRepository.create({
       userId: params.userId,

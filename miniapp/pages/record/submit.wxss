@@ -63,7 +63,3 @@
   border: 2rpx solid var(--color-border);
 }
 
-.submit-btn {
-  margin: 24rpx 0 48rpx;
-  width: 100%;
-}

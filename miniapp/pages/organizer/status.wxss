@@ -59,7 +59,3 @@
   line-height: 1.6;
 }
 
-.status-action {
-  margin-top: 32rpx;
-  width: 100%;
-}

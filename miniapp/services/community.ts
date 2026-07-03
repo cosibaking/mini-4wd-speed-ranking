@@ -151,7 +151,7 @@ export function createPost(data: {
   imageUrls?: string[];
 }): Promise<PostDetail> {
   const { images, imageUrls, ...rest } = data;
-  return request<Record<string, unknown>>('/posts', {
+  return request<Record<string, unknown>>('/posts/create', {
     method: 'POST',
     data: { ...rest, imageUrls: imageUrls ?? images ?? [] },
   }).then(normalizePostDetail);
@@ -196,7 +196,7 @@ export function createComment(
   postId: string,
   data: { content: string; images?: string[]; parentId?: string }
 ): Promise<CommentItem> {
-  return request<Record<string, unknown>>(`/posts/${postId}/comments`, {
+  return request<Record<string, unknown>>(`/posts/${postId}/comments/create`, {
     method: 'POST',
     data: {
       content: data.content,

@@ -130,10 +130,10 @@ function getMyTracks(query = {}) {
     return (0, http_1.request)('/tracks/mine', { data: query });
 }
 function createTrack(data) {
-    return (0, http_1.request)('/tracks', { method: 'POST', data });
+    return (0, http_1.request)('/tracks/create', { method: 'POST', data });
 }
 function updateTrack(id, data) {
-    return (0, http_1.request)(`/tracks/${id}`, { method: 'PATCH', data });
+    return (0, http_1.request)(`/tracks/${id}/update`, { method: 'POST', data });
 }
 function touchRecentVisit(trackId) {
     return (0, http_1.request)(`/tracks/${trackId}/visit`, { method: 'POST' }).catch(() => undefined);

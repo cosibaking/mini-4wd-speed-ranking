@@ -32,11 +32,22 @@ export function getUser(id: string): Promise<PublicUserDetail> {
 }
 
 export function updateMe(data: { nickName?: string; avatarUrl?: string; bio?: string }): Promise<UserProfile> {
-  return request<UserProfile>('/users/me', { method: 'PATCH', data });
+  return request<UserProfile>('/users/me/update', { method: 'POST', data });
+}
+
+/** 用小程序 getPhoneNumber 按钮返回的 code 换取微信绑定手机号 */
+export function getWechatPhoneNumber(code: string): Promise<{ phone: string }> {
+  return request<{ phone: string }>('/auth/phone', { method: 'POST', data: { code } });
 }
 
 export function isLoggedIn(): boolean {
   return !!getToken();
+}
+
+/** 退出登录：清除本地 token 与会话 */
+export function logout(): void {
+  clearToken();
+  setSessionUser(null);
 }
 
 /** 要求已登录，未登录则抛出 NeedLoginError */

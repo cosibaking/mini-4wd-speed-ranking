@@ -1,5 +1,5 @@
 <nav-bar title="发帖" />
-<view class="container">
+<view class="container container--action-bar">
   <view class="card">
     <text class="form-label">所属板块 *</text>
     <picker mode="selector" range="{{boards}}" range-key="name" bindchange="onBoardChange">
@@ -32,5 +32,8 @@
     </view>
   </view>
 
-  <button class="btn-primary submit-btn" bindtap="onSubmit" loading="{{submitting}}" disabled="{{submitting}}">发布</button>
+</view>
+
+<view class="action-bar">
+  <button class="btn-primary action-bar__btn" bindtap="onSubmit" loading="{{submitting}}" disabled="{{submitting}}">发布</button>
 </view>

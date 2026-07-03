@@ -159,19 +159,3 @@
   border-radius: 12rpx;
 }
 
-.detail-actions {
-  padding: 24rpx 0 48rpx;
-  display: flex;
-  flex-direction: column;
-  gap: 16rpx;
-}
-
-.detail-actions__btn {
-  width: 100%;
-}
-
-.detail-actions__hint {
-  text-align: center;
-  font-size: 24rpx;
-  margin-top: 8rpx;
-}

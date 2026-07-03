@@ -6,7 +6,6 @@ export interface SubmitOrganizerApplicationDto {
   idCardNumber: string;
   phone: string;
   wechat?: string;
-  code: string;
 }
 
 export function getMyOrganizerApplication(): Promise<OrganizerApplicationBrief | null> {
