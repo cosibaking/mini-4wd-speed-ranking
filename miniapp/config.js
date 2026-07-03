@@ -1,7 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TENCENT_MAP_SUBKEY = exports.MOCK_REALNAME_VERIFY = exports.MOCK_LOGIN_CODE = exports.USE_MOCK_FALLBACK = exports.API_BASE = void 0;
+exports.TENCENT_MAP_SUBKEY = exports.MOCK_REALNAME_VERIFY = exports.MOCK_LOGIN_CODE = exports.USE_MOCK_FALLBACK = exports.CLOUD_PATH_PREFIX = exports.CLOUD_SERVICE = exports.CLOUD_ENV = exports.USE_CLOUD_CONTAINER = exports.API_BASE = void 0;
 exports.API_BASE = 'http://82.156.54.232/mini4wd/api/v1';
+exports.USE_CLOUD_CONTAINER = true;
+exports.CLOUD_ENV = 'prod-d8g2d9yf964787d1c';
+exports.CLOUD_SERVICE = 'mini4wd-api';
+exports.CLOUD_PATH_PREFIX = '/api/v1';
 exports.USE_MOCK_FALLBACK = true;
 exports.MOCK_LOGIN_CODE = '';
 exports.MOCK_REALNAME_VERIFY = true;

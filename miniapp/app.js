@@ -25,6 +25,9 @@ App({
         resolvePrivacyAuthorization: null,
     },
     onLaunch() {
+        if (config_1.USE_CLOUD_CONTAINER) {
+            wx.cloud.init({ env: config_1.CLOUD_ENV, traceUser: true });
+        }
         initPrivacyAuthorization(this);
         restoreSession();
     },

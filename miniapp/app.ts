@@ -1,5 +1,5 @@
 import { refreshUser } from './services/auth';
-import { API_BASE } from './config';
+import { API_BASE, CLOUD_ENV, USE_CLOUD_CONTAINER } from './config';
 import type { IAppOption } from './stores/session';
 
 type PrivacyResolve = (result: { buttonId?: string; event: 'agree' | 'disagree' }) => void;
@@ -31,6 +31,9 @@ App({
   },
 
   onLaunch() {
+    if (USE_CLOUD_CONTAINER) {
+      wx.cloud.init({ env: CLOUD_ENV, traceUser: true });
+    }
     initPrivacyAuthorization(this);
     restoreSession();
   },

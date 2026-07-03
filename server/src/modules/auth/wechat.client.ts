@@ -53,7 +53,12 @@ export class WechatClient {
     }
 
     if (!config.wechat.appId || !config.wechat.appSecret) {
-      throw new InternalError('微信服务暂不可用');
+      console.error(
+        `[wechat] code2Session 缺少配置 appIdSet=${Boolean(config.wechat.appId)} secretSet=${Boolean(config.wechat.appSecret)}`
+      );
+      throw new InternalError(
+        `微信服务暂不可用[诊断:配置缺失 appId=${Boolean(config.wechat.appId)} secret=${Boolean(config.wechat.appSecret)}]`
+      );
     }
 
     const url = new URL('https://api.weixin.qq.com/sns/jscode2session');
@@ -66,8 +71,10 @@ export class WechatClient {
     try {
       const response = await fetch(url.toString());
       payload = (await response.json()) as WechatApiResponse;
-    } catch {
-      throw new InternalError('微信服务暂不可用');
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : String(error);
+      console.error(`[wechat] code2Session fetch 网络异常: ${detail}`);
+      throw new InternalError(`微信服务暂不可用[诊断:网络异常 ${detail}]`);
     }
 
     if (payload.errcode || !payload.openid) {
