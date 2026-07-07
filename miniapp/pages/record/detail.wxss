@@ -110,3 +110,18 @@
   text-align: center;
   padding: 80rpx;
 }
+
+.record-share-btn {
+  margin: 8rpx 0 0;
+  padding: 24rpx;
+  background: #fff;
+  color: var(--color-primary);
+  border: 2rpx solid var(--color-primary);
+  border-radius: var(--radius-btn);
+  font-size: 28rpx;
+  line-height: 1.4;
+}
+
+.record-share-btn::after {
+  border: none;
+}

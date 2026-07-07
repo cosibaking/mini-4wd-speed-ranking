@@ -84,4 +84,27 @@ Page({
         if (id)
             wx.navigateTo({ url: `/pages/record/submit?trackId=${id}` });
     },
+    onShareAppMessage() {
+        const track = this.data.track;
+        if (!track) {
+            return { title: '公园四驱·圈速打榜', path: '/pages/index/index' };
+        }
+        const recordHint = track.recordCount ? `，${track.recordCount} 人入榜` : '';
+        return {
+            title: `【${track.name}】公园四驱圈速赛道${recordHint}`,
+            path: `/pages/track/detail?id=${track.id}`,
+            imageUrl: track.floorPlanUrls[0],
+        };
+    },
+    onShareTimeline() {
+        const track = this.data.track;
+        if (!track) {
+            return { title: '公园四驱·圈速打榜' };
+        }
+        return {
+            title: `【${track.name}】公园四驱圈速赛道`,
+            query: `id=${track.id}`,
+            imageUrl: track.floorPlanUrls[0],
+        };
+    },
 });

@@ -242,10 +242,21 @@ Page({
         // 由 onShareAppMessage 处理
     },
     onShareAppMessage() {
+        var _a;
         const post = this.data.post;
         return {
             title: (post === null || post === void 0 ? void 0 : post.title) || '社区帖子',
             path: `/pages/community/post?id=${post === null || post === void 0 ? void 0 : post.id}`,
+            imageUrl: (_a = post === null || post === void 0 ? void 0 : post.images) === null || _a === void 0 ? void 0 : _a[0],
+        };
+    },
+    onShareTimeline() {
+        var _a;
+        const post = this.data.post;
+        return {
+            title: (post === null || post === void 0 ? void 0 : post.title) || '社区帖子',
+            query: `id=${post === null || post === void 0 ? void 0 : post.id}`,
+            imageUrl: (_a = post === null || post === void 0 ? void 0 : post.images) === null || _a === void 0 ? void 0 : _a[0],
         };
     },
     async onPullDownRefresh() {

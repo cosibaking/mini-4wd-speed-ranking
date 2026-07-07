@@ -32,4 +32,16 @@ Page({
       }
     }
   },
+
+  onShareAppMessage() {
+    const record = this.data.record;
+    if (!record || record.status !== 'approved') {
+      return { title: '公园四驱·圈速打榜', path: '/pages/index/index' };
+    }
+    const rankHint = record.isBestRecord && record.rank ? `，排名第 ${record.rank}` : '';
+    return {
+      title: `${record.user.nickName} 在【${record.trackName}】跑出 ${record.lapTimeDisplay}${rankHint}`,
+      path: `/pages/record/detail?id=${record.id}`,
+    };
+  },
 });

@@ -89,6 +89,7 @@
     <button class="btn-secondary action-bar__btn" bindtap="onSubmitRecord">上传我的成绩</button>
     <button class="btn-primary action-bar__btn" bindtap="onViewLeaderboard">查看圈速榜</button>
   </view>
+  <button class="detail-share-btn" open-type="share">分享给微信好友</button>
 </view>
 
 <view class="loading-tip" wx:if="{{loading}}">加载中…</view>

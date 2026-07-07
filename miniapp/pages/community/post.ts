@@ -278,6 +278,16 @@ Page({
     return {
       title: post?.title || '社区帖子',
       path: `/pages/community/post?id=${post?.id}`,
+      imageUrl: post?.images?.[0],
+    };
+  },
+
+  onShareTimeline() {
+    const post = this.data.post;
+    return {
+      title: post?.title || '社区帖子',
+      query: `id=${post?.id}`,
+      imageUrl: post?.images?.[0],
     };
   },
 

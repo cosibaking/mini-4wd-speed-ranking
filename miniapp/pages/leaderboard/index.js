@@ -104,4 +104,15 @@ Page({
             wx.stopPullDownRefresh();
         }
     },
+    onShareAppMessage() {
+        const { trackId, trackName, total } = this.data;
+        if (!trackId) {
+            return { title: '公园四驱·圈速打榜', path: '/pages/leaderboard/index' };
+        }
+        const countHint = total > 0 ? `，${total} 人入榜` : '';
+        return {
+            title: `【${trackName}】圈速榜${countHint}`,
+            path: `/pages/leaderboard/index?trackId=${trackId}`,
+        };
+    },
 });

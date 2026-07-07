@@ -112,4 +112,11 @@ Page({
       wx.stopPullDownRefresh();
     }
   },
+
+  onShareAppMessage() {
+    return {
+      title: '公园四驱社区 — 车手交流、分享改装心得',
+      path: '/pages/community/index',
+    };
+  },
 });

@@ -55,6 +55,12 @@
     <text class="section-title">备注</text>
     <text>{{record.note}}</text>
   </view>
+
+  <button
+    class="record-share-btn"
+    wx:if="{{record.status === 'approved'}}"
+    open-type="share"
+  >分享给微信好友</button>
 </view>
 
 <view class="loading-tip text-secondary" wx:if="{{loading}}">加载中…</view>

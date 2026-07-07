@@ -92,4 +92,10 @@ Page({
     onAdminTap() {
         wx.navigateTo({ url: '/admin/pages/index/index' });
     },
+    onShareAppMessage() {
+        return {
+            title: '公园四驱·圈速打榜 — 发现赛道，挑战圈速',
+            path: '/pages/index/index',
+        };
+    },
 });
