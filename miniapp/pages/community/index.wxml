@@ -1,4 +1,17 @@
 <nav-bar title="社区" />
+<scroll-view
+  class="page-scroll"
+  scroll-y
+  enhanced
+  show-scrollbar="{{false}}"
+  refresher-enabled
+  refresher-background="#F5F5F5"
+  refresher-triggered="{{refreshing}}"
+  bindrefresherrefresh="onRefresherRefresh"
+  bindscrolltolower="onReachBottom"
+  lower-threshold="120"
+  style="height: {{scrollHeight}}px;"
+>
 <view class="container community-page">
   <view class="board-tabs-wrap">
     <scroll-view scroll-x class="board-tabs" enhanced show-scrollbar="{{false}}">
@@ -37,3 +50,4 @@
 
   <view class="loading-tip" wx:if="{{loading}}">加载中…</view>
 </view>
+</scroll-view>

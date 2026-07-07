@@ -1,4 +1,5 @@
 import { listBoards, listPosts } from '../../services/community';
+import { getPageScrollHeight } from '../../utils/navBar';
 import type { Board, PostListItem } from '../../types';
 import { resolveDisplayImageUrl } from '../../utils/mediaUrl';
 
@@ -13,9 +14,12 @@ Page({
     loading: true,
     hasMore: false,
     page: 1,
+    scrollHeight: 0,
+    refreshing: false,
   },
 
   onLoad() {
+    this.setData({ scrollHeight: getPageScrollHeight() });
     this._skipNextTabRefresh = true;
     this.init();
   },
@@ -105,11 +109,13 @@ Page({
     void this.refreshPage();
   },
 
-  async onPullDownRefresh() {
+  async onRefresherRefresh() {
+    if (this.data.refreshing) return;
+    this.setData({ refreshing: true });
     try {
       await this.refreshPage();
     } finally {
-      wx.stopPullDownRefresh();
+      this.setData({ refreshing: false });
     }
   },
 

@@ -12,6 +12,7 @@ import {
   normalizeUrlList,
   resolveDisplayImageUrls,
 } from '../../utils/mediaUrl';
+import { getPageScrollHeight } from '../../utils/navBar';
 
 function updateCommentLike(
   comments: CommentItem[],
@@ -49,6 +50,8 @@ Page({
     commentImagePreviews: [] as string[],
     replyTo: null as CommentReplyTo | null,
     loading: true,
+    scrollHeight: 0,
+    refreshing: false,
   },
 
   /** chooseMedia 返回后微信可能清理临时文件，需在 onShow 中刷新评论图片 */
@@ -56,6 +59,7 @@ Page({
   _postId: '',
 
   onLoad(options: { id?: string }) {
+    this.setData({ scrollHeight: getPageScrollHeight() });
     if (options.id) {
       this._postId = options.id;
       this.loadPost(options.id);
@@ -291,13 +295,13 @@ Page({
     };
   },
 
-  async onPullDownRefresh() {
+  async onRefresherRefresh() {
+    if (this.data.refreshing || !this._postId) return;
+    this.setData({ refreshing: true });
     try {
-      if (this._postId) {
-        await this.loadPost(this._postId);
-      }
+      await this.loadPost(this._postId);
     } finally {
-      wx.stopPullDownRefresh();
+      this.setData({ refreshing: false });
     }
   },
 });

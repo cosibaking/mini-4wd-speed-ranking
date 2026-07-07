@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const record_1 = require("../../services/record");
 const track_1 = require("../../services/track");
+const navBar_1 = require("../../utils/navBar");
 const nav_1 = require("../../utils/nav");
 Page({
     _skipNextTabRefresh: false,
@@ -15,8 +16,11 @@ Page({
         pendingReviewCount: 0,
         loading: true,
         showPicker: false,
+        scrollHeight: 0,
+        refreshing: false,
     },
     onLoad(options) {
+        this.setData({ scrollHeight: (0, navBar_1.getPageScrollHeight)() });
         this._skipNextTabRefresh = true;
         const pendingTrackId = wx.getStorageSync(nav_1.PENDING_LEADERBOARD_TRACK_KEY);
         if (pendingTrackId) {
@@ -96,12 +100,15 @@ Page({
         }
         void this.refreshPage();
     },
-    async onPullDownRefresh() {
+    async onRefresherRefresh() {
+        if (this.data.refreshing)
+            return;
+        this.setData({ refreshing: true });
         try {
             await this.refreshPage();
         }
         finally {
-            wx.stopPullDownRefresh();
+            this.setData({ refreshing: false });
         }
     },
     onShareAppMessage() {

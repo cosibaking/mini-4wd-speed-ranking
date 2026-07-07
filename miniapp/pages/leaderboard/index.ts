@@ -1,5 +1,6 @@
 import { getLeaderboard } from '../../services/record';
 import { listTracks } from '../../services/track';
+import { getPageScrollHeight } from '../../utils/navBar';
 import type { LeaderboardEntry, LeaderboardResult, TrackListItem } from '../../types';
 import { PENDING_LEADERBOARD_TRACK_KEY } from '../../utils/nav';
 
@@ -16,9 +17,12 @@ Page({
     pendingReviewCount: 0,
     loading: true,
     showPicker: false,
+    scrollHeight: 0,
+    refreshing: false,
   },
 
   onLoad(options: { trackId?: string }) {
+    this.setData({ scrollHeight: getPageScrollHeight() });
     this._skipNextTabRefresh = true;
     const pendingTrackId = wx.getStorageSync(PENDING_LEADERBOARD_TRACK_KEY) as string;
     if (pendingTrackId) {
@@ -100,11 +104,13 @@ Page({
     void this.refreshPage();
   },
 
-  async onPullDownRefresh() {
+  async onRefresherRefresh() {
+    if (this.data.refreshing) return;
+    this.setData({ refreshing: true });
     try {
       await this.refreshPage();
     } finally {
-      wx.stopPullDownRefresh();
+      this.setData({ refreshing: false });
     }
   },
 

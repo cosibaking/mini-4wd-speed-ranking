@@ -20,4 +20,6 @@ COPY --from=builder /app/db ./db
 COPY docker-entrypoint.sh ./
 RUN chmod +x docker-entrypoint.sh
 EXPOSE 80
-CMD ["./docker-entrypoint.sh"]
+# 覆盖 node 镜像自带的 ENTRYPOINT，避免与自定义启动脚本冲突
+ENTRYPOINT []
+CMD ["sh", "docker-entrypoint.sh"]

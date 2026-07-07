@@ -1,5 +1,17 @@
 <nav-bar title="帖子详情" />
 
+<scroll-view
+  class="page-scroll"
+  scroll-y
+  enhanced
+  show-scrollbar="{{false}}"
+  refresher-enabled
+  refresher-background="#F5F5F5"
+  refresher-triggered="{{refreshing}}"
+  bindrefresherrefresh="onRefresherRefresh"
+  style="height: {{scrollHeight}}px;"
+>
+
 <view class="container post-page" wx:if="{{post}}">
 
   <view class="card">
@@ -103,48 +115,48 @@
 
 
 
-  <view class="comment-bar">
+</view>
 
-    <view class="comment-bar__reply-hint" wx:if="{{replyTo}}">
+</scroll-view>
 
-      <text class="comment-bar__reply-text">回复 @{{replyTo.nickName}}</text>
+<view class="comment-bar" wx:if="{{post}}">
 
-      <text class="comment-bar__cancel-reply" bindtap="onCancelReply">取消</text>
+  <view class="comment-bar__reply-hint" wx:if="{{replyTo}}">
 
-    </view>
+    <text class="comment-bar__reply-text">回复 @{{replyTo.nickName}}</text>
 
-    <view class="comment-bar__previews" wx:if="{{commentImagePreviews.length > 0}}">
+    <text class="comment-bar__cancel-reply" bindtap="onCancelReply">取消</text>
 
-      <image
-        wx:for="{{commentImagePreviews}}"
-        wx:for-index="idx"
-        wx:key="idx"
-        class="comment-bar__preview"
-        src="{{item}}"
-        mode="aspectFill"
-      />
+  </view>
 
-    </view>
+  <view class="comment-bar__previews" wx:if="{{commentImagePreviews.length > 0}}">
 
-    <view class="comment-bar__row">
+    <image
+      wx:for="{{commentImagePreviews}}"
+      wx:for-index="idx"
+      wx:key="idx"
+      class="comment-bar__preview"
+      src="{{item}}"
+      mode="aspectFill"
+    />
 
-      <input
-        class="comment-bar__input"
-        placeholder="{{replyTo ? '回复 ' + replyTo.nickName + '…' : '写评论…'}}"
-        value="{{commentText}}"
-        bindinput="onCommentInput"
-      />
+  </view>
 
-      <view class="comment-bar__image-btn" bindtap="onAddCommentImage">📷</view>
+  <view class="comment-bar__row">
 
-      <button class="comment-bar__send" size="mini" bindtap="onSendComment">发送</button>
+    <input
+      class="comment-bar__input"
+      placeholder="{{replyTo ? '回复 ' + replyTo.nickName + '…' : '写评论…'}}"
+      value="{{commentText}}"
+      bindinput="onCommentInput"
+    />
 
-    </view>
+    <view class="comment-bar__image-btn" bindtap="onAddCommentImage">📷</view>
+
+    <button class="comment-bar__send" size="mini" bindtap="onSendComment">发送</button>
 
   </view>
 
 </view>
-
-
 
 <view class="loading-tip text-secondary" wx:if="{{loading}}">加载中…</view>

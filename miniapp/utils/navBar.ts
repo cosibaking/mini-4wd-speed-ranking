@@ -28,6 +28,13 @@ export function getNavBarLayout(): NavBarLayout {
   };
 }
 
+/** 自定义导航栏页面中 scroll-view 可用高度（px） */
+export function getPageScrollHeight(bottomInset = 0): number {
+  const sys = wx.getSystemInfoSync();
+  const { totalHeight } = getNavBarLayout();
+  return sys.windowHeight - totalHeight - bottomInset;
+}
+
 /** 与原生导航栏一致：Tab 根页且无历史栈时不显示返回 */
 export function shouldShowNavBack(): boolean {
   const pages = getCurrentPages();

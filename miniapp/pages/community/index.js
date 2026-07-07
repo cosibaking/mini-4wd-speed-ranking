@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const community_1 = require("../../services/community");
+const navBar_1 = require("../../utils/navBar");
 const mediaUrl_1 = require("../../utils/mediaUrl");
 Page({
     _skipNextTabRefresh: false,
@@ -12,8 +13,11 @@ Page({
         loading: true,
         hasMore: false,
         page: 1,
+        scrollHeight: 0,
+        refreshing: false,
     },
     onLoad() {
+        this.setData({ scrollHeight: (0, navBar_1.getPageScrollHeight)() });
         this._skipNextTabRefresh = true;
         this.init();
     },
@@ -100,12 +104,15 @@ Page({
         }
         void this.refreshPage();
     },
-    async onPullDownRefresh() {
+    async onRefresherRefresh() {
+        if (this.data.refreshing)
+            return;
+        this.setData({ refreshing: true });
         try {
             await this.refreshPage();
         }
         finally {
-            wx.stopPullDownRefresh();
+            this.setData({ refreshing: false });
         }
     },
     onShareAppMessage() {

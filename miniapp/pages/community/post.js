@@ -4,6 +4,7 @@ const auth_1 = require("../../services/auth");
 const community_1 = require("../../services/community");
 const media_1 = require("../../services/media");
 const mediaUrl_1 = require("../../utils/mediaUrl");
+const navBar_1 = require("../../utils/navBar");
 function updateCommentLike(comments, id, liked, likeCount) {
     return comments.map((item) => item.id === id ? { ...item, liked, likeCount } : item);
 }
@@ -27,11 +28,14 @@ Page({
         commentImagePreviews: [],
         replyTo: null,
         loading: true,
+        scrollHeight: 0,
+        refreshing: false,
     },
     /** chooseMedia 返回后微信可能清理临时文件，需在 onShow 中刷新评论图片 */
     _pendingCommentImageRefresh: false,
     _postId: '',
     onLoad(options) {
+        this.setData({ scrollHeight: (0, navBar_1.getPageScrollHeight)() });
         if (options.id) {
             this._postId = options.id;
             this.loadPost(options.id);
@@ -259,14 +263,15 @@ Page({
             imageUrl: (_a = post === null || post === void 0 ? void 0 : post.images) === null || _a === void 0 ? void 0 : _a[0],
         };
     },
-    async onPullDownRefresh() {
+    async onRefresherRefresh() {
+        if (this.data.refreshing || !this._postId)
+            return;
+        this.setData({ refreshing: true });
         try {
-            if (this._postId) {
-                await this.loadPost(this._postId);
-            }
+            await this.loadPost(this._postId);
         }
         finally {
-            wx.stopPullDownRefresh();
+            this.setData({ refreshing: false });
         }
     },
 });

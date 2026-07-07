@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getNavBarLayout = getNavBarLayout;
+exports.getPageScrollHeight = getPageScrollHeight;
 exports.shouldShowNavBack = shouldShowNavBack;
 exports.navigateNavBack = navigateNavBack;
 /** 导航栏内容区额外下边距（px），避免标题贴底 */
@@ -22,6 +23,12 @@ function getNavBarLayout() {
         totalHeight: sys.statusBarHeight + navBarHeight,
         menuLeft: menu.left,
     };
+}
+/** 自定义导航栏页面中 scroll-view 可用高度（px） */
+function getPageScrollHeight(bottomInset = 0) {
+    const sys = wx.getSystemInfoSync();
+    const { totalHeight } = getNavBarLayout();
+    return sys.windowHeight - totalHeight - bottomInset;
 }
 /** 与原生导航栏一致：Tab 根页且无历史栈时不显示返回 */
 function shouldShowNavBack() {

@@ -1,4 +1,15 @@
 <nav-bar title="圈速榜" />
+<scroll-view
+  class="page-scroll"
+  scroll-y
+  enhanced
+  show-scrollbar="{{false}}"
+  refresher-enabled
+  refresher-background="#F5F5F5"
+  refresher-triggered="{{refreshing}}"
+  bindrefresherrefresh="onRefresherRefresh"
+  style="height: {{scrollHeight}}px;"
+>
 <view class="container leaderboard-page">
   <view class="lb-header card">
     <view class="lb-header__select" bindtap="onTogglePicker">
@@ -62,3 +73,4 @@
 
   <view class="loading-tip" wx:if="{{loading}}">加载中…</view>
 </view>
+</scroll-view>
