@@ -20,6 +20,13 @@ Page({
         showAdminEntry: false,
         bgTiles: [],
     },
+    onShareAppMessage() {
+        // 自定义分享卡片信息
+        return {
+          title: '迷你四驱车公园赛道打榜', // 分享标题
+          path: '/pages/index/index'
+        }
+    },
     onLoad() {
         const sys = wx.getSystemInfoSync();
         const { totalHeight } = (0, navBar_1.getNavBarLayout)();

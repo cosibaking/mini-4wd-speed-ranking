@@ -13,6 +13,7 @@
     "build:server": "npm run build -w server",
     "db:migrate": "npm run build -w server && npm run db:migrate -w server",
     "db:seed": "npm run build -w server && npm run db:seed -w server",
+    "db:clear": "bash scripts/clear-all-data.sh",
     "deploy:82": "bash scripts/deploy-to-82.sh"
   },
   "engines": {

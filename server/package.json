@@ -9,8 +9,7 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "db:migrate": "node dist/scripts/migrate.js",
-    "db:seed": "node dist/scripts/seed.js",
-    "db:clear": "node dist/scripts/clearAllData.js"
+    "db:seed": "node dist/scripts/seed.js"
   },
   "dependencies": {
     "cos-nodejs-sdk-v5": "^2.14.6",
