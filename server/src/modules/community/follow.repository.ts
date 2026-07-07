@@ -41,6 +41,22 @@ export class FollowRepository {
     return row !== null;
   }
 
+  async countFollowing(userId: string): Promise<number> {
+    const row = await queryOne<RowDataPacket & { count: number }>(
+      'SELECT COUNT(*) AS count FROM follows WHERE follower_id = ?',
+      [userId],
+    );
+    return Number(row?.count ?? 0);
+  }
+
+  async countFollowers(userId: string): Promise<number> {
+    const row = await queryOne<RowDataPacket & { count: number }>(
+      'SELECT COUNT(*) AS count FROM follows WHERE followee_id = ?',
+      [userId],
+    );
+    return Number(row?.count ?? 0);
+  }
+
   async listFollowing(followerId: string, skip: number, take: number) {
     const [rows, countRow] = await Promise.all([
       query<FollowRow>(

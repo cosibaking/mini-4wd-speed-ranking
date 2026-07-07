@@ -1,7 +1,10 @@
 import { config } from '../../config/index.js';
 import { ForbiddenError, NotFoundError } from '../../shared/errors.js';
+import { buildPaginationResult, getSkip } from '../../shared/pagination.js';
 import type { AdminRole } from '../../shared/types.js';
 import { userRepository } from '../auth/user.repository.js';
+import { userService } from '../auth/user.service.js';
+import { postRepository } from '../community/post.repository.js';
 import { organizerService } from '../organizer/organizer.service.js';
 import { trackRepository } from '../track/track.repository.js';
 
@@ -119,6 +122,118 @@ export class AdminService {
     }
     await userRepository.update(userId, { adminRole: null });
     return { success: true };
+  }
+
+  async listPosts(
+    page: number,
+    pageSize: number,
+    keyword?: string,
+    authorId?: string,
+  ) {
+    const skip = (page - 1) * pageSize;
+    const { rows, total } = await postRepository.listForAdmin({
+      keyword: keyword?.trim() || undefined,
+      authorId,
+      skip,
+      take: pageSize,
+    });
+
+    const authorIds = [...new Set(rows.map((post) => post.authorId))];
+    const profiles = await userService.getPublicProfiles(authorIds);
+
+    const list = rows.map((post) => {
+      const author = profiles.get(post.authorId) ?? {
+        id: post.authorId,
+        nickName: '',
+        avatarUrl: '',
+      };
+      return {
+        id: post.id,
+        title: post.title,
+        boardName: post.board.name,
+        author,
+        likeCount: post.likeCount,
+        commentCount: post.commentCount,
+        deleted: post.deleted,
+        deletedAt: post.deletedAt?.toISOString() ?? null,
+        createdAt: post.createdAt.toISOString(),
+        coverImage: post.images[0]?.imageUrl ?? null,
+      };
+    });
+
+    return buildPaginationResult(list, total, { page, pageSize });
+  }
+
+  async getPostDetail(postId: string) {
+    const post = await postRepository.findByIdIncludingDeleted(postId);
+    if (!post) {
+      throw new NotFoundError('帖子不存在');
+    }
+
+    const profiles = await userService.getPublicProfiles([post.authorId]);
+    const author = profiles.get(post.authorId) ?? {
+      id: post.authorId,
+      nickName: '',
+      avatarUrl: '',
+    };
+
+    return {
+      id: post.id,
+      boardId: post.boardId,
+      boardName: post.board.name,
+      title: post.title,
+      content: post.content,
+      imageUrls: post.images.map((image) => image.imageUrl),
+      track: post.track ? { id: post.track.id, name: post.track.name } : undefined,
+      author,
+      likeCount: post.likeCount,
+      commentCount: post.commentCount,
+      deleted: post.deleted,
+      deletedAt: post.deletedAt?.toISOString() ?? null,
+      createdAt: post.createdAt.toISOString(),
+    };
+  }
+
+  async deletePost(postId: string) {
+    const post = await postRepository.findByIdIncludingDeleted(postId);
+    if (!post) {
+      throw new NotFoundError('帖子不存在');
+    }
+    if (post.deleted) {
+      throw new ForbiddenError('帖子已删除');
+    }
+    await postRepository.softDelete(postId);
+    return { success: true };
+  }
+
+  async restorePost(postId: string) {
+    const post = await postRepository.findByIdIncludingDeleted(postId);
+    if (!post) {
+      throw new NotFoundError('帖子不存在');
+    }
+    if (!post.deleted) {
+      throw new ForbiddenError('帖子未删除');
+    }
+    await postRepository.restore(postId);
+    return { success: true };
+  }
+
+  async getUserDetail(userId: string) {
+    const user = await userRepository.findById(userId);
+    if (!user) {
+      throw new NotFoundError('用户不存在');
+    }
+    const isSystemAdmin = this.isConfiguredAdmin(user.openId);
+    return {
+      id: user.id,
+      nickName: user.nickName,
+      avatarUrl: user.avatarUrl,
+      bio: user.bio,
+      isOrganizer: user.isOrganizerCertified,
+      adminRole: user.adminRole ?? (isSystemAdmin ? 'admin' : undefined),
+      isSystemAdmin,
+      createdAt: user.createdAt.toISOString(),
+    };
   }
 }
 

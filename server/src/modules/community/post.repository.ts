@@ -22,6 +22,8 @@ interface PostDbRow extends RowDataPacket {
   like_count: number;
   comment_count: number;
   hot_score: number;
+  deleted: number;
+  deleted_at: Date | null;
   created_at: Date;
   updated_at: Date;
 }
@@ -55,6 +57,8 @@ export type PostWithRelations = {
   likeCount: number;
   commentCount: number;
   hotScore: number;
+  deleted: boolean;
+  deletedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
   images: PostImage[];
@@ -88,6 +92,8 @@ function mapPost(
     likeCount: row.like_count,
     commentCount: row.comment_count,
     hotScore: row.hot_score,
+    deleted: Boolean(row.deleted),
+    deletedAt: row.deleted_at,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     images: images.map((image) => ({
@@ -101,8 +107,15 @@ function mapPost(
   };
 }
 
-async function loadPostRelations(postId: string): Promise<PostWithRelations | null> {
-  const post = await queryOne<PostDbRow>('SELECT * FROM posts WHERE id = ? LIMIT 1', [postId]);
+async function loadPostRelations(
+  postId: string,
+  includeDeleted = false,
+): Promise<PostWithRelations | null> {
+  const deletedFilter = includeDeleted ? '' : ' AND deleted = 0';
+  const post = await queryOne<PostDbRow>(
+    `SELECT * FROM posts WHERE id = ?${deletedFilter} LIMIT 1`,
+    [postId],
+  );
   if (!post) {
     return null;
   }
@@ -174,7 +187,11 @@ export class PostRepository {
   }
 
   async findById(postId: string): Promise<PostWithRelations | null> {
-    return loadPostRelations(postId);
+    return loadPostRelations(postId, false);
+  }
+
+  async findByIdIncludingDeleted(postId: string): Promise<PostWithRelations | null> {
+    return loadPostRelations(postId, true);
   }
 
   async list(queryParams: {
@@ -184,7 +201,7 @@ export class PostRepository {
     skip: number;
     take: number;
   }): Promise<{ rows: PostWithRelations[]; total: number }> {
-    const where: string[] = ['board_id = ?'];
+    const where: string[] = ['board_id = ?', 'deleted = 0'];
     const params: ExecuteValues = [queryParams.boardId];
 
     if (queryParams.trackId) {
@@ -232,6 +249,53 @@ export class PostRepository {
     return { rows, total: Number(countRow?.count ?? 0) };
   }
 
+  async countLikesByAuthor(authorId: string): Promise<number> {
+    const row = await queryOne<RowDataPacket & { total: number }>(
+      'SELECT COALESCE(SUM(like_count), 0) AS total FROM posts WHERE author_id = ? AND deleted = 0',
+      [authorId],
+    );
+    return Number(row?.total ?? 0);
+  }
+
+  async listByAuthor(
+    authorId: string,
+    skip: number,
+    take: number,
+  ): Promise<{ rows: PostWithRelations[]; total: number }> {
+    const [posts, countRow] = await Promise.all([
+      query<PostDbRow>(
+        'SELECT * FROM posts WHERE author_id = ? AND deleted = 0 ORDER BY created_at DESC LIMIT ? OFFSET ?',
+        [authorId, take, skip],
+      ),
+      queryOne<RowDataPacket & { count: number }>(
+        'SELECT COUNT(*) AS count FROM posts WHERE author_id = ? AND deleted = 0',
+        [authorId],
+      ),
+    ]);
+
+    const rows = await Promise.all(
+      posts.map(async (post) => {
+        const [images, board, track] = await Promise.all([
+          query<PostImageDbRow>(
+            'SELECT * FROM post_images WHERE post_id = ? ORDER BY sort_order ASC LIMIT 1',
+            [post.id],
+          ),
+          queryOne<BoardRow>('SELECT * FROM boards WHERE id = ? LIMIT 1', [post.board_id]),
+          post.track_id
+            ? queryOne<TrackBriefRow>(
+                'SELECT id, name FROM tracks WHERE id = ? LIMIT 1',
+                [post.track_id],
+              )
+            : Promise.resolve(null),
+        ]);
+
+        return mapPost(post, images, board, track);
+      }),
+    );
+
+    return { rows, total: Number(countRow?.count ?? 0) };
+  }
+
   async listFollowingFeed(queryParams: {
     followerId: string;
     skip: number;
@@ -240,7 +304,7 @@ export class PostRepository {
     const baseSql = `
       FROM posts p
       INNER JOIN follows f ON f.followee_id = p.author_id
-      WHERE f.follower_id = ?
+      WHERE f.follower_id = ? AND p.deleted = 0
     `;
 
     const [posts, countRow] = await Promise.all([
@@ -326,6 +390,76 @@ export class PostRepository {
     );
 
     return new Set(likes.map((like) => like.target_id));
+  }
+
+  async softDelete(postId: string): Promise<boolean> {
+    const result = await execute(
+      'UPDATE posts SET deleted = 1, deleted_at = NOW(3), updated_at = NOW(3) WHERE id = ? AND deleted = 0',
+      [postId],
+    );
+    return result.affectedRows > 0;
+  }
+
+  async restore(postId: string): Promise<boolean> {
+    const result = await execute(
+      'UPDATE posts SET deleted = 0, deleted_at = NULL, updated_at = NOW(3) WHERE id = ? AND deleted = 1',
+      [postId],
+    );
+    return result.affectedRows > 0;
+  }
+
+  async listForAdmin(queryParams: {
+    keyword?: string;
+    authorId?: string;
+    skip: number;
+    take: number;
+  }): Promise<{ rows: PostWithRelations[]; total: number }> {
+    const where: string[] = [];
+    const params: ExecuteValues = [];
+
+    if (queryParams.keyword) {
+      where.push('title LIKE ?');
+      params.push(`%${queryParams.keyword}%`);
+    }
+    if (queryParams.authorId) {
+      where.push('author_id = ?');
+      params.push(queryParams.authorId);
+    }
+
+    const whereSql = where.length > 0 ? `WHERE ${where.join(' AND ')}` : '';
+
+    const [posts, countRow] = await Promise.all([
+      query<PostDbRow>(
+        `SELECT * FROM posts ${whereSql} ORDER BY created_at DESC LIMIT ? OFFSET ?`,
+        [...params, queryParams.take, queryParams.skip],
+      ),
+      queryOne<RowDataPacket & { count: number }>(
+        `SELECT COUNT(*) AS count FROM posts ${whereSql}`,
+        params,
+      ),
+    ]);
+
+    const rows = await Promise.all(
+      posts.map(async (post) => {
+        const [images, board, track] = await Promise.all([
+          query<PostImageDbRow>(
+            'SELECT * FROM post_images WHERE post_id = ? ORDER BY sort_order ASC LIMIT 1',
+            [post.id],
+          ),
+          queryOne<BoardRow>('SELECT * FROM boards WHERE id = ? LIMIT 1', [post.board_id]),
+          post.track_id
+            ? queryOne<TrackBriefRow>(
+                'SELECT id, name FROM tracks WHERE id = ? LIMIT 1',
+                [post.track_id],
+              )
+            : Promise.resolve(null),
+        ]);
+
+        return mapPost(post, images, board, track);
+      }),
+    );
+
+    return { rows, total: Number(countRow?.count ?? 0) };
   }
 }
 

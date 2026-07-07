@@ -48,5 +48,22 @@ router.post(
   authMiddleware({ required: true }),
   adminController.sendNotification,
 );
+router.get('/admin/posts', authMiddleware({ required: true }), adminController.listPosts);
+router.get('/admin/posts/:id', authMiddleware({ required: true }), adminController.getPost);
+router.post(
+  '/admin/posts/:id/delete',
+  authMiddleware({ required: true }),
+  adminController.deletePost,
+);
+router.post(
+  '/admin/posts/:id/restore',
+  authMiddleware({ required: true }),
+  adminController.restorePost,
+);
+router.get(
+  '/admin/users/:userId',
+  authMiddleware({ required: true }),
+  adminController.getUserDetail,
+);
 
 export default router;

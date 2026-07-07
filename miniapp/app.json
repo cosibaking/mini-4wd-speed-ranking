@@ -33,6 +33,9 @@
         "pages/applications/index",
         "pages/tracks/index",
         "pages/users/index",
+        "pages/users/detail",
+        "pages/posts/index",
+        "pages/posts/detail",
         "pages/messages/index"
       ]
     }

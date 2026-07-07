@@ -220,17 +220,19 @@ model Board {
 }
 
 model Post {
-  id           String   @id @db.Char(36)
-  boardId      String   @map("board_id") @db.VarChar(32)
-  authorId     String   @map("author_id") @db.Char(36)
-  trackId      String?  @map("track_id") @db.Char(36)
-  title        String   @db.VarChar(100)
-  content      String   @db.Text
-  likeCount    Int      @default(0) @map("like_count") @db.UnsignedInt
-  commentCount Int      @default(0) @map("comment_count") @db.UnsignedInt
-  hotScore     Int      @default(0) @map("hot_score")
-  createdAt    DateTime @default(now()) @map("created_at") @db.DateTime(3)
-  updatedAt    DateTime @updatedAt @map("updated_at") @db.DateTime(3)
+  id           String    @id @db.Char(36)
+  boardId      String    @map("board_id") @db.VarChar(32)
+  authorId     String    @map("author_id") @db.Char(36)
+  trackId      String?   @map("track_id") @db.Char(36)
+  title        String    @db.VarChar(100)
+  content      String    @db.Text
+  likeCount    Int       @default(0) @map("like_count") @db.UnsignedInt
+  commentCount Int       @default(0) @map("comment_count") @db.UnsignedInt
+  hotScore     Int       @default(0) @map("hot_score")
+  deleted      Boolean   @default(false)
+  deletedAt    DateTime? @map("deleted_at") @db.DateTime(3)
+  createdAt    DateTime  @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt    DateTime  @updatedAt @map("updated_at") @db.DateTime(3)
 
   board    Board       @relation(fields: [boardId], references: [id])
   author   User        @relation(fields: [authorId], references: [id])

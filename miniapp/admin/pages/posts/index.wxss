@@ -1,0 +1,45 @@
+@import '../users/index.wxss';
+
+.post-item {
+  margin-bottom: 20rpx;
+  padding: 24rpx;
+}
+
+.post-item__head {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 16rpx;
+}
+
+.post-item__info {
+  flex: 1;
+}
+
+.post-item__title {
+  display: block;
+  font-size: 30rpx;
+  font-weight: 600;
+  margin-bottom: 8rpx;
+}
+
+.post-item__meta {
+  display: block;
+  font-size: 24rpx;
+  color: var(--color-text-secondary);
+  margin-top: 4rpx;
+}
+
+.post-item__badge {
+  flex-shrink: 0;
+  margin-left: 12rpx;
+}
+
+.tag--deleted {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.post-item__actions {
+  display: flex;
+  gap: 16rpx;
+}

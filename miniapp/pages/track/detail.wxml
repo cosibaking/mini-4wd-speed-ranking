@@ -11,7 +11,7 @@
         <text class="detail-chip" wx:if="{{track.lengthMeters}}">📏 {{track.lengthMeters}} 米</text>
         <text class="detail-chip" wx:if="{{track.recordCount}}">🏆 {{track.recordCount}} 人入榜</text>
       </view>
-      <text class="detail-card__hint text-secondary" wx:if="{{!detailExpanded}}">点击查看赛道详情</text>
+      <text class="detail-card__hint text-secondary" wx:if="{{!detailExpanded}}">点击标签查看赛道详情</text>
     </view>
 
     <view class="detail-card__info" wx:if="{{detailExpanded}}">

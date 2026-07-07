@@ -7,7 +7,8 @@ export interface CreatePostDto {
 }
 
 export interface PostListQuery {
-  boardId: string;
+  boardId?: string;
+  authorId?: string;
   sort?: 'latest' | 'hot';
   trackId?: string;
   page: number;
@@ -19,6 +20,7 @@ export interface PostListItem {
   title: string;
   summary: string;
   boardId: string;
+  boardName?: string;
   author: { id: string; nickName: string; avatarUrl: string };
   track?: { id: string; name: string };
   likeCount: number;

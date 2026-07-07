@@ -290,6 +290,20 @@ export class SocialService {
   async isFollowing(followerId: string, followeeId: string): Promise<boolean> {
     return followRepository.isFollowing(followerId, followeeId);
   }
+
+  async getUserSocialStats(userId: string): Promise<{
+    followingCount: number;
+    followerCount: number;
+    likeCount: number;
+  }> {
+    const [followingCount, followerCount, likeCount] = await Promise.all([
+      followRepository.countFollowing(userId),
+      followRepository.countFollowers(userId),
+      postRepository.countLikesByAuthor(userId),
+    ]);
+
+    return { followingCount, followerCount, likeCount };
+  }
 }
 
 export const socialService = new SocialService();

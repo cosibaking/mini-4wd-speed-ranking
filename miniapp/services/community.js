@@ -10,6 +10,7 @@ exports.toggleLike = toggleLike;
 exports.toggleFollow = toggleFollow;
 exports.listFollowing = listFollowing;
 exports.listFollowingPosts = listFollowingPosts;
+exports.listUserPosts = listUserPosts;
 const http_1 = require("./http");
 const config_1 = require("../config");
 const mediaUrl_1 = require("../utils/mediaUrl");
@@ -208,4 +209,10 @@ function listFollowing(query = {}) {
 }
 function listFollowingPosts(query = {}) {
     return (0, http_1.request)('/posts/following', { data: query });
+}
+function listUserPosts(authorId, query = {}) {
+    return (0, http_1.request)('/posts', {
+        data: { authorId, ...query },
+        auth: false,
+    });
 }

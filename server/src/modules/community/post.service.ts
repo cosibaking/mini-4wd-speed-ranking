@@ -32,6 +32,7 @@ function toPostListItem(
     title: post.title,
     summary: summarize(post.content),
     boardId: post.boardId,
+    boardName: post.board.name,
     author,
     track: post.track ? { id: post.track.id, name: post.track.name } : undefined,
     likeCount: post.likeCount,
@@ -142,8 +143,12 @@ export class PostService {
     query: PostListQuery,
     viewerId?: string,
   ): Promise<PaginationResult<PostListItem>> {
+    if (query.authorId) {
+      return this.listByAuthor(query.authorId, query, viewerId);
+    }
+
     if (!query.boardId) {
-      throw new ValidationError('boardId \u5fc5\u586b');
+      throw new ValidationError('boardId 必填');
     }
 
     const board = await postRepository.findBoardById(query.boardId);
@@ -184,6 +189,43 @@ export class PostService {
     });
 
     return buildPaginationResult(list, total, pagination);
+  }
+
+  async listByAuthor(
+    authorId: string,
+    query: PaginationQuery,
+    viewerId?: string,
+  ): Promise<PaginationResult<PostListItem>> {
+    const profiles = await userService.getPublicProfiles([authorId]);
+    if (!profiles.has(authorId)) {
+      throw new ValidationError('用户不存在');
+    }
+
+    const { rows, total } = await postRepository.listByAuthor(
+      authorId,
+      getSkip(query),
+      query.pageSize,
+    );
+
+    const author = profiles.get(authorId) ?? {
+      id: authorId,
+      nickName: '',
+      avatarUrl: '',
+    };
+
+    const likedIds =
+      viewerId !== undefined
+        ? await postRepository.findLikedPostIds(
+            viewerId,
+            rows.map((post) => post.id),
+          )
+        : new Set<string>();
+
+    const list = rows.map((post) =>
+      toPostListItem(post, author, viewerId !== undefined ? likedIds.has(post.id) : undefined),
+    );
+
+    return buildPaginationResult(list, total, query);
   }
 
   async listFollowingFeed(

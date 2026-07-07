@@ -29,7 +29,12 @@
     </view>
     <view class="admin-menu__item" bindtap="onUsers">
       <text class="admin-menu__title">用户管理</text>
-      <text class="admin-menu__desc">授予或撤销主理人认证</text>
+      <text class="admin-menu__desc">查看用户详情，管理帖子</text>
+      <text class="admin-menu__chevron">›</text>
+    </view>
+    <view class="admin-menu__item" bindtap="onPosts">
+      <text class="admin-menu__title">帖子管理</text>
+      <text class="admin-menu__desc">搜索、删除或恢复帖子</text>
       <text class="admin-menu__chevron">›</text>
     </view>
     <view class="admin-menu__item" bindtap="onMessages">

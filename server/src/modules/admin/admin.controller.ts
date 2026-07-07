@@ -123,3 +123,44 @@ export async function sendNotification(ctx: HttpContext): Promise<void> {
   const result = await notificationService.sendAdminMessage(input);
   ctx.body = success(result);
 }
+
+export async function listPosts(ctx: HttpContext): Promise<void> {
+  await assertAdmin(ctx);
+  const query = ctx.query as { keyword?: string; authorId?: string };
+  const pagination = parsePagination(ctx.query as Record<string, unknown>);
+  const result = await adminService.listPosts(
+    pagination.page,
+    pagination.pageSize,
+    query.keyword,
+    query.authorId,
+  );
+  ctx.body = success(result);
+}
+
+export async function getPost(ctx: HttpContext): Promise<void> {
+  await assertAdmin(ctx);
+  const { id } = ctx.params as { id: string };
+  const result = await adminService.getPostDetail(id);
+  ctx.body = success(result);
+}
+
+export async function deletePost(ctx: HttpContext): Promise<void> {
+  await assertAdmin(ctx);
+  const { id } = ctx.params as { id: string };
+  const result = await adminService.deletePost(id);
+  ctx.body = success(result);
+}
+
+export async function restorePost(ctx: HttpContext): Promise<void> {
+  await assertAdmin(ctx);
+  const { id } = ctx.params as { id: string };
+  const result = await adminService.restorePost(id);
+  ctx.body = success(result);
+}
+
+export async function getUserDetail(ctx: HttpContext): Promise<void> {
+  await assertAdmin(ctx);
+  const { userId } = ctx.params as { userId: string };
+  const result = await adminService.getUserDetail(userId);
+  ctx.body = success(result);
+}

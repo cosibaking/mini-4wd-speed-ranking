@@ -1,7 +1,9 @@
 {
   "navigationStyle": "custom",
   "usingComponents": {
-    "nav-bar": "/components/NavBar/nav-bar"
+    "nav-bar": "/components/NavBar/nav-bar",
+    "post-card": "/components/PostCard/post-card",
+    "empty-state": "/components/EmptyState/empty-state"
   },
   "navigationBarTitleText": "用户详情"
 }

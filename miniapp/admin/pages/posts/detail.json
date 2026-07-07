@@ -1,0 +1,7 @@
+{
+  "navigationStyle": "custom",
+  "navigationBarTitleText": "帖子详情",
+  "usingComponents": {
+    "nav-bar": "/components/NavBar/nav-bar"
+  }
+}

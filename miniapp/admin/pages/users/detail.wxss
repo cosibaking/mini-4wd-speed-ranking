@@ -1,0 +1,63 @@
+@import '../posts/index.wxss';
+
+.user-detail {
+  padding: 24rpx;
+  margin-bottom: 28rpx;
+}
+
+.user-detail__head {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.user-detail__avatar {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  margin-right: 20rpx;
+  background: var(--color-border);
+}
+
+.user-detail__info {
+  flex: 1;
+}
+
+.user-detail__name {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 600;
+}
+
+.user-detail__badge {
+  display: inline-block;
+  margin-top: 8rpx;
+  margin-right: 8rpx;
+}
+
+.tag--muted {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.user-detail__bio {
+  display: block;
+  font-size: 28rpx;
+  color: var(--color-text-secondary);
+  margin-bottom: 12rpx;
+  line-height: 1.5;
+}
+
+.user-detail__meta {
+  display: block;
+  font-size: 24rpx;
+  color: var(--color-text-placeholder);
+}
+
+.section-title {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+  margin-bottom: 16rpx;
+  padding-left: 4rpx;
+}

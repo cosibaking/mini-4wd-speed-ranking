@@ -12,6 +12,11 @@ exports.revokeOrganizer = revokeOrganizer;
 exports.grantAdmin = grantAdmin;
 exports.revokeAdmin = revokeAdmin;
 exports.sendAdminNotification = sendAdminNotification;
+exports.listAdminPosts = listAdminPosts;
+exports.getAdminPost = getAdminPost;
+exports.deleteAdminPost = deleteAdminPost;
+exports.restoreAdminPost = restoreAdminPost;
+exports.getAdminUserDetail = getAdminUserDetail;
 const http_1 = require("./http");
 function getAdminMe() {
     return (0, http_1.request)('/admin/me');
@@ -57,4 +62,19 @@ function sendAdminNotification(params) {
         method: 'POST',
         data: params,
     });
+}
+function listAdminPosts(params) {
+    return (0, http_1.request)('/admin/posts', { data: params });
+}
+function getAdminPost(id) {
+    return (0, http_1.request)(`/admin/posts/${id}`);
+}
+function deleteAdminPost(id) {
+    return (0, http_1.request)(`/admin/posts/${id}/delete`, { method: 'POST' });
+}
+function restoreAdminPost(id) {
+    return (0, http_1.request)(`/admin/posts/${id}/restore`, { method: 'POST' });
+}
+function getAdminUserDetail(userId) {
+    return (0, http_1.request)(`/admin/users/${userId}`);
 }

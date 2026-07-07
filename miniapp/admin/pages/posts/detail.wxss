@@ -1,0 +1,76 @@
+.post-detail {
+  padding: 24rpx;
+}
+
+.post-detail__badge {
+  display: inline-block;
+  margin-bottom: 16rpx;
+}
+
+.tag--deleted {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.post-detail__title {
+  display: block;
+  font-size: 34rpx;
+  font-weight: 700;
+  margin-bottom: 20rpx;
+}
+
+.post-detail__author {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12rpx;
+}
+
+.post-detail__avatar {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  margin-right: 12rpx;
+  background: var(--color-border);
+}
+
+.post-detail__author-name {
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.post-detail__meta {
+  display: block;
+  font-size: 24rpx;
+  color: var(--color-text-secondary);
+  margin-bottom: 20rpx;
+}
+
+.post-detail__content {
+  display: block;
+  font-size: 28rpx;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  margin-bottom: 20rpx;
+}
+
+.post-detail__images {
+  margin-bottom: 20rpx;
+}
+
+.post-detail__image {
+  width: 100%;
+  border-radius: 12rpx;
+  margin-bottom: 12rpx;
+}
+
+.post-detail__stats {
+  display: block;
+  font-size: 24rpx;
+  color: var(--color-text-secondary);
+  margin-bottom: 20rpx;
+}
+
+.post-detail__actions {
+  display: flex;
+  gap: 16rpx;
+}

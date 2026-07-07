@@ -1,0 +1,46 @@
+<nav-bar title="用户详情" />
+<view class="container" wx:if="{{user}}">
+  <view class="card user-detail">
+    <view class="user-detail__head">
+      <image class="user-detail__avatar" src="{{user.avatarUrl || '/assets/default-avatar.png'}}" mode="aspectFill" />
+      <view class="user-detail__info">
+        <text class="user-detail__name">{{user.nickName || '微信用户'}}</text>
+        <text class="user-detail__badge tag" wx:if="{{user.isOrganizer}}">已认证主理人</text>
+        <text class="user-detail__badge tag tag--muted" wx:if="{{user.adminRole}}">管理员</text>
+      </view>
+    </view>
+    <text class="user-detail__bio" wx:if="{{user.bio}}">{{user.bio}}</text>
+    <text class="user-detail__meta">注册时间：{{user.createdAt}}</text>
+  </view>
+
+  <text class="section-title">用户帖子</text>
+  <view wx:for="{{posts}}" wx:key="id" class="card post-item">
+    <view class="post-item__head" bindtap="onOpenPost" data-id="{{item.id}}">
+      <view class="post-item__info">
+        <text class="post-item__title">{{item.title}}</text>
+        <text class="post-item__meta">{{item.boardName}} · 👍 {{item.likeCount}} · 💬 {{item.commentCount}}</text>
+      </view>
+      <text class="post-item__badge tag tag--deleted" wx:if="{{item.deleted}}">已删除</text>
+    </view>
+    <view class="post-item__actions">
+      <button
+        wx:if="{{!item.deleted}}"
+        class="btn-secondary"
+        size="mini"
+        data-id="{{item.id}}"
+        catchtap="onDelete"
+      >删除</button>
+      <button
+        wx:else
+        class="btn-primary"
+        size="mini"
+        data-id="{{item.id}}"
+        catchtap="onRestore"
+      >恢复</button>
+    </view>
+  </view>
+  <empty-state
+    wx:if="{{!postsLoading && posts.length === 0}}"
+    title="该用户暂无帖子"
+  />
+</view>

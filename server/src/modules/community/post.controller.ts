@@ -26,7 +26,8 @@ export async function listPosts(ctx: HttpContext): Promise<void> {
   const pagination = parsePagination(query);
 
   const listQuery: PostListQuery = {
-    boardId: query.boardId ?? '',
+    boardId: query.boardId,
+    authorId: query.authorId,
     sort: query.sort === 'hot' ? 'hot' : 'latest',
     trackId: query.trackId,
     page: pagination.page,

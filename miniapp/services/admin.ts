@@ -128,3 +128,68 @@ export function sendAdminNotification(params: {
     data: params,
   });
 }
+
+export interface AdminPostItem {
+  id: string;
+  title: string;
+  boardName: string;
+  author: { id: string; nickName: string; avatarUrl: string };
+  likeCount: number;
+  commentCount: number;
+  deleted: boolean;
+  deletedAt: string | null;
+  createdAt: string;
+  coverImage: string | null;
+}
+
+export interface AdminPostDetail {
+  id: string;
+  boardId: string;
+  boardName: string;
+  title: string;
+  content: string;
+  imageUrls: string[];
+  track?: { id: string; name: string };
+  author: { id: string; nickName: string; avatarUrl: string };
+  likeCount: number;
+  commentCount: number;
+  deleted: boolean;
+  deletedAt: string | null;
+  createdAt: string;
+}
+
+export interface AdminUserDetail {
+  id: string;
+  nickName: string;
+  avatarUrl: string;
+  bio: string;
+  isOrganizer: boolean;
+  adminRole?: 'admin' | 'operator';
+  isSystemAdmin?: boolean;
+  createdAt: string;
+}
+
+export function listAdminPosts(params?: {
+  keyword?: string;
+  authorId?: string;
+  page?: number;
+  pageSize?: number;
+}): Promise<PaginationResult<AdminPostItem>> {
+  return request('/admin/posts', { data: params });
+}
+
+export function getAdminPost(id: string): Promise<AdminPostDetail> {
+  return request(`/admin/posts/${id}`);
+}
+
+export function deleteAdminPost(id: string): Promise<{ success: boolean }> {
+  return request(`/admin/posts/${id}/delete`, { method: 'POST' });
+}
+
+export function restoreAdminPost(id: string): Promise<{ success: boolean }> {
+  return request(`/admin/posts/${id}/restore`, { method: 'POST' });
+}
+
+export function getAdminUserDetail(userId: string): Promise<AdminUserDetail> {
+  return request(`/admin/users/${userId}`);
+}

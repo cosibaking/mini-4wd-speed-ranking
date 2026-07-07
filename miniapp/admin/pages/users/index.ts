@@ -65,6 +65,11 @@ Page({
     });
   },
 
+  onOpenUser(e: WechatMiniprogram.TouchEvent) {
+    const id = e.currentTarget.dataset.id as string;
+    wx.navigateTo({ url: `/admin/pages/users/detail?id=${id}` });
+  },
+
   onGrant(e: WechatMiniprogram.TouchEvent) {
     const userId = e.currentTarget.dataset.id as string;
     wx.showModal({

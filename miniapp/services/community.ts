@@ -224,3 +224,13 @@ export function listFollowing(query: PaginationQuery = {}): Promise<PaginationRe
 export function listFollowingPosts(query: PaginationQuery = {}): Promise<PaginationResult<PostListItem>> {
   return request('/posts/following', { data: query as Record<string, unknown> });
 }
+
+export function listUserPosts(
+  authorId: string,
+  query: PaginationQuery = {},
+): Promise<PaginationResult<PostListItem>> {
+  return request('/posts', {
+    data: { authorId, ...query } as Record<string, unknown>,
+    auth: false,
+  });
+}

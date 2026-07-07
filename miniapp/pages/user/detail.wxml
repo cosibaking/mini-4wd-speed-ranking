@@ -8,6 +8,21 @@
 
     <text class="user-detail__name">{{user.nickName || '微信用户'}}</text>
 
+    <view class="user-detail__stats">
+      <view class="user-detail__stat">
+        <text class="user-detail__stat-num">{{user.followingCount || 0}}</text>
+        <text class="user-detail__stat-label text-secondary">关注</text>
+      </view>
+      <view class="user-detail__stat">
+        <text class="user-detail__stat-num">{{user.followerCount || 0}}</text>
+        <text class="user-detail__stat-label text-secondary">粉丝</text>
+      </view>
+      <view class="user-detail__stat">
+        <text class="user-detail__stat-num">{{user.likeCount || 0}}</text>
+        <text class="user-detail__stat-label text-secondary">获赞</text>
+      </view>
+    </view>
+
     <text class="user-detail__bio text-secondary">{{user.bio || '这个人很懒，什么都没写'}}</text>
 
     <button
@@ -25,6 +40,22 @@
       bindtap="onEditProfile"
     >编辑资料</button>
 
+  </view>
+
+  <view class="user-posts">
+    <text class="user-posts__title">{{isSelf ? '我的帖子' : 'TA 的帖子'}}</text>
+
+    <block wx:if="{{posts.length > 0}}">
+      <post-card wx:for="{{posts}}" wx:key="id" post="{{item}}" />
+    </block>
+
+    <empty-state
+      wx:if="{{!postsLoading && posts.length === 0}}"
+      title="暂无帖子"
+      desc="该用户还没有发布过帖子"
+    />
+
+    <view class="loading-tip text-secondary" wx:if="{{postsLoading}}">加载中…</view>
   </view>
 
 </view>

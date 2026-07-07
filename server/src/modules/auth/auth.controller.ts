@@ -69,8 +69,11 @@ export async function getUser(ctx: HttpContext): Promise<void> {
     following = await socialService.isFollowing(viewerId, userId);
   }
 
+  const stats = await socialService.getUserSocialStats(userId);
+
   ctx.body = success({
     ...user,
+    ...stats,
     ...(following !== undefined ? { following } : {}),
   });
 }

@@ -1,0 +1,44 @@
+<nav-bar title="帖子管理" />
+<view class="container">
+  <view class="search-bar">
+    <text class="search-bar__icon">🔍</text>
+    <input
+      class="search-bar__input"
+      placeholder="按标题搜索帖子"
+      value="{{keyword}}"
+      bindinput="onSearchInput"
+      bindconfirm="onSearch"
+      confirm-type="search"
+    />
+  </view>
+  <view wx:for="{{list}}" wx:key="id" class="card post-item">
+    <view class="post-item__head" bindtap="onOpenPost" data-id="{{item.id}}">
+      <view class="post-item__info">
+        <text class="post-item__title">{{item.title}}</text>
+        <text class="post-item__meta">{{item.author.nickName || '微信用户'}} · {{item.boardName}}</text>
+        <text class="post-item__meta">👍 {{item.likeCount}} · 💬 {{item.commentCount}}</text>
+      </view>
+      <text class="post-item__badge tag tag--deleted" wx:if="{{item.deleted}}">已删除</text>
+    </view>
+    <view class="post-item__actions">
+      <button
+        wx:if="{{!item.deleted}}"
+        class="btn-secondary"
+        size="mini"
+        data-id="{{item.id}}"
+        catchtap="onDelete"
+      >删除</button>
+      <button
+        wx:else
+        class="btn-primary"
+        size="mini"
+        data-id="{{item.id}}"
+        catchtap="onRestore"
+      >恢复</button>
+    </view>
+  </view>
+  <empty-state
+    wx:if="{{!loading && list.length === 0}}"
+    title="{{keyword ? '未找到匹配帖子' : '暂无帖子'}}"
+  />
+</view>

@@ -51,6 +51,10 @@ Page({
             list: filterUsers(this.data.allList, keyword),
         });
     },
+    onOpenUser(e) {
+        const id = e.currentTarget.dataset.id;
+        wx.navigateTo({ url: `/admin/pages/users/detail?id=${id}` });
+    },
     onGrant(e) {
         const userId = e.currentTarget.dataset.id;
         wx.showModal({

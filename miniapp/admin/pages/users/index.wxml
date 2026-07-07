@@ -11,7 +11,7 @@
     />
   </view>
   <view wx:for="{{list}}" wx:key="id" class="card user-item">
-    <view class="user-item__head">
+    <view class="user-item__head" bindtap="onOpenUser" data-id="{{item.id}}">
       <image class="user-item__avatar" src="{{item.avatarUrl || '/assets/default-avatar.png'}}" mode="aspectFill" />
       <view class="user-item__info">
         <text class="user-item__name">{{item.nickName || '微信用户'}}</text>

@@ -57,6 +57,9 @@ export interface PublicUser {
 
 export interface PublicUserDetail extends PublicUser {
   following?: boolean;
+  followingCount?: number;
+  followerCount?: number;
+  likeCount?: number;
 }
 
 export interface LeaderboardSummary {
@@ -157,6 +160,7 @@ export interface Board {
 export interface PostListItem {
   id: string;
   boardId: string;
+  boardName?: string;
   title: string;
   summary: string;
   author: PublicUser;

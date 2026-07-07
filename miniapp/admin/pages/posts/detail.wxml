@@ -1,0 +1,39 @@
+<nav-bar title="帖子详情" />
+<view class="container" wx:if="{{post}}">
+  <view class="card post-detail">
+    <text class="post-detail__badge tag tag--deleted" wx:if="{{post.deleted}}">已删除</text>
+    <text class="post-detail__title">{{post.title}}</text>
+    <view class="post-detail__author" bindtap="onOpenUser" data-id="{{post.author.id}}">
+      <image class="post-detail__avatar" src="{{post.author.avatarUrl || '/assets/default-avatar.png'}}" mode="aspectFill" />
+      <text class="post-detail__author-name">{{post.author.nickName || '微信用户'}}</text>
+    </view>
+    <text class="post-detail__meta">{{post.boardName}}<text wx:if="{{post.track}}"> · {{post.track.name}}</text></text>
+    <text class="post-detail__content">{{post.content}}</text>
+    <view class="post-detail__images" wx:if="{{images.length > 0}}">
+      <image
+        wx:for="{{images}}"
+        wx:key="*this"
+        class="post-detail__image"
+        src="{{item}}"
+        mode="widthFix"
+        bindtap="onPreviewImage"
+        data-url="{{item}}"
+      />
+    </view>
+    <text class="post-detail__stats">👍 {{post.likeCount}} · 💬 {{post.commentCount}}</text>
+    <view class="post-detail__actions">
+      <button
+        wx:if="{{!post.deleted}}"
+        class="btn-secondary"
+        size="mini"
+        bindtap="onDelete"
+      >删除</button>
+      <button
+        wx:else
+        class="btn-primary"
+        size="mini"
+        bindtap="onRestore"
+      >恢复</button>
+    </view>
+  </view>
+</view>
