@@ -53,9 +53,13 @@ Page({
 
   /** chooseMedia 返回后微信可能清理临时文件，需在 onShow 中刷新评论图片 */
   _pendingCommentImageRefresh: false,
+  _postId: '',
 
   onLoad(options: { id?: string }) {
-    if (options.id) this.loadPost(options.id);
+    if (options.id) {
+      this._postId = options.id;
+      this.loadPost(options.id);
+    }
   },
 
   onShow() {
@@ -275,5 +279,15 @@ Page({
       title: post?.title || '社区帖子',
       path: `/pages/community/post?id=${post?.id}`,
     };
+  },
+
+  async onPullDownRefresh() {
+    try {
+      if (this._postId) {
+        await this.loadPost(this._postId);
+      }
+    } finally {
+      wx.stopPullDownRefresh();
+    }
   },
 });

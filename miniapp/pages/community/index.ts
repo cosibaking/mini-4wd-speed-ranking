@@ -3,6 +3,8 @@ import type { Board, PostListItem } from '../../types';
 import { resolveDisplayImageUrl } from '../../utils/mediaUrl';
 
 Page({
+  _skipNextTabRefresh: false,
+
   data: {
     boards: [] as Board[],
     activeBoardId: '',
@@ -14,6 +16,7 @@ Page({
   },
 
   onLoad() {
+    this._skipNextTabRefresh = true;
     this.init();
   },
 
@@ -83,6 +86,30 @@ Page({
   onReachBottom() {
     if (this.data.hasMore && !this.data.loading) {
       this.loadPosts(false);
+    }
+  },
+
+  async refreshPage() {
+    if (this.data.activeBoardId) {
+      await this.loadPosts(true);
+    } else {
+      await this.init();
+    }
+  },
+
+  onTabItemTap() {
+    if (this._skipNextTabRefresh) {
+      this._skipNextTabRefresh = false;
+      return;
+    }
+    void this.refreshPage();
+  },
+
+  async onPullDownRefresh() {
+    try {
+      await this.refreshPage();
+    } finally {
+      wx.stopPullDownRefresh();
     }
   },
 });

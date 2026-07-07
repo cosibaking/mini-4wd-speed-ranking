@@ -4,6 +4,7 @@ const record_1 = require("../../services/record");
 const track_1 = require("../../services/track");
 const nav_1 = require("../../utils/nav");
 Page({
+    _skipNextTabRefresh: false,
     data: {
         trackId: '',
         trackName: '',
@@ -16,6 +17,7 @@ Page({
         showPicker: false,
     },
     onLoad(options) {
+        this._skipNextTabRefresh = true;
         const pendingTrackId = wx.getStorageSync(nav_1.PENDING_LEADERBOARD_TRACK_KEY);
         if (pendingTrackId) {
             wx.removeStorageSync(nav_1.PENDING_LEADERBOARD_TRACK_KEY);
@@ -78,5 +80,28 @@ Page({
     },
     onUpload() {
         wx.navigateTo({ url: `/pages/record/submit?trackId=${this.data.trackId}` });
+    },
+    async refreshPage() {
+        if (this.data.trackId) {
+            await this.loadLeaderboard(this.data.trackId);
+        }
+        else {
+            await this.init();
+        }
+    },
+    onTabItemTap() {
+        if (this._skipNextTabRefresh) {
+            this._skipNextTabRefresh = false;
+            return;
+        }
+        void this.refreshPage();
+    },
+    async onPullDownRefresh() {
+        try {
+            await this.refreshPage();
+        }
+        finally {
+            wx.stopPullDownRefresh();
+        }
     },
 });

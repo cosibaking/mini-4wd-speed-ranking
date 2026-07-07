@@ -31,6 +31,7 @@ class UploadCancelledError extends Error {
     }
 }
 exports.UploadCancelledError = UploadCancelledError;
+/** mock 模式：经服务端 /mock-media/upload 代理写入 */
 function isMockProxyUpload(uploadUrl) {
     return uploadUrl.includes('/mock-media/upload/');
 }
@@ -67,11 +68,13 @@ function uploadViaMockProxy(uploadUrl, objectKey, filePath) {
         });
     });
 }
+/** 本地服务端 /media/upload 代理（兼容旧逻辑） */
 function uploadViaLocalServerProxy(objectKey, filePath) {
     const uploadUrl = `${(0, http_1.getApiBase)()}/media/upload`;
     logMedia(`upload local server proxy objectKey=${objectKey} url=${uploadUrl}`);
     return uploadViaMockProxy(uploadUrl, objectKey, filePath);
 }
+/** 真实 COS：客户端直传预签名 PUT URL */
 function uploadViaPresignedPut(uploadUrl, filePath, headers) {
     logMedia(`upload COS presigned PUT url=${uploadUrl.slice(0, 80)}...`);
     return new Promise((resolve, reject) => {
@@ -135,6 +138,7 @@ async function resolveFileSize(tempFilePath, reportedSize) {
     }
     return getLocalFileSize(tempFilePath);
 }
+/** 上传本地图片文件，返回可入库的媒体地址 */
 async function uploadLocalImage(tempFilePath, purpose) {
     logMedia(`uploadLocalImage start purpose=${purpose} path=${tempFilePath}`);
     const fileExt = inferImageExt(tempFilePath);
@@ -157,6 +161,7 @@ async function uploadLocalImage(tempFilePath, purpose) {
         throw error;
     }
 }
+/** 选择并上传图片 */
 async function chooseAndUploadImage(purpose, count = 1) {
     const res = await new Promise((resolve, reject) => {
         wx.chooseMedia({
@@ -180,6 +185,7 @@ async function chooseAndUploadImage(purpose, count = 1) {
     }
     return urls;
 }
+/** 选择并上传视频 */
 async function chooseAndUploadVideo(purpose) {
     const res = await new Promise((resolve, reject) => {
         wx.chooseMedia({

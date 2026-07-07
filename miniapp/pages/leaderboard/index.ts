@@ -4,6 +4,8 @@ import type { LeaderboardEntry, LeaderboardResult, TrackListItem } from '../../t
 import { PENDING_LEADERBOARD_TRACK_KEY } from '../../utils/nav';
 
 Page({
+  _skipNextTabRefresh: false,
+
   data: {
     trackId: '',
     trackName: '',
@@ -17,6 +19,7 @@ Page({
   },
 
   onLoad(options: { trackId?: string }) {
+    this._skipNextTabRefresh = true;
     const pendingTrackId = wx.getStorageSync(PENDING_LEADERBOARD_TRACK_KEY) as string;
     if (pendingTrackId) {
       wx.removeStorageSync(PENDING_LEADERBOARD_TRACK_KEY);
@@ -79,5 +82,29 @@ Page({
 
   onUpload() {
     wx.navigateTo({ url: `/pages/record/submit?trackId=${this.data.trackId}` });
+  },
+
+  async refreshPage() {
+    if (this.data.trackId) {
+      await this.loadLeaderboard(this.data.trackId);
+    } else {
+      await this.init();
+    }
+  },
+
+  onTabItemTap() {
+    if (this._skipNextTabRefresh) {
+      this._skipNextTabRefresh = false;
+      return;
+    }
+    void this.refreshPage();
+  },
+
+  async onPullDownRefresh() {
+    try {
+      await this.refreshPage();
+    } finally {
+      wx.stopPullDownRefresh();
+    }
   },
 });

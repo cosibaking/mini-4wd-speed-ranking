@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const community_1 = require("../../services/community");
 const mediaUrl_1 = require("../../utils/mediaUrl");
 Page({
+    _skipNextTabRefresh: false,
     data: {
         boards: [],
         activeBoardId: '',
@@ -13,6 +14,7 @@ Page({
         page: 1,
     },
     onLoad() {
+        this._skipNextTabRefresh = true;
         this.init();
     },
     async init() {
@@ -81,6 +83,29 @@ Page({
     onReachBottom() {
         if (this.data.hasMore && !this.data.loading) {
             this.loadPosts(false);
+        }
+    },
+    async refreshPage() {
+        if (this.data.activeBoardId) {
+            await this.loadPosts(true);
+        }
+        else {
+            await this.init();
+        }
+    },
+    onTabItemTap() {
+        if (this._skipNextTabRefresh) {
+            this._skipNextTabRefresh = false;
+            return;
+        }
+        void this.refreshPage();
+    },
+    async onPullDownRefresh() {
+        try {
+            await this.refreshPage();
+        }
+        finally {
+            wx.stopPullDownRefresh();
         }
     },
 });
